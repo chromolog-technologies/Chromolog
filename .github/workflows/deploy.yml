@@ -20,10 +20,12 @@ jobs:
           node-version: 24
 
       - name: 📦 Install Dependencies
-        run: npm install
+        run: npm install --legacy-peer-deps
+        working-directory: ./frontend
 
       - name: 🏗️ Build Production Bundle
         run: npm run build
+        working-directory: ./frontend
 
       - name: 🚀 FTP Deploy to Hostinger
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
@@ -32,7 +34,7 @@ jobs:
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           port: 21
-          local-dir: ./dist/
-          server-dir: ./public_html/
+          local-dir: ./frontend/dist/
+          server-dir: ./
           security: loose
 
