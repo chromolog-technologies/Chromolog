@@ -19,6 +19,12 @@ import CookieConsent from "./components/CookieConsent";
 import PageLoader from "./components/PageLoader";
 import ScrollProgress from "./components/motion/ScrollProgress";
 import PageTransition from "./components/motion/PageTransition";
+import { AuthProvider, useAuth } from "./context/AuthContext";
+import AdminLayout from "./components/admin/AdminLayout";
+import AdminLogin from "./pages/admin/AdminLogin";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import LeadsManager from "./pages/admin/LeadsManager";
+import AnalyticsOverview from "./pages/admin/AnalyticsOverview";
 
 // Lazy-loaded below-the-fold home sections & pages
 const BusinessCore = lazy(() => import("./components/BusinessCore"));
@@ -48,6 +54,7 @@ const ServicesIndex = lazy(() => import("./pages/ServicesIndex"));
 const ServiceDetail = lazy(() => import("./pages/ServiceDetail"));
 const CaseStudies = lazy(() => import("./pages/CaseStudies"));
 const FreeConsultation = lazy(() => import("./pages/FreeConsultation"));
+const AdminPortal = lazy(() => import("./pages/admin/AdminPortal"));
 const LocationPage = lazy(() => import("./pages/LocationPage"));
 const IndustryPage = lazy(() => import("./pages/IndustryPage"));
 // Lazy-loaded heavy components
@@ -263,6 +270,7 @@ export default function App() {
   const industrySlug = isIndustryPage ? activePage.replace("industries/", "") : null;
 
   return (
+    <AuthProvider>
     <div className="relative min-h-screen bg-bg-dark text-white-text overflow-hidden font-body selection:bg-primary/30 selection:text-white">
       {/* Scroll Progress Bar */}
       {activePage === "home" && <ScrollProgress />}
@@ -402,7 +410,13 @@ export default function App() {
               <Maintenance />
             </Suspense>
           )}
-          {!["home", "services", "case-studies", "free-consultation", "privacy", "terms", "blog", "careers", "products", "500", "offline", "maintenance"].includes(activePage) &&
+          {activePage === "admin" && (
+            <Suspense fallback={<SectionSkeleton />}>
+              <AdminPortal />
+            </Suspense>
+          )}
+
+          {!["home", "services", "case-studies", "free-consultation", "privacy", "terms", "blog", "careers", "products", "admin", "500", "offline", "maintenance"].includes(activePage) &&
             !isServiceDetail && !isLocationPage && !isIndustryPage && (
             <Suspense fallback={<SectionSkeleton />}>
               <NotFound setActivePage={setActivePage} />
@@ -446,5 +460,6 @@ export default function App() {
       {/* Mobile Sticky Action Bar */}
       <MobileStickyBar onOpenAudit={() => setIsAuditModalOpen(true)} />
     </div>
+    </AuthProvider>
   );
 }

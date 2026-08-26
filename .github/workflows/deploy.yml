@@ -17,10 +17,10 @@ jobs:
       - name: 🟢 Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
 
       - name: 📦 Install Dependencies
-        run: npm install --legacy-peer-deps
+        run: npm install
 
       - name: 🏗️ Build Production Bundle
         run: npm run build
@@ -33,6 +33,6 @@ jobs:
           password: ${{ secrets.FTP_PASSWORD }}
           port: 21
           local-dir: ./dist/
-          server-dir: ./
-
+          server-dir: ./public_html/
+          security: loose
 
