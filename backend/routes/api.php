@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\V1\AnalyticsHubController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\LeadController;
 use App\Http\Controllers\Api\V1\MetaWebhookController;
+use App\Http\Controllers\Api\V1\SeoMetaController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -31,6 +32,14 @@ Route::prefix('v1')->group(function () {
 
         // Analytics & KPI Dashboard
         Route::get('/analytics/overview', [AnalyticsHubController::class, 'overview']);
+
+        // SEO Metadata CRUD Management
+        Route::get('/seo', [SeoMetaController::class, 'index']);
+        Route::post('/seo', [SeoMetaController::class, 'store']);
+        Route::post('/seo/generate-sitemap', [SeoMetaController::class, 'generateSitemap']);
+        Route::get('/seo/{seoMeta}', [SeoMetaController::class, 'show']);
+        Route::put('/seo/{seoMeta}', [SeoMetaController::class, 'update']);
+        Route::delete('/seo/{seoMeta}', [SeoMetaController::class, 'destroy']);
 
         // Lead CRM Management
         Route::get('/leads', [LeadController::class, 'index']);

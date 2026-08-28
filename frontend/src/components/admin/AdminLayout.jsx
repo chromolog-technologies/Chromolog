@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { LayoutDashboard, Users, BarChart3, Layers, Briefcase, LogOut, ArrowLeft, Shield } from "lucide-react";
+import { LayoutDashboard, Users, BarChart3, Layers, Briefcase, LogOut, ArrowLeft, Shield, Globe } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import BrandLogo from "../BrandLogo";
 
@@ -10,6 +10,7 @@ export default function AdminLayout({ activeTab, setActiveTab, children }) {
   const navItems = [
     { id: "overview", label: "Dashboard Overview", icon: LayoutDashboard },
     { id: "leads", label: "Lead CRM (Multi-Source)", icon: Users, badge: "CRM" },
+    { id: "seo", label: "SEO Meta CRUD Manager", icon: Globe, badge: "SEO" },
     { id: "analytics", label: "Analytics & Search Console", icon: BarChart3 },
     { id: "services", label: "Services CMS", icon: Layers },
     { id: "projects", label: "Portfolio Projects", icon: Briefcase },

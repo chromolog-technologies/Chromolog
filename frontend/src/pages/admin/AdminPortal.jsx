@@ -5,6 +5,7 @@ import AdminLogin from "./AdminLogin";
 import AdminDashboard from "./AdminDashboard";
 import LeadsManager from "./LeadsManager";
 import AnalyticsOverview from "./AnalyticsOverview";
+import SeoManager from "./SeoManager";
 
 export default function AdminPortal() {
   const { isAuthenticated } = useAuth();
@@ -18,6 +19,7 @@ export default function AdminPortal() {
     <AdminLayout activeTab={activeTab} setActiveTab={setActiveTab}>
       {activeTab === "overview" && <AdminDashboard onNavigateTab={setActiveTab} />}
       {activeTab === "leads" && <LeadsManager />}
+      {activeTab === "seo" && <SeoManager />}
       {activeTab === "analytics" && <AnalyticsOverview />}
       {activeTab === "services" && <AdminDashboard onNavigateTab={setActiveTab} />}
       {activeTab === "projects" && <AdminDashboard onNavigateTab={setActiveTab} />}
