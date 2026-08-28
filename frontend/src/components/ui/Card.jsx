@@ -13,14 +13,14 @@ export default function Card({
   const baseCard = "relative rounded-2xl border transition-all duration-300 overflow-hidden";
   
   const variants = {
-    glass: "bg-white/[0.03] backdrop-blur-xl border-white/[0.08] text-white",
-    feature: "bg-surface-secondary border-white/[0.06] text-white hover:border-primary/30",
-    pricing: "bg-surface border-white/[0.08] hover:border-primary/40 shadow-xl",
-    product: "bg-surface border-white/[0.06] shadow-md hover:shadow-2xl hover:shadow-primary/5",
-    project: "bg-surface-secondary border-white/[0.08] hover:border-accent/40 shadow-lg",
-    statistic: "bg-white/[0.02] backdrop-blur-lg border-white/[0.08] text-center p-6 text-white",
-    ai: "bg-gradient-to-br from-surface to-surface-secondary border-white/[0.08] shadow-2xl hover:border-purple-glow/40 text-white",
-    hover: "bg-surface-secondary border-white/[0.05] hover:bg-white/[0.06] cursor-pointer text-white",
+    glass: "bg-white/80 backdrop-blur-xl border-slate-200/80 text-slate-900 shadow-sm hover:shadow-md",
+    feature: "bg-white border-slate-200 text-slate-900 shadow-sm hover:border-primary/40 hover:shadow-lg",
+    pricing: "bg-white border-slate-200 text-slate-900 hover:border-primary/40 shadow-md hover:shadow-xl",
+    product: "bg-white border-slate-200 text-slate-900 shadow-sm hover:shadow-xl hover:shadow-primary/5",
+    project: "bg-white border-slate-200 text-slate-900 hover:border-primary/40 shadow-sm hover:shadow-md",
+    statistic: "bg-white/90 backdrop-blur-lg border-slate-200 text-center p-6 text-slate-900 shadow-sm",
+    ai: "bg-gradient-to-br from-white to-slate-50 border-slate-200 shadow-lg hover:border-primary/40 text-slate-900",
+    hover: "bg-white border-slate-200 hover:bg-slate-50 cursor-pointer text-slate-900 shadow-sm",
   };
 
   const hovers = {

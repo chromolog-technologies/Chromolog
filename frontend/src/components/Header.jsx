@@ -148,7 +148,7 @@ export default function Header({ activePage = "home", setActivePage, navigateToS
     <header
       className={`fixed top-0 left-0 right-0 z-40 transition-all duration-500 border-b ${
         isScrolled
-          ? "bg-bg-dark/85 backdrop-blur-xl border-white/[0.08] py-3 shadow-[0_4px_30px_rgba(0,0,0,0.4)]"
+          ? "bg-white/90 backdrop-blur-xl border-slate-200/80 py-3 shadow-md"
           : "bg-transparent border-transparent py-5"
       }`}
     >
@@ -164,7 +164,7 @@ export default function Header({ activePage = "home", setActivePage, navigateToS
             whileHover={{ scale: 1.03 }}
             transition={{ duration: 0.25, ease: easings.snappy }}
           >
-            <div className="absolute inset-0 bg-gradient-to-r from-accent/20 to-purple-glow/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-full" />
+            <div className="absolute inset-0 bg-gradient-to-r from-primary/10 to-secondary/10 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-full" />
             <BrandLogo className="h-20 w-auto sm:h-22 lg:h-24 max-w-[300px]" />
           </motion.a>
 
@@ -177,7 +177,7 @@ export default function Header({ activePage = "home", setActivePage, navigateToS
                 onClick={(e) => handleLinkClick(e, item.id)}
                 aria-current={isActive(item) ? "page" : undefined}
                 className={`relative whitespace-nowrap px-2.5 2xl:px-3 py-2 text-[12px] 2xl:text-sm font-heading font-semibold transition-colors duration-300 group ${
-                  isActive(item) ? "text-white-text" : "text-muted-text hover:text-white-text"
+                  isActive(item) ? "text-primary font-bold" : "text-slate-600 hover:text-primary"
                 }`}
               >
                 <span className="relative z-10">{item.label}</span>
@@ -188,8 +188,8 @@ export default function Header({ activePage = "home", setActivePage, navigateToS
                     layoutId="nav-active-indicator"
                     className="absolute bottom-0.5 left-2 right-2 h-0.5 rounded-full"
                     style={{
-                      background: "linear-gradient(90deg, #4f46e5, #00e5ff)",
-                      boxShadow: "0 0 8px rgba(0, 229, 255, 0.4)",
+                      background: "linear-gradient(90deg, #2563eb, #0ea5e9)",
+                      boxShadow: "0 0 8px rgba(37, 99, 235, 0.4)",
                     }}
                     transition={{ duration: 0.35, ease: easings.smooth }}
                   />
@@ -197,7 +197,7 @@ export default function Header({ activePage = "home", setActivePage, navigateToS
 
                 {/* Hover underline for non-active items */}
                 {!isActive(item) && (
-                  <span className="absolute bottom-0.5 left-2.5 right-2.5 h-0.5 bg-gradient-to-r from-primary to-accent transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-300 rounded-full" />
+                  <span className="absolute bottom-0.5 left-2.5 right-2.5 h-0.5 bg-gradient-to-r from-primary to-secondary transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-300 rounded-full" />
                 )}
               </a>
             ))}
@@ -208,7 +208,7 @@ export default function Header({ activePage = "home", setActivePage, navigateToS
             <motion.a
               href="/case-studies"
               onClick={(e) => handleLinkClick(e, "case-studies")}
-              className="text-sm font-heading font-semibold text-white-text hover:text-accent transition-colors duration-300"
+              className="text-sm font-heading font-semibold text-slate-700 hover:text-primary transition-colors duration-300"
               whileHover={{ y: -1 }}
               transition={{ duration: 0.2 }}
             >
