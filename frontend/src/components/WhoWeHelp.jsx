@@ -37,10 +37,10 @@ export default function WhoWeHelp() {
           <Badge variant="status" color="info" className="px-3.5 py-1 text-xs font-semibold">
             Ideal Business Partnerships
           </Badge>
-          <h2 className="text-3xl sm:text-5xl font-extrabold font-heading text-white tracking-tight">
+          <h2 className="text-3xl sm:text-5xl font-extrabold font-heading text-slate-900 tracking-tight">
             Industries We Serve
           </h2>
-          <p className="text-xs sm:text-base text-muted-text font-body leading-relaxed">
+          <p className="text-xs sm:text-base text-slate-600 font-body leading-relaxed">
             We partner with business owners and executive teams who recognize that technology is their strongest competitive advantage.
           </p>
         </div>
@@ -48,15 +48,15 @@ export default function WhoWeHelp() {
         {/* 4 Persona Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
           {personas.map((p, idx) => (
-            <Card key={idx} variant="glass" className="p-6 border-white/[0.08] flex flex-col justify-between space-y-4 hover:border-accent/40 transition-all group">
+            <Card key={idx} variant="glass" className="p-6 border-slate-200/80 flex flex-col justify-between space-y-4 hover:border-primary/40 transition-all group">
               <div className="space-y-3">
-                <div className="w-10 h-10 rounded-xl bg-accent/10 text-accent flex items-center justify-center border border-accent/20">
+                <div className="w-10 h-10 rounded-xl bg-blue-50 text-primary flex items-center justify-center border border-blue-200">
                   <p.icon className="w-5 h-5" />
                 </div>
-                <h3 className="text-base font-bold font-heading text-white group-hover:text-accent transition-colors">
+                <h3 className="text-base font-bold font-heading text-slate-900 group-hover:text-primary transition-colors">
                   {p.title}
                 </h3>
-                <p className="text-xs text-muted-text font-body leading-relaxed">{p.desc}</p>
+                <p className="text-xs text-slate-600 font-body leading-relaxed">{p.desc}</p>
               </div>
             </Card>
           ))}

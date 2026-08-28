@@ -12,16 +12,16 @@ export default function Badge({
   
   const variants = {
     status: {
-      primary: "bg-primary/20 border-primary/40 text-indigo-200 shadow-[0_0_8px_rgba(79,70,229,0.15)]",
-      secondary: "bg-secondary/20 border-secondary/40 text-cyan-200 shadow-[0_0_8px_rgba(6,182,212,0.15)]",
-      success: "bg-success/20 border-success/40 text-emerald-200 shadow-[0_0_8px_rgba(34,197,94,0.15)]",
-      warning: "bg-warning/20 border-warning/40 text-amber-200 shadow-[0_0_8px_rgba(245,158,11,0.15)]",
-      error: "bg-error/20 border-error/40 text-rose-200 shadow-[0_0_8px_rgba(239,68,68,0.15)]",
-      info: "bg-secondary/20 border-secondary/40 text-cyan-200 shadow-[0_0_8px_rgba(6,182,212,0.15)]",
+      primary: "bg-blue-50 border-blue-200 text-blue-700 font-bold",
+      secondary: "bg-sky-50 border-sky-200 text-sky-700 font-bold",
+      success: "bg-emerald-50 border-emerald-200 text-emerald-700 font-bold",
+      warning: "bg-amber-50 border-amber-200 text-amber-800 font-bold",
+      error: "bg-rose-50 border-rose-200 text-rose-700 font-bold",
+      info: "bg-sky-50 border-sky-200 text-sky-700 font-bold",
     },
-    new: "bg-accent/20 border-accent/40 text-accent animate-pulse",
-    ai: "bg-gradient-to-r from-primary/20 to-purple-glow/20 border-purple-glow/40 text-accent shadow-[0_0_12px_rgba(124,58,237,0.2)]",
-    enterprise: "bg-white/10 border-white/20 text-white hover:border-white/30 transition-all",
+    new: "bg-blue-50 border-blue-300 text-blue-600 font-bold animate-pulse",
+    ai: "bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200 text-blue-700 font-bold shadow-sm",
+    enterprise: "bg-slate-100 border-slate-200 text-slate-800 font-bold transition-all",
   };
 
   const getStyle = () => {

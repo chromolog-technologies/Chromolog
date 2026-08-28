@@ -72,10 +72,10 @@ export default function Services({ setActivePage }) {
           <Badge variant="ai" className="px-3.5 py-1 text-xs">
             What Can We Modernize?
           </Badge>
-          <h2 className="text-3xl sm:text-5xl font-extrabold font-heading text-white tracking-tight">
+          <h2 className="text-3xl sm:text-5xl font-extrabold font-heading text-slate-900 tracking-tight">
             What We Build
           </h2>
-          <p className="text-xs sm:text-base text-muted-text font-body leading-relaxed">
+          <p className="text-xs sm:text-base text-slate-600 font-body leading-relaxed">
             We don't offer generic IT catalog items. We engineer specific digital systems designed to solve operational friction and drive revenue growth.
           </p>
         </div>
@@ -83,26 +83,26 @@ export default function Services({ setActivePage }) {
         {/* Categories Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {categories.map((cat) => (
-            <Card key={cat.id} variant="glass" className="p-6 border-white/[0.08] flex flex-col justify-between space-y-5 hover:border-accent/40 transition-all">
+            <Card key={cat.id} variant="glass" className="p-6 border-slate-200/80 flex flex-col justify-between space-y-5 hover:border-primary/40 transition-all">
               <div className="space-y-4">
-                <div className="text-xs font-bold font-heading text-accent">{cat.badge}</div>
-                <h3 className="text-xl font-bold font-heading text-white">{cat.title}</h3>
-                <p className="text-xs text-muted-text font-body leading-relaxed">{cat.desc}</p>
+                <div className="text-xs font-bold font-heading text-primary">{cat.badge}</div>
+                <h3 className="text-xl font-bold font-heading text-slate-900">{cat.title}</h3>
+                <p className="text-xs text-slate-600 font-body leading-relaxed">{cat.desc}</p>
 
-                <div className="space-y-2.5 pt-2 border-t border-white/[0.06]">
+                <div className="space-y-2.5 pt-2 border-t border-slate-200">
                   {cat.items.map((item, i) => (
                     <div
                       key={i}
                       onClick={() => handleCardClick(item.slug)}
-                      className="p-3 rounded-xl bg-white/[0.02] border border-white/[0.04] hover:border-white/15 hover:bg-white/[0.05] transition-all cursor-pointer flex items-center justify-between group"
+                      className="p-3 rounded-xl bg-slate-50 border border-slate-200 hover:border-primary/40 hover:bg-slate-100 transition-all cursor-pointer flex items-center justify-between group"
                     >
                       <div>
-                        <div className="text-xs font-bold font-heading text-white group-hover:text-accent transition-colors">
+                        <div className="text-xs font-bold font-heading text-slate-900 group-hover:text-primary transition-colors">
                           {item.name}
                         </div>
-                        <div className="text-[11px] text-muted-text font-body">{item.desc}</div>
+                        <div className="text-[11px] text-slate-600 font-body">{item.desc}</div>
                       </div>
-                      <ArrowRight className="w-4 h-4 text-muted-text group-hover:text-accent group-hover:translate-x-1 transition-all shrink-0 ml-2" />
+                      <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-primary group-hover:translate-x-1 transition-all shrink-0 ml-2" />
                     </div>
                   ))}
                 </div>

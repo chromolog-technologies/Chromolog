@@ -179,16 +179,16 @@ export default function Projects() {
             {/* Section Head */}
             <div className="section-head reveal text-center max-w-3xl mx-auto mb-16">
               <Badge variant="ai" className="mb-3 px-3 py-1 text-xs">Case Studies</Badge>
-              <h2 className="text-3xl sm:text-5xl font-extrabold font-heading text-white tracking-tight">
+              <h2 className="text-3xl sm:text-5xl font-extrabold font-heading text-slate-900 tracking-tight">
                 Real Problems. Digital Solutions.
               </h2>
-              <p className="text-muted-text text-base mt-4 max-w-xl mx-auto font-body">
+              <p className="text-slate-600 text-base mt-4 max-w-xl mx-auto font-body">
                 How Chromolog transforms manual operational friction into measurable enterprise growth.
               </p>
             </div>
 
             {/* Statistics */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-12 border-b border-white/[0.06] pb-12">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-12 border-b border-slate-200 pb-12">
               {[
                 { end: 12, suffix: "+", label: "Projects Completed" },
                 { end: 6, suffix: "+", label: "Industries Served" },
@@ -196,10 +196,10 @@ export default function Projects() {
                 { end: 99, suffix: "%", label: "Client Satisfaction" },
               ].map((stat, idx) => (
                 <div key={idx} className="text-center space-y-1">
-                  <strong className="block text-2xl md:text-3xl font-heading font-extrabold text-white">
+                  <strong className="block text-2xl md:text-3xl font-heading font-extrabold text-slate-900">
                     <Counter end={stat.end} suffix={stat.suffix} />
                   </strong>
-                  <span className="text-[10px] font-bold text-muted-text uppercase tracking-widest font-heading block">{stat.label}</span>
+                  <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest font-heading block">{stat.label}</span>
                 </div>
               ))}
             </div>

@@ -242,7 +242,7 @@ export default function Hero({ navigateToSection }) {
 
             {/* 2. Primary H1 Headline */}
             <div className="space-y-1">
-              <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight text-white leading-[1.1] font-heading max-w-2xl">
+              <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight text-slate-900 leading-[1.1] font-heading max-w-2xl">
                 Custom Software &amp; Digital Systems for Growing Businesses
               </h1>
             </div>
@@ -250,7 +250,7 @@ export default function Hero({ navigateToSection }) {
             {/* 3. Description */}
             <motion.p
               {...itemVariant(0.42)}
-              className="text-base sm:text-lg text-muted-text max-w-xl leading-relaxed font-body"
+              className="text-base sm:text-lg text-slate-600 max-w-xl leading-relaxed font-body font-medium"
             >
               {activePersonalization?.copy ||
                 "From website upgrades to custom web applications, CRM, HRMS, LMS and business software, Chromolog helps businesses replace manual processes and outdated technology."}
@@ -264,7 +264,7 @@ export default function Hero({ navigateToSection }) {
                 hidden: {},
                 visible: { transition: { staggerChildren: 0.07, delayChildren: 0.52 } },
               }}
-              className="grid grid-cols-2 gap-x-6 gap-y-3 pt-2 text-sm text-muted-text max-w-lg"
+              className="grid grid-cols-2 gap-x-6 gap-y-3 pt-2 text-sm text-slate-700 font-medium max-w-lg"
             >
               {[
                 { label: "Replace Excel & WhatsApp Chaos", icon: Cpu },

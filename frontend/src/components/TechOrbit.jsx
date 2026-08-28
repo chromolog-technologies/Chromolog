@@ -57,10 +57,10 @@ export default function TechOrbit() {
         {/* Section Header */}
         <div className="section-head reveal text-center max-w-3xl mx-auto mb-16">
           <Badge variant="ai" className="mb-3 px-3 py-1 text-xs">Technology Stack</Badge>
-          <h2 className="text-3xl md:text-4xl font-bold font-heading text-white mt-2">
+          <h2 className="text-3xl md:text-4xl font-bold font-heading text-slate-900 mt-2">
             Our Interactive Technology Ecosystem
           </h2>
-          <p className="text-muted-text text-base mt-4 max-w-xl mx-auto font-body">
+          <p className="text-slate-600 text-base mt-4 max-w-xl mx-auto font-body">
             Hover over any node to inspect details, architecture benefits, and live project associations.
           </p>
         </div>
