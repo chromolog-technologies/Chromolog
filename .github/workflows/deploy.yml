@@ -37,4 +37,5 @@ jobs:
           local-dir: ./frontend/dist/
           server-dir: public_html/
           security: loose
+          log-level: verbose
 
