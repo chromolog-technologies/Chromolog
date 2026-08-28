@@ -1,0 +1,22 @@
+# ─── Hostinger Root Rewrite Rules for Decoupled Frontend ───────────────
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /
+
+    # Serve static assets directly from frontend/dist/
+    RewriteCond %{REQUEST_URI} !^/frontend/dist/
+    RewriteCond %{DOCUMENT_ROOT}/frontend/dist%{REQUEST_URI} -f [OR]
+    RewriteCond %{DOCUMENT_ROOT}/frontend/dist%{REQUEST_URI} -d
+    RewriteRule ^(.*)$ frontend/dist/$1 [L]
+
+    # Fallback to frontend/dist/index.html for React Router SPA
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_URI} !^/frontend/dist/
+    RewriteRule ^(.*)$ frontend/dist/index.html [L]
+</IfModule>
+
+# ─── Security Headers ────────────────────────────────────────────────
+<IfModule mod_headers.c>
+    Header set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://*.googletagmanager.com https://www.google-analytics.com https://*.google-analytics.com https://unpkg.com https://connect.facebook.net https://snap.licdn.com https://www.clarity.ms; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net; font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net; img-src 'self' data: blob: https: https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com https://*.googletagmanager.com https://*.g.doubleclick.net https://*.google.com; connect-src 'self' http://localhost:8000 http://127.0.0.1:8000 https://*.chromologtechnologies.com https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com https://*.g.doubleclick.net https://*.google.com https://www.clarity.ms https://formspree.io; frame-src 'self' https://www.googletagmanager.com https://tagassistant.google.com; object-src 'none'; base-uri 'self'; form-action 'self' https://formspree.io;"
+</IfModule>
