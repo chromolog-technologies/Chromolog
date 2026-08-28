@@ -265,16 +265,16 @@ export default function Blog() {
               {/* Head */}
               <div className="text-center max-w-2xl mx-auto space-y-4">
                 <Badge variant="ai" className="px-3 py-1 text-xs">Knowledge Hub</Badge>
-                <h1 className="text-4xl md:text-5xl font-heading font-extrabold text-white leading-tight">
-                  Insights on AI & Software Engineering
+                <h1 className="text-4xl md:text-5xl font-heading font-extrabold text-slate-900 leading-tight">
+                  Insights on AI &amp; Software Engineering
                 </h1>
-                <p className="text-muted-text text-base font-body">
+                <p className="text-slate-600 text-base font-body">
                   Deep technical articles, database guides, and architectural notes curated by our product team.
                 </p>
               </div>
 
               {/* Filters & Search Toolbar */}
-              <div className="flex flex-col md:flex-row gap-4 items-center justify-between border-y border-white/[0.06] py-6">
+              <div className="flex flex-col md:flex-row gap-4 items-center justify-between border-y border-slate-200 py-6">
                 <div className="flex flex-wrap gap-2 justify-center">
                   {["All", "AI", "Development", "Cloud", "Healthcare", "Company Updates"].map((cat) => (
                     <button
@@ -282,7 +282,7 @@ export default function Blog() {
                       onClick={() => setActiveCategory(cat)}
                       className={`px-4 py-2 border rounded-xl text-xs font-heading font-bold transition-all duration-300 select-none ${activeCategory === cat
                           ? "bg-primary border-primary text-white shadow-lg shadow-primary/15 scale-105"
-                          : "bg-white/[0.01] border-white/[0.05] text-muted-text hover:text-white hover:border-white/[0.12]"
+                          : "bg-white border-slate-200 text-slate-600 hover:text-slate-900 hover:border-slate-300"
                         }`}
                     >
                       {cat}
@@ -290,13 +290,13 @@ export default function Blog() {
                   ))}
                 </div>
                 <div className="relative w-full md:max-w-xs">
-                  <Search className="w-4 h-4 text-muted-text absolute left-3.5 top-1/2 transform -translate-y-1/2" />
+                  <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 transform -translate-y-1/2" />
                   <input
                     type="search"
                     placeholder="Search articles..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-white/[0.08] bg-[#0A0F1D]/50 text-sm text-white placeholder-muted-text focus:outline-none focus:border-accent transition-colors font-body"
+                    className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 bg-white text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-primary transition-colors font-body shadow-sm"
                   />
                 </div>
               </div>
@@ -308,30 +308,30 @@ export default function Blog() {
                     <div
                       key={art.id}
                       onClick={() => handleOpenArticle(art)}
-                      className="group cursor-pointer rounded-2xl border border-white/[0.06] bg-[#0A0F1D]/35 hover:border-white/[0.15] hover:bg-white/[0.02] transition-all duration-500 overflow-hidden flex flex-col h-full shadow-lg"
+                      className="group cursor-pointer rounded-2xl border border-slate-200 bg-white hover:border-primary/40 hover:shadow-xl transition-all duration-500 overflow-hidden flex flex-col h-full shadow-sm"
                     >
                       <div className="h-44 relative flex items-center justify-center p-6" style={{ background: art.coverGradient }}>
-                        <BookOpen className="w-12 h-12 text-white/20 absolute transform transition-transform duration-700 group-hover:scale-105" />
-                        <div className="absolute inset-0 bg-gradient-to-t from-bg-dark to-transparent opacity-85" />
+                        <BookOpen className="w-12 h-12 text-white/30 absolute transform transition-transform duration-700 group-hover:scale-105" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent" />
                         <Badge variant="status" color="primary" className="absolute top-4 right-4">{art.category}</Badge>
                       </div>
                       <div className="p-6 flex-1 flex flex-col justify-between space-y-4">
                         <div className="space-y-2">
-                          <div className="flex items-center gap-4 text-[10px] text-muted-text font-bold uppercase tracking-widest font-heading">
+                          <div className="flex items-center gap-4 text-[10px] text-slate-500 font-bold uppercase tracking-widest font-heading">
                             <span className="flex items-center gap-1"><Clock className="w-3.5 h-3.5" /> {art.readTime}</span>
                             <span>&bull;</span>
                             <span>{art.date}</span>
                           </div>
-                          <h2 className="text-lg font-heading font-extrabold text-white group-hover:text-accent transition-colors duration-300">
+                          <h2 className="text-lg font-heading font-extrabold text-slate-900 group-hover:text-primary transition-colors duration-300">
                             {art.title}
                           </h2>
-                          <p className="text-xs text-muted-text leading-relaxed font-body mt-2">
+                          <p className="text-xs text-slate-600 leading-relaxed font-body mt-2">
                             {art.summary}
                           </p>
                         </div>
-                        <div className="flex justify-between items-center pt-4 border-t border-white/[0.04] text-[10px] font-bold text-muted-text uppercase tracking-widest font-heading mt-4">
-                          <span className="text-white-text/75">{art.author.split(",")[0]}</span>
-                          <span className="flex items-center gap-1 text-accent group-hover:text-white transition-colors">
+                        <div className="flex justify-between items-center pt-4 border-t border-slate-100 text-[10px] font-bold text-slate-500 uppercase tracking-widest font-heading mt-4">
+                          <span className="text-slate-700">{art.author.split(",")[0]}</span>
+                          <span className="flex items-center gap-1 text-primary group-hover:text-blue-700 transition-colors">
                             Read Article <ChevronRight className="w-3 h-3" />
                           </span>
                         </div>
@@ -340,17 +340,17 @@ export default function Blog() {
                   ))}
                 </div>
               ) : (
-                <div className="text-center py-20 border border-white/[0.04] bg-[#0A0F1D]/10 rounded-2xl">
-                  <p className="text-sm text-muted-text font-body">No articles found matching your query.</p>
+                <div className="text-center py-20 border border-slate-200 bg-white rounded-2xl">
+                  <p className="text-sm text-slate-600 font-body">No articles found matching your query.</p>
                 </div>
               )}
 
               {/* Newsletter card */}
-              <Card variant="glass" className="p-8 border-white/[0.08] backdrop-blur-xl relative z-10 text-center max-w-2xl mx-auto space-y-6">
+              <Card variant="glass" className="p-8 border-slate-200 bg-white shadow-md relative z-10 text-center max-w-2xl mx-auto space-y-6">
                 <div className="space-y-2">
-                  <span className="text-[10px] font-bold text-accent uppercase tracking-widest font-heading block">Newsletter</span>
-                  <h3 className="text-2xl font-heading font-bold text-white">Subscribe to Tech Notes</h3>
-                  <p className="text-xs text-muted-text font-body max-w-sm mx-auto">Receive updates on AI capabilities, web architecture, and multi-tenant databases.</p>
+                  <span className="text-[10px] font-bold text-primary uppercase tracking-widest font-heading block">Newsletter</span>
+                  <h3 className="text-2xl font-heading font-bold text-slate-900">Subscribe to Tech Notes</h3>
+                  <p className="text-xs text-slate-600 font-body max-w-sm mx-auto">Receive updates on AI capabilities, web architecture, and multi-tenant databases.</p>
                 </div>
 
                 <AnimatePresence mode="wait">
@@ -363,12 +363,12 @@ export default function Blog() {
                       exit={{ opacity: 0 }}
                       className="flex flex-col sm:flex-row gap-2 max-w-md mx-auto"
                     >
-                      <Input
+                      <input
                         type="email"
                         placeholder="Enter your email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        className="bg-black/40 border-white/10"
+                        className="w-full px-4 py-2.5 rounded-xl bg-white border border-slate-200 text-slate-900 text-sm focus:outline-none focus:border-primary font-body"
                         required
                       />
                       <Button variant="primary" type="submit" icon={Send} iconPosition="right">

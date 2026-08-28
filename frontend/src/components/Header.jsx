@@ -10,7 +10,7 @@ import Button from "./ui/Button";
 import BrandLogo from "./BrandLogo";
 import { easings } from "../motion/easings";
 
-const pageItems = new Set(["blog", "careers", "products", "services", "case-studies", "free-consultation"]);
+const pageItems = new Set(["blog", "careers", "products", "services", "case-studies", "free-consultation", "contact"]);
 
 export default function Header({ activePage = "home", setActivePage, navigateToSection }) {
   const [isScrolled, setIsScrolled] = useState(false);

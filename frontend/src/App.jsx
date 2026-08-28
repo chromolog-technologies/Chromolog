@@ -409,6 +409,11 @@ export default function App() {
               <Offline setActivePage={setActivePage} />
             </Suspense>
           )}
+          {activePage === "contact" && (
+            <Suspense fallback={<SectionSkeleton />}>
+              <Contact />
+            </Suspense>
+          )}
           {activePage === "maintenance" && (
             <Suspense fallback={<SectionSkeleton />}>
               <Maintenance />
@@ -420,7 +425,7 @@ export default function App() {
             </Suspense>
           )}
 
-          {!["home", "services", "case-studies", "free-consultation", "privacy", "terms", "blog", "careers", "products", "admin", "500", "offline", "maintenance"].includes(activePage) &&
+          {!["home", "services", "case-studies", "free-consultation", "contact", "privacy", "terms", "blog", "careers", "products", "admin", "500", "offline", "maintenance"].includes(activePage) &&
             !isAdminPage && !isServiceDetail && !isLocationPage && !isIndustryPage && (
             <Suspense fallback={<SectionSkeleton />}>
               <NotFound setActivePage={setActivePage} />
