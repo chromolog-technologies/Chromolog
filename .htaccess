@@ -1,19 +1,11 @@
-# ─── Hostinger Root Rewrite Rules for Decoupled Frontend ───────────────
+# ─── SPA Rewrite Rules for React Router ──────────────────────────────
 <IfModule mod_rewrite.c>
-    RewriteEngine On
-    RewriteBase /
-
-    # Serve static assets directly from frontend/dist/
-    RewriteCond %{REQUEST_URI} !^/frontend/dist/
-    RewriteCond %{DOCUMENT_ROOT}/frontend/dist%{REQUEST_URI} -f [OR]
-    RewriteCond %{DOCUMENT_ROOT}/frontend/dist%{REQUEST_URI} -d
-    RewriteRule ^(.*)$ frontend/dist/$1 [L]
-
-    # Fallback to frontend/dist/index.html for React Router SPA
-    RewriteCond %{REQUEST_FILENAME} !-f
-    RewriteCond %{REQUEST_FILENAME} !-d
-    RewriteCond %{REQUEST_URI} !^/frontend/dist/
-    RewriteRule ^(.*)$ frontend/dist/index.html [L]
+  RewriteEngine On
+  RewriteBase /
+  RewriteRule ^index\.html$ - [L]
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule . /index.html [L]
 </IfModule>
 
 # ─── Security Headers ────────────────────────────────────────────────

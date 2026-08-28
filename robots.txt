@@ -1,0 +1,9 @@
+# Chromolog Technologies — robots.txt
+User-agent: *
+Allow: /
+
+Sitemap: https://chromologtechnologies.com/sitemap.xml
+
+# Disallow non-content internal paths
+Disallow: /assets/
+Disallow: /.vite/
