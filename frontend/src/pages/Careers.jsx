@@ -41,10 +41,10 @@ export default function Careers() {
           className="text-center max-w-3xl mx-auto pt-10 pb-14 md:pb-16"
         >
           <Badge variant="ai" className="mb-4 px-4 py-1.5 text-xs">Careers</Badge>
-          <h1 className="text-4xl md:text-6xl font-heading font-extrabold text-white leading-tight">
+          <h1 className="text-4xl md:text-6xl font-heading font-extrabold text-slate-900 leading-tight">
             Build the Future With <span className="gradient-text-primary">Chromolog</span>
           </h1>
-          <p className="text-base md:text-lg text-muted-text leading-relaxed mt-5 max-w-2xl mx-auto">
+          <p className="text-base md:text-lg text-slate-600 leading-relaxed mt-5 max-w-2xl mx-auto">
             Join a growing AI-first software company building modern web, mobile, SaaS, and enterprise solutions.
           </p>
           <div className="mt-8 flex justify-center">
@@ -58,10 +58,10 @@ export default function Careers() {
           <div className="lg:col-span-5">
             <div className="sticky top-28">
               <Badge variant="ai" className="px-3 py-1 text-xs">Why Work With Us</Badge>
-              <h2 className="text-2xl md:text-3xl font-heading font-bold text-white mt-4">
+              <h2 className="text-2xl md:text-3xl font-heading font-bold text-slate-900 mt-4">
                 Real products, sharp teams, meaningful client exposure.
               </h2>
-              <p className="text-sm text-muted-text leading-relaxed mt-4">
+              <p className="text-sm text-slate-600 leading-relaxed mt-4">
                 We keep teams close to product decisions, client problems, and modern AI tooling so every role has room to grow.
               </p>
             </div>
@@ -74,10 +74,10 @@ export default function Careers() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-40px" }}
                 transition={{ duration: 0.45, delay: index * 0.04 }}
-                className="rounded-2xl border border-white/[0.06] bg-white/[0.025] p-5 backdrop-blur-sm"
+                className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
               >
-                <CheckCircle2 className="w-5 h-5 text-accent mb-3" />
-                <h3 className="text-sm font-heading font-bold text-white">{benefit}</h3>
+                <CheckCircle2 className="w-5 h-5 text-primary mb-3" />
+                <h3 className="text-sm font-heading font-bold text-slate-900">{benefit}</h3>
               </motion.div>
             ))}
           </div>

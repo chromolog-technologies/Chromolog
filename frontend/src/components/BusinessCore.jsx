@@ -78,10 +78,10 @@ export default function BusinessCore({ onOpenAudit }) {
           <Badge variant="ai" className="px-3.5 py-1 text-xs font-semibold">
             Living System Transformation
           </Badge>
-          <h2 className="text-3xl sm:text-5xl font-extrabold font-heading text-white tracking-tight leading-tight">
+          <h2 className="text-3xl sm:text-5xl font-extrabold font-heading text-slate-900 tracking-tight leading-tight">
             We Turn Disconnected Processes Into One Digital System
           </h2>
-          <p className="text-sm sm:text-base text-muted-text font-body leading-relaxed max-w-2xl mx-auto">
+          <p className="text-sm sm:text-base text-slate-600 font-body leading-relaxed max-w-2xl mx-auto">
             See how Chromolog replaces scattered spreadsheets, lost WhatsApp chats, and paper slips with one continuous, real-time enterprise flow.
           </p>
         </div>

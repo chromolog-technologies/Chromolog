@@ -47,9 +47,9 @@ export default function LocationPage({ locationSlug = "kochi", setActivePage }) 
 
   return (
     <PageTransition>
-      <div className="relative min-h-screen bg-bg-dark text-white font-body pt-12 pb-24">
+      <div className="relative min-h-screen bg-bg-dark text-slate-900 font-body pt-12 pb-24">
         {/* Glow */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-[400px] bg-gradient-to-b from-primary/15 via-accent/5 to-transparent blur-3xl pointer-events-none z-0" />
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-[400px] bg-gradient-to-b from-primary/10 via-purple-50 to-transparent blur-3xl pointer-events-none z-0" />
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 space-y-16">
 
@@ -58,10 +58,10 @@ export default function LocationPage({ locationSlug = "kochi", setActivePage }) 
             <Badge variant="status" color="info" className="px-4 py-1.5 text-xs font-semibold">
               <MapPin className="w-3.5 h-3.5 mr-1" /> {loc.name}, {loc.region} Hub
             </Badge>
-            <h1 className="text-3xl sm:text-5xl font-extrabold font-heading text-white tracking-tight leading-tight">
+            <h1 className="text-3xl sm:text-5xl font-extrabold font-heading text-slate-900 tracking-tight leading-tight">
               {loc.h1}
             </h1>
-            <p className="text-sm sm:text-base text-muted-text font-body leading-relaxed">
+            <p className="text-sm sm:text-base text-slate-600 font-body leading-relaxed">
               {loc.desc}
             </p>
           </div>
@@ -69,9 +69,9 @@ export default function LocationPage({ locationSlug = "kochi", setActivePage }) 
           {/* Local Highlights */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {loc.highlights.map((h, i) => (
-              <Card key={i} variant="glass" className="p-6 border-white/[0.08] flex items-center gap-3">
-                <CheckCircle2 className="w-5 h-5 text-accent shrink-0" />
-                <span className="text-sm font-bold font-heading text-white">{h}</span>
+              <Card key={i} variant="glass" className="p-6 border-slate-200 bg-white shadow-sm flex items-center gap-3">
+                <CheckCircle2 className="w-5 h-5 text-primary shrink-0" />
+                <span className="text-sm font-bold font-heading text-slate-900">{h}</span>
               </Card>
             ))}
           </div>

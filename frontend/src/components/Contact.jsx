@@ -91,8 +91,8 @@ export default function Contact() {
       <div className="container">
         <div className="section-head reveal">
           <span className="eyebrow">Get Started</span>
-          <h2 className="mt-md text-3xl sm:text-5xl font-extrabold font-heading text-white">What Could Your Business Automate?</h2>
-          <p className="text-muted-text text-base mt-2 max-w-xl mx-auto">Let's identify the manual processes, outdated systems and digital gaps slowing your business down.</p>
+          <h2 className="mt-md text-3xl sm:text-5xl font-extrabold font-heading text-slate-900">What Could Your Business Automate?</h2>
+          <p className="text-slate-600 text-base mt-2 max-w-xl mx-auto">Let's identify the manual processes, outdated systems and digital gaps slowing your business down.</p>
         </div>
         <div className="contact-grid">
           <div className="contact-card reveal">

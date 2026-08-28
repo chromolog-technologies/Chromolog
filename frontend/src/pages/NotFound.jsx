@@ -53,10 +53,10 @@ export default function NotFound({ setActivePage }) {
           transition={{ duration: 0.6, delay: 0.25 }}
           className="space-y-4 mb-10"
         >
-          <h1 className="text-2xl md:text-3xl font-heading font-extrabold text-white">
+          <h1 className="text-2xl md:text-3xl font-heading font-extrabold text-slate-900">
             Page not found
           </h1>
-          <p className="text-muted-text font-body text-base leading-relaxed">
+          <p className="text-slate-600 font-body text-base leading-relaxed">
             The page you're looking for doesn't exist or has been moved. Let's get you back on track.
           </p>
         </motion.div>

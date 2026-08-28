@@ -51,36 +51,36 @@ export default function ServiceDetail({ serviceSlug, setActivePage, navigateToSe
 
   return (
     <PageTransition>
-      <div className="relative min-h-screen bg-bg-dark text-white font-body pt-4 pb-16">
+      <div className="relative min-h-screen bg-bg-dark text-slate-900 font-body pt-4 pb-16">
         {/* Background glow effects */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-[400px] bg-gradient-to-b from-primary/15 via-accent/5 to-transparent blur-3xl pointer-events-none z-0" />
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-[400px] bg-gradient-to-b from-primary/10 via-purple-50 to-transparent blur-3xl pointer-events-none z-0" />
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 space-y-12 md:space-y-16">
 
           {/* ── 1. Hero Section (Problem + Solution + Primary CTA) ──────────────── */}
-          <section className="pt-4 text-center md:text-left grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center border-b border-white/[0.06] pb-10">
+          <section className="pt-4 text-center md:text-left grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center border-b border-slate-200 pb-10">
             <div className="lg:col-span-7 space-y-5">
               <div className="flex flex-wrap items-center justify-center md:justify-start gap-3">
                 <Badge variant="ai" className="px-3.5 py-1 text-xs font-semibold">
                   {service.badge}
                 </Badge>
-                <span className="text-xs text-muted-text flex items-center gap-1 font-heading">
-                  <Clock className="w-3.5 h-3.5 text-accent" /> Digital Systems Architecture
+                <span className="text-xs text-slate-600 flex items-center gap-1 font-heading font-medium">
+                  <Clock className="w-3.5 h-3.5 text-primary" /> Digital Systems Architecture
                 </span>
               </div>
 
               {/* H1 Title with Target Keyword */}
-              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold font-heading text-white leading-tight tracking-tight">
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold font-heading text-slate-900 leading-tight tracking-tight">
                 {service.h1}
               </h1>
 
               {/* Problem + Solution Paragraph */}
-              <div className="space-y-3 text-sm sm:text-base text-muted-text font-body leading-relaxed">
-                <p className="border-l-2 border-accent/40 pl-3.5 py-0.5 text-white/90">
-                  <strong className="text-accent font-semibold">The Problem:</strong> {service.hero.problem}
+              <div className="space-y-3 text-sm sm:text-base text-slate-600 font-body leading-relaxed">
+                <p className="border-l-2 border-amber-500 pl-3.5 py-0.5 text-slate-800 bg-amber-50/50 rounded-r-lg">
+                  <strong className="text-amber-800 font-semibold">The Problem:</strong> {service.hero.problem}
                 </p>
-                <p className="border-l-2 border-success/40 pl-3.5 py-0.5 text-white/90">
-                  <strong className="text-success font-semibold">The Solution:</strong> {service.hero.solution}
+                <p className="border-l-2 border-emerald-500 pl-3.5 py-0.5 text-slate-800 bg-emerald-50/50 rounded-r-lg">
+                  <strong className="text-emerald-800 font-semibold">The Solution:</strong> {service.hero.solution}
                 </p>
               </div>
 
@@ -155,24 +155,24 @@ export default function ServiceDetail({ serviceSlug, setActivePage, navigateToSe
           {/* ── 2. Section 1: Pain Point Check ──────────────────────────────────── */}
           <section className="space-y-6">
             <div className="text-center max-w-3xl mx-auto space-y-2">
-              <Badge variant="status" color="warning" className="px-3 py-0.5 text-[11px]">
+              <Badge variant="ai" className="px-3 py-0.5 text-[11px]">
                 Operational Audit
               </Badge>
-              <h2 className="text-2xl sm:text-3xl font-extrabold font-heading text-white">
+              <h2 className="text-2xl sm:text-3xl font-extrabold font-heading text-slate-900">
                 {service.painPoints.title}
               </h2>
-              <p className="text-xs sm:text-sm text-muted-text font-body">
+              <p className="text-xs sm:text-sm text-slate-600 font-body">
                 {service.painPoints.subtitle}
               </p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {service.painPoints.points.map((pt, idx) => (
-                <Card key={idx} variant="glass" className="p-4 border-amber-500/20 bg-amber-500/[0.02] flex items-start gap-3">
-                  <div className="p-1.5 rounded-lg bg-amber-500/10 text-amber-400 shrink-0 mt-0.5">
+                <Card key={idx} variant="glass" className="p-4 border-amber-500/30 bg-amber-50/50 flex items-start gap-3 shadow-sm">
+                  <div className="p-1.5 rounded-lg bg-amber-100 text-amber-700 shrink-0 mt-0.5">
                     <AlertTriangle className="w-4 h-4" />
                   </div>
-                  <p className="text-xs sm:text-sm font-body text-white/90 leading-relaxed">{pt}</p>
+                  <p className="text-xs sm:text-sm font-body text-slate-800 leading-relaxed">{pt}</p>
                 </Card>
               ))}
             </div>
@@ -184,26 +184,26 @@ export default function ServiceDetail({ serviceSlug, setActivePage, navigateToSe
               <Badge variant="ai" className="px-3 py-0.5 text-[11px]">
                 Engineering Capabilities
               </Badge>
-              <h2 className="text-2xl sm:text-3xl font-extrabold font-heading text-white">
+              <h2 className="text-2xl sm:text-3xl font-extrabold font-heading text-slate-900">
                 What We Build for Your Business
               </h2>
-              <p className="text-xs sm:text-sm text-muted-text">
+              <p className="text-xs sm:text-sm text-slate-600">
                 Every digital system is engineered to solve specific operational bottlenecks and scale seamlessly.
               </p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               {service.whatWeBuild.map((item, idx) => (
-                <Card key={idx} variant="glass" className="p-5 border-white/[0.08] hover:border-accent/40 transition-all group">
+                <Card key={idx} variant="glass" className="p-5 border-slate-200/80 bg-white hover:border-primary/40 transition-all group shadow-sm">
                   <div className="flex items-center gap-3 mb-2.5">
-                    <div className="w-7 h-7 rounded-lg bg-primary/20 border border-primary/30 flex items-center justify-center text-accent text-xs font-bold font-heading">
+                    <div className="w-7 h-7 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center text-primary text-xs font-bold font-heading">
                       0{idx + 1}
                     </div>
-                    <h3 className="text-base font-bold font-heading text-white group-hover:text-accent transition-colors">
+                    <h3 className="text-base font-bold font-heading text-slate-900 group-hover:text-primary transition-colors">
                       {item.title}
                     </h3>
                   </div>
-                  <p className="text-xs font-body text-muted-text leading-relaxed pl-10">
+                  <p className="text-xs font-body text-slate-600 leading-relaxed pl-10">
                     {item.desc}
                   </p>
                 </Card>
@@ -212,11 +212,11 @@ export default function ServiceDetail({ serviceSlug, setActivePage, navigateToSe
           </section>
 
           {/* ── 4. Section 3: Features & Capabilities ───────────────────────────── */}
-          <section className="p-6 md:p-8 rounded-2xl bg-gradient-to-b from-white/[0.03] to-white/[0.01] border border-white/[0.08] space-y-5">
+          <section className="p-6 md:p-8 rounded-2xl bg-white border border-slate-200 shadow-sm space-y-5">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
               <div>
-                <h3 className="text-lg font-bold font-heading text-white">Core System Features</h3>
-                <p className="text-xs text-muted-text mt-0.5">Built-in enterprise standards in every project</p>
+                <h3 className="text-lg font-bold font-heading text-slate-900">Core System Features</h3>
+                <p className="text-xs text-slate-600 mt-0.5">Built-in enterprise standards in every project</p>
               </div>
               <Badge variant="status" color="success" className="w-fit text-xs">
                 100% IP Ownership
@@ -225,9 +225,9 @@ export default function ServiceDetail({ serviceSlug, setActivePage, navigateToSe
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
               {service.capabilities.map((cap, i) => (
-                <div key={i} className="flex items-center gap-2.5 p-3 rounded-xl bg-white/[0.02] border border-white/[0.05]">
-                  <CheckCircle2 className="w-4 h-4 text-accent shrink-0" />
-                  <span className="text-xs font-medium text-white/90 font-heading">{cap}</span>
+                <div key={i} className="flex items-center gap-2.5 p-3 rounded-xl bg-slate-50 border border-slate-200">
+                  <CheckCircle2 className="w-4 h-4 text-primary shrink-0" />
+                  <span className="text-xs font-medium text-slate-800 font-heading">{cap}</span>
                 </div>
               ))}
             </div>
@@ -239,10 +239,10 @@ export default function ServiceDetail({ serviceSlug, setActivePage, navigateToSe
               <Badge variant="ai" className="px-3 py-0.5 text-[11px]">
                 Structured Engineering Framework
               </Badge>
-              <h2 className="text-2xl sm:text-3xl font-extrabold font-heading text-white">
+              <h2 className="text-2xl sm:text-3xl font-extrabold font-heading text-slate-900">
                 Our 5-Step Development Process
               </h2>
-              <p className="text-xs sm:text-sm text-muted-text">
+              <p className="text-xs sm:text-sm text-slate-600">
                 Transparent milestones with zero technical jargon and bi-weekly progress demonstrations.
               </p>
             </div>

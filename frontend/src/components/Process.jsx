@@ -73,11 +73,11 @@ export default function Process() {
             className="text-center max-w-3xl mx-auto mb-14 md:mb-16"
           >
             <Badge variant="ai" className="mb-3 px-3 py-1 text-xs">How We Work</Badge>
-            <h2 className="text-3xl md:text-4xl font-bold font-heading text-white mt-2">
+            <h2 className="text-3xl md:text-4xl font-bold font-heading text-slate-900 mt-2">
               Our 8-step delivery pipeline,<br />
               <span className="gradient-text-cyan">engineered for speed and safety.</span>
             </h2>
-            <p className="text-muted-text text-base mt-4 max-w-xl mx-auto font-body">
+            <p className="text-slate-600 text-base mt-4 max-w-xl mx-auto font-body">
               Structured deployment sprints keeping you fully aligned at every critical milestone.
             </p>
           </motion.div>

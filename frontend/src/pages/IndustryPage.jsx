@@ -50,9 +50,9 @@ export default function IndustryPage({ industrySlug = "healthcare", setActivePag
 
   return (
     <PageTransition>
-      <div className="relative min-h-screen bg-bg-dark text-white font-body pt-12 pb-24">
+      <div className="relative min-h-screen bg-bg-dark text-slate-900 font-body pt-12 pb-24">
         {/* Glow */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-[400px] bg-gradient-to-b from-accent/15 to-transparent blur-3xl pointer-events-none z-0" />
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-[400px] bg-gradient-to-b from-primary/10 to-transparent blur-3xl pointer-events-none z-0" />
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 space-y-16">
 
@@ -61,10 +61,10 @@ export default function IndustryPage({ industrySlug = "healthcare", setActivePag
             <Badge variant="ai" className="px-4 py-1.5 text-xs font-semibold">
               <Building2 className="w-3.5 h-3.5 mr-1" /> {ind.name} Industry Solutions
             </Badge>
-            <h1 className="text-3xl sm:text-5xl font-extrabold font-heading text-white tracking-tight leading-tight">
+            <h1 className="text-3xl sm:text-5xl font-extrabold font-heading text-slate-900 tracking-tight leading-tight">
               {ind.h1}
             </h1>
-            <p className="text-sm sm:text-base text-muted-text font-body leading-relaxed">
+            <p className="text-sm sm:text-base text-slate-600 font-body leading-relaxed">
               {ind.desc}
             </p>
           </div>
@@ -72,16 +72,16 @@ export default function IndustryPage({ industrySlug = "healthcare", setActivePag
           {/* Key Solutions */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {ind.points.map((p, i) => (
-              <Card key={i} variant="glass" className="p-6 border-white/[0.08] flex items-center gap-3">
-                <CheckCircle2 className="w-5 h-5 text-accent shrink-0" />
-                <span className="text-sm font-bold font-heading text-white">{p}</span>
+              <Card key={i} variant="glass" className="p-6 border-slate-200 bg-white shadow-sm flex items-center gap-3">
+                <CheckCircle2 className="w-5 h-5 text-primary shrink-0" />
+                <span className="text-sm font-bold font-heading text-slate-900">{p}</span>
               </Card>
             ))}
           </div>
 
           {/* CTA Banner */}
-          <div className="p-8 rounded-3xl bg-gradient-to-r from-primary/20 via-bg-dark to-accent/20 border border-white/10 text-center space-y-4">
-            <h2 className="text-2xl font-extrabold font-heading text-white">
+          <div className="p-8 rounded-3xl bg-gradient-to-r from-blue-50 via-white to-purple-50 border border-slate-200 text-center space-y-4 shadow-md">
+            <h2 className="text-2xl font-extrabold font-heading text-slate-900">
               Discuss Your {ind.name} Software Project
             </h2>
             <Button

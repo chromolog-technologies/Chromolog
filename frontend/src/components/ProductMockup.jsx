@@ -92,11 +92,11 @@ export default function ProductMockup({ navigateToSection }) {
           {/* Left Content */}
           <div className="lg:col-span-6 space-y-6">
             <Badge variant="ai" className="px-3 py-1 text-xs">Flagship SaaS Product</Badge>
-            <h2 className="text-3xl md:text-5xl font-extrabold font-heading text-white leading-tight">
+            <h2 className="text-3xl md:text-5xl font-extrabold font-heading text-slate-900 leading-tight">
               AlphaGrew <br />
               <span className="gradient-text-cyan">Smart Campus ERP</span>
             </h2>
-            <p className="text-base text-muted-text leading-relaxed font-body">
+            <p className="text-base text-slate-600 leading-relaxed font-body">
               A comprehensive cloud-based ERP solution designed for schools, colleges, and universities. Integrates cognitive analytics, automated placement scoring, and unified portals for students, parents, and faculties.
             </p>
 
@@ -105,12 +105,12 @@ export default function ProductMockup({ navigateToSection }) {
               {features.map((feat, idx) => (
                 <div
                   key={idx}
-                  className="flex items-center gap-2 p-2 border border-white/[0.04] rounded-xl bg-white/[0.01] hover:border-white/[0.08] hover:bg-white/[0.02] transition-colors"
+                  className="flex items-center gap-2 p-2 border border-slate-200 rounded-xl bg-white shadow-sm transition-colors"
                 >
-                  <div className="p-1 rounded bg-accent/10 text-accent">
+                  <div className="p-1 rounded bg-blue-50 text-primary border border-blue-200">
                     <Check className="w-3.5 h-3.5" />
                   </div>
-                  <span className="text-xs font-semibold text-white/95 font-body">{feat.text}</span>
+                  <span className="text-xs font-semibold text-slate-900 font-body">{feat.text}</span>
                 </div>
               ))}
             </div>

@@ -42,18 +42,18 @@ export default function Maintenance() {
           transition={{ duration: 0.6, delay: 0.25 }}
           className="space-y-4 mb-10"
         >
-          <h1 className="text-2xl md:text-3xl font-heading font-extrabold text-white">
+          <h1 className="text-2xl md:text-3xl font-heading font-extrabold text-slate-900">
             We'll be back shortly
           </h1>
-          <p className="text-muted-text font-body text-base leading-relaxed">
+          <p className="text-slate-600 font-body text-base leading-relaxed">
             We're performing scheduled maintenance to improve your experience. This usually takes a few minutes.
           </p>
 
           {/* Estimated time */}
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/[0.03] border border-white/[0.06]">
-            <Clock className="w-4 h-4 text-accent/70" />
-            <span className="text-sm text-muted-text font-body">
-              Estimated downtime: <strong className="text-white">15–30 minutes</strong>
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-50 border border-slate-200 shadow-sm">
+            <Clock className="w-4 h-4 text-primary" />
+            <span className="text-sm text-slate-600 font-body">
+              Estimated downtime: <strong className="text-slate-900">15–30 minutes</strong>
             </span>
           </div>
         </motion.div>
