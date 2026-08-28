@@ -269,6 +269,8 @@ export default function App() {
   const isIndustryPage = activePage.startsWith("industries/");
   const industrySlug = isIndustryPage ? activePage.replace("industries/", "") : null;
 
+  const isAdminPage = activePage.startsWith("admin") || (typeof window !== "undefined" && window.location.pathname.includes("admin"));
+
   return (
     <AuthProvider>
     <div className="relative min-h-screen bg-bg-dark text-white-text overflow-hidden font-body selection:bg-primary/30 selection:text-white">
@@ -298,7 +300,7 @@ export default function App() {
       <CursorFollower />
 
       {/* Sticky Header Navigation (Hidden on Admin Dashboard) */}
-      {activePage !== "admin" && (
+      {!isAdminPage && (
         <Header
           activePage={activePage}
           setActivePage={setActivePage}
@@ -308,7 +310,7 @@ export default function App() {
 
       {/* Main Content Area */}
       <ErrorBoundary>
-        <main id="main-content" className={`relative z-10 ${activePage === "admin" ? "" : "pt-20"}`}>
+        <main id="main-content" className={`relative z-10 ${isAdminPage ? "" : "pt-20"}`}>
           <AnimatePresence mode="wait">
           <PageTransition key={activePage}>
           {activePage === "home" && (
@@ -412,14 +414,14 @@ export default function App() {
               <Maintenance />
             </Suspense>
           )}
-          {activePage === "admin" && (
+          {isAdminPage && (
             <Suspense fallback={<SectionSkeleton />}>
               <AdminPortal />
             </Suspense>
           )}
 
           {!["home", "services", "case-studies", "free-consultation", "privacy", "terms", "blog", "careers", "products", "admin", "500", "offline", "maintenance"].includes(activePage) &&
-            !isServiceDetail && !isLocationPage && !isIndustryPage && (
+            !isAdminPage && !isServiceDetail && !isLocationPage && !isIndustryPage && (
             <Suspense fallback={<SectionSkeleton />}>
               <NotFound setActivePage={setActivePage} />
             </Suspense>
@@ -430,7 +432,7 @@ export default function App() {
       </ErrorBoundary>
 
       {/* Enterprise Footer (Hidden on Admin Dashboard) */}
-      {activePage !== "admin" && (
+      {!isAdminPage && (
         <>
           <Footer
             setActivePage={setActivePage}
