@@ -4,14 +4,13 @@
  * Clean cache auto-purge on update.
  */
 
-const CACHE_NAME = "chromolog-v3-cache-v2";
+const CACHE_NAME = "chromolog-v3-cache-v3";
 const OFFLINE_URL = "/offline";
 
 // Static assets to precache on install
 const PRECACHE_ASSETS = [
   "/",
   "/manifest.json",
-  "/favicon.svg",
   "/images/chromologtechnologies.webp",
 ];
 
