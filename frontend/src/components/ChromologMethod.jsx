@@ -46,10 +46,10 @@ export default function ChromologMethod() {
           <Badge variant="ai" className="px-3.5 py-1 text-xs font-semibold">
             Our Differentiator
           </Badge>
-          <h2 className="text-3xl sm:text-5xl font-extrabold font-heading text-slate-900 tracking-tight leading-tight">
+          <h2 className="text-3xl sm:text-5xl font-extrabold font-heading text-white tracking-tight leading-tight">
             We Don't Start With Technology. We Start With Your Business.
           </h2>
-          <p className="text-xs sm:text-base text-slate-600 font-body leading-relaxed max-w-xl mx-auto">
+          <p className="text-xs sm:text-base text-slate-300 font-body leading-relaxed max-w-xl mx-auto">
             The Chromolog Method ensures software is engineered 100% around how your business actually operates.
           </p>
         </div>
@@ -57,15 +57,15 @@ export default function ChromologMethod() {
         {/* 6 Step Process Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
           {steps.map((item, idx) => (
-            <Card key={idx} variant="glass" className="p-5 border-slate-200 bg-white shadow-sm flex flex-col justify-between space-y-3 hover:border-primary/40 transition-all group">
+            <Card key={idx} variant="glass" className="p-5 border-white/15 bg-white/[0.04] backdrop-blur-2xl shadow-xl flex flex-col justify-between space-y-3 hover:border-cyan-400/40 hover:bg-white/[0.08] transition-all group">
               <div className="space-y-2">
-                <div className="text-xs font-extrabold font-heading text-primary">
+                <div className="text-xs font-extrabold font-heading text-cyan-400">
                   {item.num}
                 </div>
-                <h3 className="text-base font-bold font-heading text-slate-900 group-hover:text-primary transition-colors">
+                <h3 className="text-base font-bold font-heading text-white group-hover:text-cyan-400 transition-colors">
                   {item.title}
                 </h3>
-                <p className="text-xs text-slate-600 font-body leading-relaxed">{item.desc}</p>
+                <p className="text-xs text-slate-300 font-body leading-relaxed">{item.desc}</p>
               </div>
             </Card>
           ))}

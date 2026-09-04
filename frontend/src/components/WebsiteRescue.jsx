@@ -32,33 +32,33 @@ export default function WebsiteRescue({ setActivePage }) {
           <Badge variant="ai" className="px-3.5 py-1 text-xs font-semibold">
             Website Rescue Offer
           </Badge>
-          <h2 className="text-2xl sm:text-4xl font-extrabold font-heading text-slate-900 tracking-tight">
+          <h2 className="text-2xl sm:text-4xl font-extrabold font-heading text-white tracking-tight">
             Is Your Website 3+ Years Old?
           </h2>
-          <p className="text-xs sm:text-base text-slate-600 font-body leading-relaxed">
+          <p className="text-xs sm:text-base text-slate-300 font-body leading-relaxed">
             Your business may have grown and changed, but an outdated website actively loses valuable client leads to modern competitors every single day.
           </p>
         </div>
 
         {/* Warning signs checklist */}
-        <Card variant="glass" className="p-6 md:p-8 border-amber-500/30 bg-amber-50/50 max-w-4xl mx-auto space-y-6">
-          <div className="flex items-center gap-3 border-b border-slate-200 pb-4">
-            <ShieldAlert className="w-5 h-5 text-amber-600 shrink-0" />
-            <h3 className="text-base font-bold font-heading text-slate-900">7 Warning Signs Your Website Needs an Immediate Upgrade:</h3>
+        <Card variant="glass" className="p-6 md:p-8 border-amber-500/30 bg-amber-500/10 backdrop-blur-2xl max-w-4xl mx-auto space-y-6 shadow-2xl">
+          <div className="flex items-center gap-3 border-b border-amber-500/20 pb-4">
+            <ShieldAlert className="w-5 h-5 text-amber-400 shrink-0" />
+            <h3 className="text-base font-bold font-heading text-white">7 Warning Signs Your Website Needs an Immediate Upgrade:</h3>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {signs.map((sign, idx) => (
-              <div key={idx} className="flex items-start gap-2.5 p-2.5 rounded-xl bg-white border border-slate-200 shadow-sm">
-                <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-                <span className="text-xs text-slate-800 font-body leading-relaxed">{sign}</span>
+              <div key={idx} className="flex items-start gap-2.5 p-3 rounded-xl bg-white/[0.04] border border-white/10 hover:border-amber-400/30 transition-colors">
+                <AlertCircle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+                <span className="text-xs text-slate-200 font-body leading-relaxed">{sign}</span>
               </div>
             ))}
           </div>
 
-          <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-slate-200">
-            <div className="text-xs text-slate-600">
-              <strong className="text-slate-900 block font-heading">Modernize Your Web Platform:</strong>
+          <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-amber-500/20">
+            <div className="text-xs text-slate-300">
+              <strong className="text-white block font-heading">Modernize Your Web Platform:</strong>
               We upgrade legacy sites into fast, React-engineered lead generation assets with 301 SEO protection.
             </div>
             <Button variant="gradient" size="md" onClick={handleRescueClick} className="whitespace-nowrap shrink-0">

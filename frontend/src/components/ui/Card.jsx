@@ -13,14 +13,14 @@ export default function Card({
   const baseCard = "relative rounded-2xl border transition-all duration-300 overflow-hidden";
   
   const variants = {
-    glass: "bg-white/80 backdrop-blur-xl border-slate-200/80 text-slate-900 shadow-sm hover:shadow-md",
-    feature: "bg-white border-slate-200 text-slate-900 shadow-sm hover:border-primary/40 hover:shadow-lg",
-    pricing: "bg-white border-slate-200 text-slate-900 hover:border-primary/40 shadow-md hover:shadow-xl",
-    product: "bg-white border-slate-200 text-slate-900 shadow-sm hover:shadow-xl hover:shadow-primary/5",
-    project: "bg-white border-slate-200 text-slate-900 hover:border-primary/40 shadow-sm hover:shadow-md",
-    statistic: "bg-white/90 backdrop-blur-lg border-slate-200 text-center p-6 text-slate-900 shadow-sm",
-    ai: "bg-gradient-to-br from-white to-slate-50 border-slate-200 shadow-lg hover:border-primary/40 text-slate-900",
-    hover: "bg-white border-slate-200 hover:bg-slate-50 cursor-pointer text-slate-900 shadow-sm",
+    glass: "bg-[#0f1435]/50 backdrop-blur-xl border-white/10 text-white shadow-2xl hover:border-purple-500/40 hover:bg-[#131c4a]/60",
+    feature: "bg-[#0f1435]/50 backdrop-blur-xl border-white/10 text-white shadow-2xl hover:border-purple-500/40 hover:bg-[#131c4a]/60",
+    pricing: "bg-[#0f1435]/50 backdrop-blur-xl border-white/10 text-white hover:border-purple-500/40 shadow-2xl hover:bg-[#131c4a]/60",
+    product: "bg-[#0f1435]/50 backdrop-blur-xl border-white/10 text-white shadow-2xl hover:border-purple-500/40 hover:bg-[#131c4a]/60",
+    project: "bg-[#0f1435]/50 backdrop-blur-xl border-white/10 text-white hover:border-purple-500/40 shadow-2xl hover:bg-[#131c4a]/60",
+    statistic: "bg-[#0f1435]/60 backdrop-blur-xl border-white/10 text-center p-6 text-white shadow-2xl",
+    ai: "bg-gradient-to-br from-[#0f1435]/80 to-[#192258]/80 backdrop-blur-xl border-white/10 shadow-2xl hover:border-purple-500/40 text-white",
+    hover: "bg-[#0f1435]/50 backdrop-blur-xl border-white/10 hover:bg-[#131c4a]/60 cursor-pointer text-white shadow-2xl",
   };
 
   const hovers = {

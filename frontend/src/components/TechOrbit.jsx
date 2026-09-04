@@ -57,10 +57,10 @@ export default function TechOrbit() {
         {/* Section Header */}
         <div className="section-head reveal text-center max-w-3xl mx-auto mb-16">
           <Badge variant="ai" className="mb-3 px-3 py-1 text-xs">Technology Stack</Badge>
-          <h2 className="text-3xl md:text-4xl font-bold font-heading text-slate-900 mt-2">
+          <h2 className="text-3xl md:text-4xl font-bold font-heading text-white mt-2">
             Our Interactive Technology Ecosystem
           </h2>
-          <p className="text-slate-600 text-base mt-4 max-w-xl mx-auto font-body">
+          <p className="text-slate-300 text-base mt-4 max-w-xl mx-auto font-body">
             Hover over any node to inspect details, architecture benefits, and live project associations.
           </p>
         </div>
@@ -238,11 +238,11 @@ export default function TechOrbit() {
               >
                 <Card
                   variant="glass"
-                  className="w-full p-8 border-white/[0.08] shadow-2xl backdrop-blur-xl flex flex-col justify-between"
+                  className="w-full p-8 border-white/15 bg-white/[0.04] backdrop-blur-2xl shadow-2xl flex flex-col justify-between"
                 >
                   <div className="space-y-6">
                     {/* Header */}
-                    <div className="flex items-center gap-4 border-b border-white/[0.06] pb-4">
+                    <div className="flex items-center gap-4 border-b border-white/10 pb-4">
                       <div
                         className="w-12 h-12 rounded-xl border flex items-center justify-center text-2xl"
                         style={{
@@ -264,29 +264,29 @@ export default function TechOrbit() {
                             {selectedTech.exp}
                           </Badge>
                         </div>
-                        <p className="text-[10px] text-muted-text font-bold uppercase tracking-widest mt-1">Technology Scope</p>
+                        <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">Technology Scope</p>
                       </div>
                     </div>
 
                     {/* Description */}
-                    <p className="text-sm text-muted-text leading-relaxed font-body">
+                    <p className="text-sm text-slate-300 leading-relaxed font-body">
                       {selectedTech.desc}
                     </p>
 
                     {/* Architecture Advantages */}
                     <div className="space-y-2.5">
-                      <span className="text-[10px] font-bold text-white-text uppercase tracking-widest font-heading flex items-center gap-1.5">
-                        <Sparkles className="w-3.5 h-3.5 text-accent" />
+                      <span className="text-[10px] font-bold text-white uppercase tracking-widest font-heading flex items-center gap-1.5">
+                        <Sparkles className="w-3.5 h-3.5 text-primary" />
                         Key Advantages
                       </span>
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                         {selectedTech.pros.map((pro, idx) => (
                           <div
                             key={idx}
-                            className="flex items-center gap-2 p-2.5 rounded-xl border border-white/[0.04] bg-white/[0.01] hover:border-white/[0.08] transition-colors"
+                            className="flex items-center gap-2 p-2.5 rounded-xl border border-white/10 bg-white/[0.04] hover:border-cyan-400/30 transition-colors"
                           >
-                            <Check className="w-3.5 h-3.5 text-accent shrink-0" />
-                            <span className="text-[10px] font-bold text-white-text/90 leading-tight font-heading">{pro}</span>
+                            <Check className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
+                            <span className="text-[10px] font-bold text-slate-200 leading-tight font-heading">{pro}</span>
                           </div>
                         ))}
                       </div>
@@ -294,7 +294,7 @@ export default function TechOrbit() {
 
                     {/* Live Projects utilizing it */}
                     <div className="space-y-2.5">
-                      <span className="text-[10px] font-bold text-white-text uppercase tracking-widest font-heading flex items-center gap-1.5">
+                      <span className="text-[10px] font-bold text-white uppercase tracking-widest font-heading flex items-center gap-1.5">
                         <Link2 className="w-3.5 h-3.5 text-primary" />
                         In-Production Integrations
                       </span>
@@ -302,9 +302,9 @@ export default function TechOrbit() {
                         {selectedTech.projects.map((proj, idx) => (
                           <div
                             key={idx}
-                            className="text-[10px] font-semibold text-muted-text border border-white/[0.06] bg-[#0A0F1D]/50 px-2.5 py-1.5 rounded-lg flex items-center gap-1 font-heading"
+                            className="text-[10px] font-semibold text-slate-300 border border-white/10 bg-white/[0.04] px-2.5 py-1.5 rounded-lg flex items-center gap-1 font-heading"
                           >
-                            <Code2 className="w-3 h-3 text-accent" />
+                            <Code2 className="w-3 h-3 text-cyan-400" />
                             <span>{proj}</span>
                           </div>
                         ))}

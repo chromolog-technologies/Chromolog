@@ -99,21 +99,21 @@ export default function Recommendations({ setActivePage }) {
           {/* Header */}
           <div className="flex items-center justify-between mb-8">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-accent/20 to-primary/20 border border-accent/20 flex items-center justify-center">
-                <Lightbulb className="w-5 h-5 text-accent" />
+              <div className="w-10 h-10 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center">
+                <Lightbulb className="w-5 h-5 text-cyan-400" />
               </div>
               <div>
                 <h3 className="text-lg font-heading font-extrabold text-white">
                   Recommended for You
                 </h3>
-                <p className="text-xs text-muted-text font-body">
+                <p className="text-xs text-slate-300 font-body">
                   Personalized based on your interests
                 </p>
               </div>
             </div>
             <button
               onClick={handleDismiss}
-              className="p-2 rounded-lg hover:bg-white/[0.06] text-muted-text hover:text-white transition-colors"
+              className="p-2 rounded-lg hover:bg-white/10 text-slate-400 hover:text-white transition-colors"
               aria-label="Dismiss recommendations"
             >
               <X className="w-4 h-4" />
@@ -129,25 +129,25 @@ export default function Recommendations({ setActivePage }) {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, delay: i * 0.1 }}
                 onClick={() => handleClick(rec)}
-                className="group text-left p-5 rounded-2xl border border-white/[0.06] bg-[#0A0F1D]/50 hover:border-white/[0.15] hover:bg-white/[0.03] transition-all duration-300 backdrop-blur-sm"
+                className="group text-left p-5 rounded-2xl border border-white/15 bg-white/[0.04] backdrop-blur-xl hover:border-cyan-400/40 hover:bg-white/[0.08] transition-all duration-300 shadow-xl"
               >
                 <div className="flex items-start gap-3 mb-3">
                   <div className={`w-8 h-8 rounded-lg bg-gradient-to-br ${typeColors[rec.type] || "from-primary to-accent"} flex items-center justify-center shrink-0`}>
                     <Sparkles className="w-3.5 h-3.5 text-white" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <span className="text-[10px] font-heading font-bold uppercase tracking-widest text-accent/60 block mb-1">
+                    <span className="text-[10px] font-heading font-bold uppercase tracking-widest text-cyan-400 block mb-1">
                       {rec.type}
                     </span>
-                    <h3 className="text-sm font-heading font-bold text-white group-hover:text-accent transition-colors leading-snug">
+                    <h3 className="text-sm font-heading font-bold text-white group-hover:text-cyan-400 transition-colors leading-snug">
                       {rec.title}
                     </h3>
                   </div>
                 </div>
-                <p className="text-xs text-muted-text font-body mb-3">
+                <p className="text-xs text-slate-300 font-body mb-3">
                   {rec.reason}
                 </p>
-                <span className="inline-flex items-center gap-1 text-[11px] font-heading font-bold text-accent/70 group-hover:text-accent transition-colors">
+                <span className="inline-flex items-center gap-1 text-[11px] font-heading font-bold text-cyan-400 group-hover:text-cyan-300 transition-colors">
                   Explore
                   <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
                 </span>

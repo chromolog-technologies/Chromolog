@@ -60,6 +60,7 @@ const IndustryPage = lazy(() => import("./pages/IndustryPage"));
 // Lazy-loaded heavy components
 const TechOrbit = lazy(() => import("./components/TechOrbit"));
 const IndustryExplorer = lazy(() => import("./components/IndustryExplorer"));
+const HorizontalScrollShowcase = lazy(() => import("./components/HorizontalScrollShowcase"));
 
 // Analytics hooks
 import useScrollDepth from "./hooks/useScrollDepth";
@@ -317,8 +318,9 @@ export default function App() {
             <>
               <Hero navigateToSection={navigateToSection} />
               <ExecutiveSummary setActivePage={setActivePage} />
-              <ProblemSection onOpenAudit={() => setIsAuditModalOpen(true)} navigateToSection={navigateToSection} />
               <Suspense fallback={<SectionSkeleton />}>
+                <HorizontalScrollShowcase navigateToSection={navigateToSection} />
+                <ProblemSection onOpenAudit={() => setIsAuditModalOpen(true)} navigateToSection={navigateToSection} />
                 <BusinessCore navigateToSection={navigateToSection} onOpenAudit={() => setIsAuditModalOpen(true)} />
                 <Services setActivePage={setActivePage} />
                 <WebsiteRescue setActivePage={setActivePage} />

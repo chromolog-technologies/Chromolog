@@ -142,7 +142,7 @@ export default function Footer({ setActivePage }) {
                   key={i}
                   href={`/${link.path}`}
                   onClick={(e) => handleLinkClick(e, link.path)}
-                  className="text-muted-text hover:text-accent transition-colors duration-200 line-clamp-1"
+                  className="text-slate-400 hover:text-white transition-colors duration-200 line-clamp-1"
                 >
                   {link.label}
                 </a>
@@ -154,7 +154,7 @@ export default function Footer({ setActivePage }) {
           <motion.div {...columnVariant(0.18)} className="lg:col-span-2 space-y-4">
             <div>
               <h4 className="text-xs font-heading font-bold text-white uppercase tracking-wider mb-2">Company</h4>
-              <nav className="flex flex-col space-y-1.5 text-xs text-muted-text">
+              <nav className="flex flex-col space-y-1.5 text-xs text-slate-400">
                 {[
                   { label: "Case Studies & Proof", path: "case-studies" },
                   { label: "Free Consultation", path: "free-consultation" },
@@ -170,7 +170,7 @@ export default function Footer({ setActivePage }) {
 
             <div>
               <h4 className="text-xs font-heading font-bold text-white uppercase tracking-wider mb-2">Regional Coverage</h4>
-              <nav className="flex flex-col space-y-1.5 text-xs text-muted-text">
+              <nav className="flex flex-col space-y-1.5 text-xs text-slate-400">
                 {[
                   { label: "Kochi, Kerala", path: "locations/kochi" },
                   { label: "Kerala State", path: "locations/kerala" },
@@ -187,9 +187,9 @@ export default function Footer({ setActivePage }) {
           <motion.div {...columnVariant(0.26)} className="lg:col-span-3 space-y-4">
             <h4 className="text-xs font-heading font-bold text-white uppercase tracking-wider">Office Details</h4>
             
-            <div className="space-y-3 text-xs text-muted-text">
+            <div className="space-y-3 text-xs text-slate-400">
               <div className="flex items-start gap-2.5">
-                <MapPin className="w-4 h-4 text-accent shrink-0 mt-0.5" />
+                <MapPin className="w-4 h-4 text-primary shrink-0 mt-0.5" />
                 <div>
                   <strong className="block text-white text-[11px] font-heading">Kerala Office:</strong>
                   <p className="leading-relaxed">SPATIUM, Ground Floor Island Castle, Opposite YMCA, Chittoor Road, Ernakulam, Kerala 682035.</p>

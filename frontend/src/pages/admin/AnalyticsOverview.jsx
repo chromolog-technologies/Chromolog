@@ -62,41 +62,41 @@ export default function AnalyticsOverview() {
     <div className="space-y-6">
       {/* Top Header */}
       <div>
-        <h2 className="text-xl font-bold font-heading text-white flex items-center gap-2">
-          <BarChart3 className="w-5 h-5 text-accent" /> Analytics Hub: GA4 &amp; Google Search Console
+        <h2 className="text-xl font-bold font-heading text-slate-900 flex items-center gap-2">
+          <BarChart3 className="w-5 h-5 text-primary" /> Analytics Hub: GA4 &amp; Google Search Console
         </h2>
-        <p className="text-xs text-muted-text">
+        <p className="text-xs text-slate-600">
           Unified traffic performance, search keyword rankings, and multi-channel acquisition signals.
         </p>
       </div>
 
       {/* GA4 vs Search Console High Level Metric Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card variant="glass" className="p-5 border-indigo-500/20 space-y-2">
-          <span className="text-xs font-bold font-heading text-indigo-300 uppercase tracking-wider">GA4 Active Users</span>
-          <p className="text-2xl font-extrabold font-heading text-white">{(ga.active_users || 0).toLocaleString()}</p>
-          <p className="text-[11px] text-muted-text">Unique website visitors (30 days)</p>
+        <Card variant="glass" className="p-5 border-slate-200 bg-white shadow-sm space-y-2">
+          <span className="text-xs font-bold font-heading text-indigo-600 uppercase tracking-wider">GA4 Active Users</span>
+          <p className="text-2xl font-extrabold font-heading text-slate-900">{(ga.active_users || 0).toLocaleString()}</p>
+          <p className="text-[11px] text-slate-500">Unique website visitors (30 days)</p>
         </Card>
 
-        <Card variant="glass" className="p-5 border-cyan-500/20 space-y-2">
-          <span className="text-xs font-bold font-heading text-cyan-300 uppercase tracking-wider">GA4 Total Sessions</span>
-          <p className="text-2xl font-extrabold font-heading text-white">{(ga.sessions || 0).toLocaleString()}</p>
-          <p className="text-[11px] text-muted-text">Total page sessions recorded</p>
+        <Card variant="glass" className="p-5 border-slate-200 bg-white shadow-sm space-y-2">
+          <span className="text-xs font-bold font-heading text-sky-600 uppercase tracking-wider">GA4 Total Sessions</span>
+          <p className="text-2xl font-extrabold font-heading text-slate-900">{(ga.sessions || 0).toLocaleString()}</p>
+          <p className="text-[11px] text-slate-500">Total page sessions recorded</p>
         </Card>
 
-        <Card variant="glass" className="p-5 border-purple-glow/20 space-y-2">
-          <span className="text-xs font-bold font-heading text-purple-300 uppercase tracking-wider">Search Impressions</span>
-          <p className="text-2xl font-extrabold font-heading text-white">{(sc.impressions || 0).toLocaleString()}</p>
-          <p className="text-[11px] text-muted-text">Google Search result views</p>
+        <Card variant="glass" className="p-5 border-slate-200 bg-white shadow-sm space-y-2">
+          <span className="text-xs font-bold font-heading text-purple-600 uppercase tracking-wider">Search Impressions</span>
+          <p className="text-2xl font-extrabold font-heading text-slate-900">{(sc.impressions || 0).toLocaleString()}</p>
+          <p className="text-[11px] text-slate-500">Google Search result views</p>
         </Card>
 
-        <Card variant="glass" className="p-5 border-emerald-500/20 space-y-2">
-          <span className="text-xs font-bold font-heading text-emerald-300 uppercase tracking-wider">Search Clicks &amp; CTR</span>
+        <Card variant="glass" className="p-5 border-slate-200 bg-white shadow-sm space-y-2">
+          <span className="text-xs font-bold font-heading text-emerald-600 uppercase tracking-wider">Search Clicks &amp; CTR</span>
           <div className="flex items-baseline justify-between">
-            <span className="text-2xl font-extrabold font-heading text-white">{(sc.clicks || 0).toLocaleString()}</span>
-            <span className="text-xs font-bold text-emerald-400">{sc.avg_ctr || 0}% CTR</span>
+            <span className="text-2xl font-extrabold font-heading text-slate-900">{(sc.clicks || 0).toLocaleString()}</span>
+            <span className="text-xs font-bold text-emerald-600">{sc.avg_ctr || 0}% CTR</span>
           </div>
-          <p className="text-[11px] text-muted-text">Organic search referral clicks</p>
+          <p className="text-[11px] text-slate-500">Organic search referral clicks</p>
         </Card>
       </div>
 
@@ -104,19 +104,19 @@ export default function AnalyticsOverview() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Traffic Channels */}
         <div className="lg:col-span-5">
-          <Card variant="glass" className="p-6 border-white/[0.08] space-y-4">
-            <h3 className="text-base font-bold font-heading text-white flex items-center gap-2">
-              <Globe className="w-4 h-4 text-accent" /> GA4 Traffic Acquisition Channels
+          <Card variant="glass" className="p-6 border-slate-200 bg-white shadow-sm space-y-4">
+            <h3 className="text-base font-bold font-heading text-slate-900 flex items-center gap-2">
+              <Globe className="w-4 h-4 text-primary" /> GA4 Traffic Acquisition Channels
             </h3>
 
             <div className="space-y-3 pt-2">
               {ga.traffic_sources?.map((item, idx) => (
-                <div key={idx} className="space-y-1.5 p-3 rounded-xl bg-white/[0.02] border border-white/[0.06]">
+                <div key={idx} className="space-y-1.5 p-3 rounded-xl bg-slate-50 border border-slate-200">
                   <div className="flex justify-between text-xs font-heading">
-                    <span className="font-bold text-white">{item.source}</span>
-                    <span className="text-accent font-extrabold">{item.users} users ({item.percent}%)</span>
+                    <span className="font-bold text-slate-900">{item.source}</span>
+                    <span className="text-primary font-extrabold">{item.users} users ({item.percent}%)</span>
                   </div>
-                  <div className="w-full bg-white/10 rounded-full h-1.5 overflow-hidden">
+                  <div className="w-full bg-slate-200 rounded-full h-1.5 overflow-hidden">
                     <div className="bg-gradient-to-r from-primary to-accent h-full rounded-full" style={{ width: `${item.percent}%` }} />
                   </div>
                 </div>
@@ -127,9 +127,9 @@ export default function AnalyticsOverview() {
 
         {/* Search Console Keywords Table */}
         <div className="lg:col-span-7">
-          <Card variant="glass" className="p-6 border-white/[0.08] space-y-4">
-            <h3 className="text-base font-bold font-heading text-white flex items-center gap-2">
-              <Search className="w-4 h-4 text-purple-300" /> Google Search Console Top Ranking Keywords
+          <Card variant="glass" className="p-6 border-slate-200 bg-white shadow-sm space-y-4">
+            <h3 className="text-base font-bold font-heading text-slate-900 flex items-center gap-2">
+              <Search className="w-4 h-4 text-purple-600" /> Google Search Console Top Ranking Keywords
             </h3>
 
             <div className="overflow-x-auto rounded-xl border border-white/[0.06]">

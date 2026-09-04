@@ -137,12 +137,12 @@ export default function AdminDashboard({ onNavigateTab }) {
 
       {/* Multi-Channel Ingestion & Conversion Breakdown */}
       <Card variant="glass" className="p-6 border-white/[0.08] space-y-5">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-white/[0.06]">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-slate-200">
           <div>
-            <h2 className="text-lg font-bold font-heading text-white flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-accent" /> Multi-Channel Lead Ingestion &amp; ROI Breakdown
+            <h2 className="text-lg font-bold font-heading text-slate-900 flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-primary" /> Multi-Channel Lead Ingestion &amp; ROI Breakdown
             </h2>
-            <p className="text-xs text-muted-text font-body">
+            <p className="text-xs text-slate-600 font-body">
               Real-time conversion performance comparing Website Inquiries, Instagram Ads, Facebook Ads &amp; Google Ads.
             </p>
           </div>

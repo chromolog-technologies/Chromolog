@@ -34,8 +34,8 @@ export default function AdminLogin({ onLoginSuccess }) {
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-accent/10 border border-accent/30 text-accent text-xs font-heading font-bold">
             <Shield className="w-3.5 h-3.5" /> Security Portal Authentication
           </div>
-          <h1 className="text-2xl font-bold font-heading text-white">Admin Command Center</h1>
-          <p className="text-xs text-muted-text">
+          <h1 className="text-2xl font-bold font-heading text-slate-900">Admin Command Center</h1>
+          <p className="text-xs text-slate-600">
             Sign in to access Multi-Source CRM, GA4 Search Console Hub, and Content Management.
           </p>
         </div>

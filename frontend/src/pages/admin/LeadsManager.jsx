@@ -174,8 +174,8 @@ export default function LeadsManager() {
       {/* Header Controls */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-xl font-bold font-heading text-white">Multi-Source Lead CRM</h2>
-          <p className="text-xs text-muted-text">Manage website inquiries, Instagram &amp; Facebook Lead Ads, and pipeline conversions.</p>
+          <h2 className="text-xl font-bold font-heading text-slate-900">Multi-Source Lead CRM</h2>
+          <p className="text-xs text-slate-600">Manage website inquiries, Instagram &amp; Facebook Lead Ads, and pipeline conversions.</p>
         </div>
 
         <div className="flex items-center gap-2">

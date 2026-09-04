@@ -6,8 +6,8 @@ import tailwindcss from '@tailwindcss/vite'
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   build: {
-    outDir: '../',
-    emptyOutDir: false,
+    outDir: 'dist',
+    emptyOutDir: true,
     chunkSizeWarningLimit: 600,
     cssCodeSplit: true,
     target: 'es2020',

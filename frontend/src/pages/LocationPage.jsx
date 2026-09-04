@@ -79,8 +79,8 @@ export default function LocationPage({ locationSlug = "kochi", setActivePage }) 
           {/* Services Available in Location */}
           <div className="space-y-6">
             <div className="text-center max-w-2xl mx-auto">
-              <h2 className="text-2xl font-bold font-heading text-white">Services Available in {loc.name}</h2>
-              <p className="text-xs text-muted-text mt-1">Tailored for regional market requirements</p>
+              <h2 className="text-2xl font-bold font-heading text-slate-900">Services Available in {loc.name}</h2>
+              <p className="text-xs text-slate-600 mt-1">Tailored for regional market requirements</p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -88,14 +88,14 @@ export default function LocationPage({ locationSlug = "kochi", setActivePage }) 
                 <Card
                   key={svc.slug}
                   variant="glass"
-                  className="p-5 border-white/[0.08] hover:border-accent/40 transition-all flex flex-col justify-between group"
+                  className="p-5 border-slate-200 bg-white shadow-sm hover:border-primary/40 transition-all flex flex-col justify-between group"
                 >
                   <div className="space-y-3">
-                    <div className="text-xs font-bold text-accent font-heading">{svc.badge}</div>
-                    <h3 className="text-base font-bold font-heading text-white group-hover:text-accent transition-colors">
+                    <div className="text-xs font-bold text-primary font-heading">{svc.badge}</div>
+                    <h3 className="text-base font-bold font-heading text-slate-900 group-hover:text-primary transition-colors">
                       {svc.h1}
                     </h3>
-                    <p className="text-xs text-muted-text line-clamp-2 leading-relaxed">
+                    <p className="text-xs text-slate-600 line-clamp-2 leading-relaxed">
                       {svc.hero.solution}
                     </p>
                   </div>
@@ -113,7 +113,7 @@ export default function LocationPage({ locationSlug = "kochi", setActivePage }) 
                       }}
                     >
                       <span>Learn More</span>
-                      <ArrowRight className="w-3.5 h-3.5 text-accent" />
+                      <ArrowRight className="w-3.5 h-3.5 text-primary" />
                     </Button>
                   </div>
                 </Card>
@@ -122,8 +122,8 @@ export default function LocationPage({ locationSlug = "kochi", setActivePage }) 
           </div>
 
           {/* Local CTA */}
-          <div className="p-8 rounded-3xl bg-gradient-to-r from-primary/20 via-bg-dark to-accent/20 border border-white/10 text-center space-y-4">
-            <h2 className="text-2xl font-extrabold font-heading text-white">
+          <div className="p-8 rounded-3xl bg-gradient-to-r from-blue-50 via-white to-indigo-50 border border-slate-200 text-center space-y-4 shadow-sm">
+            <h2 className="text-2xl font-extrabold font-heading text-slate-900">
               Schedule an On-Site or Online Consultation in {loc.name}
             </h2>
             <Button

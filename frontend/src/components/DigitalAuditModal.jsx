@@ -122,11 +122,11 @@ export default function DigitalAuditModal({ isOpen, onClose }) {
 
           {submitted ? (
             <div className="text-center py-10 space-y-4">
-              <div className="w-16 h-16 rounded-full bg-success/20 text-success flex items-center justify-center mx-auto">
+              <div className="w-16 h-16 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 flex items-center justify-center mx-auto">
                 <CheckCircle2 className="w-8 h-8" />
               </div>
               <h2 className="text-2xl font-extrabold font-heading text-white">Digital Audit Submitted!</h2>
-              <p className="text-xs sm:text-sm text-muted-text max-w-md mx-auto leading-relaxed">
+              <p className="text-xs sm:text-sm text-slate-300 max-w-md mx-auto leading-relaxed">
                 Thank you, <strong className="text-white">{answers.name}</strong>. Based on your answers, our senior software architect will generate a 1-page efficiency roadmap and call/WhatsApp you within 4 hours.
               </p>
               <div className="pt-3 flex justify-center gap-3">
@@ -134,7 +134,7 @@ export default function DigitalAuditModal({ isOpen, onClose }) {
                   href={`https://wa.me/919400230723?text=Hi%2C%20I%20just%20completed%20the%20Digital%20Efficiency%20Audit%20for%20${encodeURIComponent(answers.businessType || "our business")}.`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-success text-bg-dark text-xs font-bold font-heading hover:bg-success/90 transition-colors"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-600 text-white text-xs font-bold font-heading hover:bg-emerald-700 transition-colors shadow-sm"
                 >
                   <PhoneCall className="w-4 h-4" /> Message Us on WhatsApp
                 </a>
@@ -147,7 +147,7 @@ export default function DigitalAuditModal({ isOpen, onClose }) {
             <div className="space-y-6">
               {/* Progress Bar */}
               <div className="space-y-2">
-                <div className="flex items-center justify-between text-xs text-muted-text font-heading">
+                <div className="flex items-center justify-between text-xs text-slate-300 font-heading">
                   <Badge variant="ai" className="px-2.5 py-0.5 text-[10px]">
                     Free Digital Audit
                   </Badge>
@@ -155,7 +155,7 @@ export default function DigitalAuditModal({ isOpen, onClose }) {
                 </div>
                 <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
                   <div
-                    className="h-full bg-gradient-to-r from-primary to-accent rounded-full transition-all duration-300"
+                    className="h-full bg-gradient-to-r from-cyan-400 to-purple-500 rounded-full transition-all duration-300"
                     style={{ width: `${((step + 1) / questions.length) * 100}%` }}
                   />
                 </div>
@@ -166,7 +166,7 @@ export default function DigitalAuditModal({ isOpen, onClose }) {
                 <h3 className="text-lg sm:text-xl font-extrabold font-heading text-white">
                   {currentQ.title}
                 </h3>
-                <p className="text-xs text-muted-text font-body">{currentQ.subtitle}</p>
+                <p className="text-xs text-slate-300 font-body">{currentQ.subtitle}</p>
               </div>
 
               {/* Options */}
@@ -175,10 +175,10 @@ export default function DigitalAuditModal({ isOpen, onClose }) {
                   <button
                     key={i}
                     onClick={() => handleSelectOption(currentQ.id, opt)}
-                    className="w-full p-3.5 rounded-xl bg-white/[0.03] border border-white/[0.08] hover:border-accent/40 hover:bg-accent/10 text-left text-xs font-semibold text-white font-heading transition-all flex items-center justify-between group"
+                    className="w-full p-3.5 rounded-xl bg-white/[0.06] border border-white/15 hover:border-cyan-400/40 hover:bg-white/[0.12] text-left text-xs font-semibold text-white font-heading transition-all flex items-center justify-between group shadow-sm"
                   >
                     <span>{opt}</span>
-                    <ChevronRight className="w-4 h-4 text-muted-text group-hover:text-accent group-hover:translate-x-1 transition-all" />
+                    <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-cyan-400 group-hover:translate-x-1 transition-all" />
                   </button>
                 ))}
               </div>
@@ -187,7 +187,7 @@ export default function DigitalAuditModal({ isOpen, onClose }) {
               {step > 0 && (
                 <button
                   onClick={() => setStep(step - 1)}
-                  className="inline-flex items-center gap-1 text-xs text-muted-text hover:text-white transition-colors"
+                  className="inline-flex items-center gap-1 text-xs text-slate-400 hover:text-white transition-colors"
                 >
                   <ChevronLeft className="w-4 h-4" /> Previous Question
                 </button>

@@ -421,24 +421,24 @@ export default function Blog() {
                     <span>&bull;</span>
                     <span>{selectedArticle.date}</span>
                   </div>
-                  <h1 className="text-2xl md:text-4xl font-heading font-extrabold text-white leading-tight">
+                  <h1 className="text-2xl md:text-4xl font-heading font-extrabold text-slate-900 leading-tight">
                     {selectedArticle.title}
                   </h1>
                 </div>
               </div>
 
               {/* Author & Share */}
-              <div className="flex justify-between items-center border-y border-white/[0.06] py-4 text-xs">
-                <div className="flex items-center gap-2 text-muted-text">
-                  <User className="w-4 h-4 text-accent" />
-                  <span>By <strong className="text-white-text">{selectedArticle.author}</strong></span>
+              <div className="flex justify-between items-center border-y border-slate-200 py-4 text-xs">
+                <div className="flex items-center gap-2 text-slate-600">
+                  <User className="w-4 h-4 text-primary" />
+                  <span>By <strong className="text-slate-900">{selectedArticle.author}</strong></span>
                 </div>
                 <button
                   onClick={() => {
                     navigator.clipboard.writeText(window.location.href);
                     alert("Article link copied!");
                   }}
-                  className="flex items-center gap-1.5 text-muted-text hover:text-white transition-colors font-bold uppercase tracking-wider font-heading text-[10px]"
+                  className="flex items-center gap-1.5 text-slate-600 hover:text-slate-900 transition-colors font-bold uppercase tracking-wider font-heading text-[10px]"
                 >
                   <Share2 className="w-3.5 h-3.5" />
                   <span>Share</span>
@@ -446,7 +446,7 @@ export default function Blog() {
               </div>
 
               {/* Main Content Render */}
-              <div className="article-body text-white-text/90 text-base leading-relaxed font-body space-y-6 text-left">
+              <div className="article-body text-slate-700 text-base leading-relaxed font-body space-y-6 text-left">
                 {/* Parse Markdown Blocks */}
                 {selectedArticle.content.split("\n\n").map((block, idx) => {
                   const trimBlock = block.trim();
@@ -454,30 +454,30 @@ export default function Blog() {
 
                   if (trimBlock.startsWith("# ")) {
                     return (
-                      <h2 key={idx} className="text-2xl md:text-3xl font-heading font-extrabold text-white pt-4">
+                      <h2 key={idx} className="text-2xl md:text-3xl font-heading font-extrabold text-slate-900 pt-4">
                         {trimBlock.replace("# ", "")}
                       </h2>
                     );
                   }
                   if (trimBlock.startsWith("## ")) {
                     return (
-                      <h3 key={idx} className="text-xl md:text-2xl font-heading font-bold text-white pt-2 border-b border-white/[0.04] pb-2">
+                      <h3 key={idx} className="text-xl md:text-2xl font-heading font-bold text-slate-900 pt-2 border-b border-slate-200 pb-2">
                         {trimBlock.replace("## ", "")}
                       </h3>
                     );
                   }
                   if (trimBlock.startsWith("> [!TIP]")) {
                     return (
-                      <div key={idx} className="p-4 border-l-4 border-accent bg-[#00e5ff]/5 rounded-r-xl text-sm leading-relaxed text-muted-text">
-                        <strong className="text-white block mb-1">Tip</strong>
+                      <div key={idx} className="p-4 border-l-4 border-sky-500 bg-sky-50 rounded-r-xl text-sm leading-relaxed text-slate-700">
+                        <strong className="text-slate-900 block mb-1">Tip</strong>
                         {trimBlock.replace("> [!TIP]\n", "").replace("> ", "")}
                       </div>
                     );
                   }
                   if (trimBlock.startsWith("> [!IMPORTANT]")) {
                     return (
-                      <div key={idx} className="p-4 border-l-4 border-primary bg-primary/5 rounded-r-xl text-sm leading-relaxed text-muted-text">
-                        <strong className="text-white block mb-1">Important</strong>
+                      <div key={idx} className="p-4 border-l-4 border-primary bg-blue-50 rounded-r-xl text-sm leading-relaxed text-slate-700">
+                        <strong className="text-slate-900 block mb-1">Important</strong>
                         {trimBlock.replace("> [!IMPORTANT]\n", "").replace("> ", "")}
                       </div>
                     );

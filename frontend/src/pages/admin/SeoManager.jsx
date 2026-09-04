@@ -216,10 +216,10 @@ export default function SeoManager() {
       {/* Header Controls */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-xl font-bold font-heading text-white flex items-center gap-2">
-            <Globe className="w-5 h-5 text-accent" /> SEO &amp; Meta Tags Manager
+          <h2 className="text-xl font-bold font-heading text-slate-900 flex items-center gap-2">
+            <Globe className="w-5 h-5 text-primary" /> SEO &amp; Meta Tags Manager
           </h2>
-          <p className="text-xs text-muted-text">
+          <p className="text-xs text-slate-600">
             Configure page titles, descriptions, OpenGraph share previews, and XML sitemaps.
           </p>
         </div>

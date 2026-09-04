@@ -1,7 +1,7 @@
-// ─── BusinessCore — Living Transformation: BEFORE → CHROMOLOG ENGINE → AFTER ─────
+// ─── BusinessCore — Living System Transformation with Animated Data Flow ─────
 
 import React, { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import {
   FileSpreadsheet,
   MessageSquare,
@@ -23,19 +23,18 @@ import {
 import Badge from "./ui/Badge";
 import Card from "./ui/Card";
 import Button from "./ui/Button";
-import { easings } from "../motion/easings";
 
 const prefersReducedMotion =
   typeof window !== "undefined" &&
   window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 const beforeNodes = [
-  { id: "excel", title: "Excel Spreadsheets", icon: FileSpreadsheet, desc: "Conflicting data & formula errors", color: "text-amber-400", bg: "bg-amber-500/10", border: "border-amber-500/20" },
-  { id: "whatsapp", title: "WhatsApp Chats", icon: MessageSquare, desc: "Lost lead orders & chat chaos", color: "text-amber-400", bg: "bg-amber-500/10", border: "border-amber-500/20" },
-  { id: "oldweb", title: "Old Website", icon: Globe, desc: "Slow, outdated & yields 0 leads", color: "text-rose-400", bg: "bg-rose-500/10", border: "border-rose-500/20" },
-  { id: "paper", title: "Paper Receipts", icon: FileText, desc: "Manual re-entry & lost slips", color: "text-amber-400", bg: "bg-amber-500/10", border: "border-amber-500/20" },
-  { id: "manual", title: "Manual Work", icon: Repeat, desc: "Hours wasted on duplicate entry", color: "text-rose-400", bg: "bg-rose-500/10", border: "border-rose-500/20" },
-  { id: "separate", title: "Separate SaaS", icon: Unplug, desc: "Disconnected software tools", color: "text-amber-400", bg: "bg-amber-500/10", border: "border-amber-500/20" },
+  { id: "excel", title: "Excel Spreadsheets", icon: FileSpreadsheet, desc: "Conflicting data & formula errors", color: "text-amber-400", bg: "bg-amber-500/10", border: "border-amber-500/30" },
+  { id: "whatsapp", title: "WhatsApp Chats", icon: MessageSquare, desc: "Lost lead orders & chat chaos", color: "text-amber-400", bg: "bg-amber-500/10", border: "border-amber-500/30" },
+  { id: "oldweb", title: "Old Website", icon: Globe, desc: "Slow, outdated & yields 0 leads", color: "text-rose-400", bg: "bg-rose-500/10", border: "border-rose-500/30" },
+  { id: "paper", title: "Paper Receipts", icon: FileText, desc: "Manual re-entry & lost slips", color: "text-amber-400", bg: "bg-amber-500/10", border: "border-amber-500/30" },
+  { id: "manual", title: "Manual Work", icon: Repeat, desc: "Hours wasted on duplicate entry", color: "text-rose-400", bg: "bg-rose-500/10", border: "border-rose-500/30" },
+  { id: "separate", title: "Separate SaaS", icon: Unplug, desc: "Disconnected software tools", color: "text-amber-400", bg: "bg-amber-500/10", border: "border-amber-500/30" },
 ];
 
 const afterNodes = [
@@ -48,9 +47,8 @@ const afterNodes = [
 ];
 
 export default function BusinessCore({ onOpenAudit }) {
-  const [activeTab, setActiveTab] = useState("all"); // 'all', 'before', 'after'
+  const [activeTab, setActiveTab] = useState("all");
   const [activeAfterNode, setActiveAfterNode] = useState(afterNodes[0]);
-  const [simulationRunning, setSimulationRunning] = useState(true);
 
   // Auto-cycle active after node for live telemetry
   useEffect(() => {
@@ -59,17 +57,17 @@ export default function BusinessCore({ onOpenAudit }) {
         const idx = afterNodes.findIndex((n) => n.id === prev.id);
         return afterNodes[(idx + 1) % afterNodes.length];
       });
-    }, 3000);
+    }, 2800);
     return () => clearInterval(interval);
   }, []);
 
   return (
     <section
       id="business-core"
-      className="relative py-20 md:py-28 bg-bg-dark border-b border-white/[0.06] overflow-hidden select-none"
+      className="relative py-20 md:py-28 bg-[#060818] border-b border-white/10 overflow-hidden select-none"
     >
-      {/* Background ambient radial glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[900px] bg-primary/5 rounded-full blur-3xl pointer-events-none" />
+      {/* Ambient background lighting */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-cyan-500/10 rounded-full blur-[160px] pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 space-y-14">
 
@@ -78,23 +76,26 @@ export default function BusinessCore({ onOpenAudit }) {
           <Badge variant="ai" className="px-3.5 py-1 text-xs font-semibold">
             Living System Transformation
           </Badge>
-          <h2 className="text-3xl sm:text-5xl font-extrabold font-heading text-slate-900 tracking-tight leading-tight">
-            We Turn Disconnected Processes Into One Digital System
+          <h2 className="text-3xl sm:text-5xl font-extrabold font-heading text-white tracking-tight leading-tight">
+            We Turn Disconnected Processes Into <br />
+            <span className="bg-gradient-to-r from-cyan-400 via-sky-300 to-purple-400 bg-clip-text text-transparent">
+              One Connected Digital System
+            </span>
           </h2>
-          <p className="text-sm sm:text-base text-slate-600 font-body leading-relaxed max-w-2xl mx-auto">
+          <p className="text-sm sm:text-base text-slate-300 font-body leading-relaxed max-w-2xl mx-auto">
             See how Chromolog replaces scattered spreadsheets, lost WhatsApp chats, and paper slips with one continuous, real-time enterprise flow.
           </p>
         </div>
 
         {/* Filter / View Mode Switcher */}
         <div className="flex justify-center items-center gap-2">
-          <div className="p-1 rounded-2xl bg-white/[0.03] border border-white/[0.08] flex items-center gap-1">
+          <div className="p-1.5 rounded-2xl bg-white/[0.04] border border-white/15 backdrop-blur-xl flex items-center gap-1">
             <button
               onClick={() => setActiveTab("all")}
               className={`px-4 py-2 rounded-xl text-xs font-bold font-heading transition-all ${
                 activeTab === "all"
-                  ? "bg-gradient-to-r from-primary to-accent text-white shadow-md"
-                  : "text-muted-text hover:text-white"
+                  ? "bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white shadow-lg shadow-purple-500/30"
+                  : "text-slate-400 hover:text-white"
               }`}
             >
               Full Transformation View
@@ -103,8 +104,8 @@ export default function BusinessCore({ onOpenAudit }) {
               onClick={() => setActiveTab("before")}
               className={`px-4 py-2 rounded-xl text-xs font-bold font-heading transition-all ${
                 activeTab === "before"
-                  ? "bg-rose-500/20 text-rose-400 border border-rose-500/40"
-                  : "text-muted-text hover:text-white"
+                  ? "bg-rose-500/20 text-rose-300 border border-rose-500/40"
+                  : "text-slate-400 hover:text-white"
               }`}
             >
               ❌ Before (Chaos)
@@ -113,8 +114,8 @@ export default function BusinessCore({ onOpenAudit }) {
               onClick={() => setActiveTab("after")}
               className={`px-4 py-2 rounded-xl text-xs font-bold font-heading transition-all ${
                 activeTab === "after"
-                  ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/40"
-                  : "text-muted-text hover:text-white"
+                  ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40"
+                  : "text-slate-400 hover:text-white"
               }`}
             >
               ✅ After (Connected)
@@ -123,7 +124,7 @@ export default function BusinessCore({ onOpenAudit }) {
         </div>
 
         {/* ── 3-COLUMN LIVING TRANSFORMATION DIAGRAM ─────────────────────────── */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center pt-2">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center pt-2 relative">
 
           {/* 1. LEFT SIDE — BEFORE (Fragmented Chaos) */}
           {(activeTab === "all" || activeTab === "before") && (
@@ -137,7 +138,7 @@ export default function BusinessCore({ onOpenAudit }) {
                 <div className="flex items-center justify-center gap-1.5 text-xs font-extrabold font-heading text-rose-400 uppercase tracking-wider">
                   <AlertTriangle className="w-4 h-4" /> BEFORE CHROMOLOG
                 </div>
-                <h3 className="text-sm font-bold font-heading text-white">Scattered & Disconnected</h3>
+                <h3 className="text-sm font-bold font-heading text-white">Scattered &amp; Disconnected</h3>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-3">
@@ -147,7 +148,7 @@ export default function BusinessCore({ onOpenAudit }) {
                     <motion.div
                       key={item.id}
                       animate={
-                        prefersReducedMotion || !simulationRunning
+                        prefersReducedMotion
                           ? {}
                           : {
                               y: [0, -3, 0, 3, 0],
@@ -158,7 +159,7 @@ export default function BusinessCore({ onOpenAudit }) {
                         repeat: Infinity,
                         ease: "easeInOut",
                       }}
-                      className={`p-3.5 rounded-2xl ${item.bg} ${item.border} border text-left flex items-start gap-3 relative overflow-hidden group`}
+                      className={`p-3.5 rounded-2xl ${item.bg} ${item.border} border text-left flex items-start gap-3 relative overflow-hidden group hover:border-rose-400/50 transition-all`}
                     >
                       <div className={`w-8 h-8 rounded-xl ${item.bg} ${item.color} flex items-center justify-center shrink-0 mt-0.5`}>
                         <Icon className="w-4 h-4" />
@@ -166,11 +167,11 @@ export default function BusinessCore({ onOpenAudit }) {
                       <div className="space-y-0.5">
                         <div className="text-xs font-bold font-heading text-white flex items-center gap-1.5">
                           {item.title}
-                          <span className="text-[9px] font-bold text-rose-400 bg-rose-500/20 px-1.5 py-0.2 rounded">
+                          <span className="text-[9px] font-bold text-rose-400 bg-rose-500/20 px-1.5 py-0.2 rounded border border-rose-500/30">
                             Unsynced
                           </span>
                         </div>
-                        <p className="text-[11px] text-muted-text font-body leading-tight">{item.desc}</p>
+                        <p className="text-[11px] text-slate-300 font-body leading-tight">{item.desc}</p>
                       </div>
                     </motion.div>
                   );
@@ -179,56 +180,74 @@ export default function BusinessCore({ onOpenAudit }) {
             </motion.div>
           )}
 
-          {/* 2. CENTER — CHROMOLOG TRANSFORMATION CORE ENGINE */}
+          {/* 2. CENTER — CHROMOLOG TRANSFORMATION CORE ENGINE WITH ROTATING RINGS */}
           {activeTab === "all" && (
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5, delay: 0.2 }}
-              className="lg:col-span-4 flex flex-col items-center justify-center text-center space-y-6 py-6"
+              className="lg:col-span-4 flex flex-col items-center justify-center text-center space-y-6 py-6 relative"
             >
-              {/* Central Glowing Engine Core */}
+              {/* Central Glowing Engine Core with Rotating Neon Rings */}
               <div className="relative flex flex-col items-center justify-center">
-                {/* Pulse Aura Rings */}
-                <div className="absolute w-48 h-48 rounded-full border border-accent/30 animate-ping opacity-30 pointer-events-none" />
-                <div className="absolute w-56 h-56 rounded-full border border-primary/30 animate-pulse opacity-40 pointer-events-none" />
+                
+                {/* Rotating Outer Tech Ring */}
+                <motion.div
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                  className="absolute w-56 h-56 rounded-full border-2 border-dashed border-cyan-400/40 pointer-events-none"
+                />
 
-                {/* Core Engine Card */}
+                {/* Counter-Rotating Inner Neon Ring */}
+                <motion.div
+                  animate={{ rotate: -360 }}
+                  transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
+                  className="absolute w-48 h-48 rounded-full border border-purple-500/50 pointer-events-none"
+                />
+
+                {/* Breathing Pulse Aura */}
+                <motion.div
+                  animate={{ scale: [1, 1.25, 1], opacity: [0.3, 0.7, 0.3] }}
+                  transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                  className="absolute w-44 h-44 rounded-full bg-cyan-500/20 blur-xl pointer-events-none"
+                />
+
+                {/* Core Engine Orb Button */}
                 <div
                   onClick={onOpenAudit}
-                  className="relative w-40 h-40 rounded-full bg-gradient-to-br from-surface via-bg-dark to-surface border-2 border-accent/70 shadow-[0_0_60px_rgba(0,229,255,0.35)] flex flex-col items-center justify-center p-4 text-center cursor-pointer group hover:scale-105 transition-transform"
+                  className="relative w-40 h-40 rounded-full bg-gradient-to-br from-[#0c1435] via-[#060818] to-[#141b4d] border-2 border-cyan-400/80 shadow-[0_0_60px_rgba(0,229,255,0.4)] flex flex-col items-center justify-center p-4 text-center cursor-pointer group hover:scale-105 transition-transform duration-300"
                 >
-                  <div className="w-11 h-11 rounded-full bg-accent/15 border border-accent/40 text-accent flex items-center justify-center mb-1 group-hover:scale-110 transition-transform">
-                    <Zap className="w-6 h-6 fill-accent/20" />
+                  <div className="w-12 h-12 rounded-full bg-cyan-500/20 border border-cyan-400/50 text-cyan-300 flex items-center justify-center mb-1 group-hover:scale-110 group-hover:bg-cyan-500/30 transition-all">
+                    <Zap className="w-6 h-6 fill-cyan-400/20 animate-pulse" />
                   </div>
                   <strong className="text-xs font-extrabold font-heading text-white tracking-widest uppercase">
                     CHROMOLOG
                   </strong>
-                  <span className="text-[10px] font-bold text-accent font-heading mt-0.5">
+                  <span className="text-[10px] font-bold text-cyan-300 font-heading mt-0.5">
                     CORE ENGINE
                   </span>
-                  <span className="text-[9px] text-muted-text mt-1 flex items-center gap-1">
-                    <Sparkles className="w-3 h-3 text-accent" /> Click to Audit
+                  <span className="text-[9px] text-slate-300 mt-1 flex items-center gap-1">
+                    <Sparkles className="w-3 h-3 text-cyan-400" /> Click to Audit
                   </span>
                 </div>
               </div>
 
               {/* Directional Flow Vector Arrows */}
-              <div className="flex items-center justify-center gap-3 text-xs font-bold font-heading text-accent bg-accent/10 border border-accent/20 px-4 py-2 rounded-full">
+              <div className="flex items-center justify-center gap-3 text-xs font-bold font-heading text-cyan-300 bg-cyan-500/10 border border-cyan-500/30 px-4 py-2 rounded-full backdrop-blur-md shadow-lg">
                 <span>Chaos Input</span>
-                <ArrowRight className="w-4 h-4 text-accent animate-pulse" />
+                <ArrowRight className="w-4 h-4 text-cyan-400 animate-pulse" />
                 <span className="text-white font-extrabold">Chromolog Core</span>
-                <ArrowRight className="w-4 h-4 text-accent animate-pulse" />
+                <ArrowRight className="w-4 h-4 text-cyan-400 animate-pulse" />
                 <span>Unified System</span>
               </div>
 
-              <p className="text-xs text-muted-text font-body max-w-xs leading-relaxed">
+              <p className="text-xs text-slate-300 font-body max-w-xs leading-relaxed">
                 Chromolog transforms fragmented Excel files, paper slips, and WhatsApp chats into one synchronized cloud database.
               </p>
             </motion.div>
           )}
 
-          {/* 3. RIGHT SIDE — AFTER (Connected Ecosystem) */}
+          {/* 3. RIGHT SIDE — AFTER (Seamlessly Connected Ecosystem) */}
           {(activeTab === "all" || activeTab === "after") && (
             <motion.div
               initial={{ opacity: 0, x: 30 }}
@@ -243,7 +262,6 @@ export default function BusinessCore({ onOpenAudit }) {
                 <h3 className="text-sm font-bold font-heading text-white">Seamlessly Connected Ecosystem</h3>
               </div>
 
-              {/* Connected Chain Nodes (Website → CRM → Automation → Dashboard → Mobile → AI) */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-3">
                 {afterNodes.map((item, idx) => {
                   const Icon = item.icon;
@@ -257,8 +275,8 @@ export default function BusinessCore({ onOpenAudit }) {
                       transition={{ duration: 0.2 }}
                       className={`p-3.5 rounded-2xl border text-left flex items-start gap-3 transition-all cursor-pointer relative overflow-hidden ${
                         isActive
-                          ? "bg-surface border-accent shadow-[0_0_20px_rgba(0,229,255,0.2)]"
-                          : "bg-white/[0.03] border-white/[0.08] hover:border-white/20"
+                          ? "bg-white/[0.08] border-cyan-400 shadow-[0_0_25px_rgba(0,229,255,0.25)]"
+                          : "bg-white/[0.04] border-white/15 hover:border-white/30"
                       }`}
                     >
                       <div
@@ -276,7 +294,7 @@ export default function BusinessCore({ onOpenAudit }) {
                           <div className="text-xs font-bold font-heading text-white flex items-center gap-1.5">
                             {item.title}
                             {idx < afterNodes.length - 1 && (
-                              <span className="text-[10px] text-accent font-heading">→</span>
+                              <span className="text-[10px] text-cyan-400 font-heading">→</span>
                             )}
                           </div>
                           <span
@@ -290,7 +308,7 @@ export default function BusinessCore({ onOpenAudit }) {
                             {item.metric}
                           </span>
                         </div>
-                        <p className="text-[11px] text-muted-text font-body leading-tight">{item.desc}</p>
+                        <p className="text-[11px] text-slate-300 font-body leading-tight">{item.desc}</p>
                       </div>
                     </motion.div>
                   );
@@ -301,9 +319,9 @@ export default function BusinessCore({ onOpenAudit }) {
 
         </div>
 
-        {/* ── Active Pillar Live Telemetry Showcase ─────────────────────────── */}
+        {/* ── Active Pillar Live Telemetry Showcase Card ─────────────────────────── */}
         <div className="max-w-4xl mx-auto pt-2">
-          <Card variant="glass" className="p-6 border-accent/40 bg-accent/[0.02] shadow-2xl">
+          <div className="p-6 rounded-3xl backdrop-blur-2xl bg-white/[0.04] border border-cyan-400/40 shadow-2xl">
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
               <div className="flex items-center gap-3 text-left">
                 <div
@@ -321,12 +339,12 @@ export default function BusinessCore({ onOpenAudit }) {
                     <h3 className="text-base font-extrabold font-heading text-white">
                       Connected Pillar: {activeAfterNode.title}
                     </h3>
-                    <span className="text-[10px] font-bold text-success uppercase tracking-wider bg-success/10 border border-success/20 px-2 py-0.5 rounded-full flex items-center gap-1">
-                      <span className="w-1.5 h-1.5 rounded-full bg-success animate-pulse" /> Live Flow Active
+                    <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-wider bg-emerald-500/10 border border-emerald-500/30 px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" /> Live Flow Active
                     </span>
                   </div>
-                  <p className="text-xs text-muted-text font-body mt-0.5">
-                    {activeAfterNode.desc} &bull; <span className="text-accent font-semibold">{activeAfterNode.metric}</span>
+                  <p className="text-xs text-slate-300 font-body mt-0.5">
+                    {activeAfterNode.desc} &bull; <span className="text-cyan-300 font-semibold">{activeAfterNode.metric}</span>
                   </p>
                 </div>
               </div>
@@ -340,19 +358,19 @@ export default function BusinessCore({ onOpenAudit }) {
                 Transform Your Business <ArrowRight className="w-3.5 h-3.5 ml-1" />
               </Button>
             </div>
-          </Card>
+          </div>
         </div>
 
         {/* Bottom Trust Line */}
-        <div className="flex flex-wrap items-center justify-center gap-6 text-xs text-muted-text font-heading pt-4 border-t border-white/[0.06]">
+        <div className="flex flex-wrap items-center justify-center gap-6 text-xs text-slate-300 font-heading pt-4 border-t border-white/10">
           <span className="flex items-center gap-1.5 text-white">
-            <CheckCircle2 className="w-4 h-4 text-accent" /> Replace Excel & WhatsApp Order Chaos
+            <CheckCircle2 className="w-4 h-4 text-cyan-400" /> Replace Excel &amp; WhatsApp Order Chaos
           </span>
           <span className="flex items-center gap-1.5 text-white">
-            <CheckCircle2 className="w-4 h-4 text-accent" /> 100% Source Code & Database Ownership
+            <CheckCircle2 className="w-4 h-4 text-cyan-400" /> 100% Source Code &amp; Database Ownership
           </span>
           <span className="flex items-center gap-1.5 text-white">
-            <CheckCircle2 className="w-4 h-4 text-accent" /> Zero Monthly SaaS Lock-in
+            <CheckCircle2 className="w-4 h-4 text-cyan-400" /> Zero Monthly SaaS Lock-in
           </span>
         </div>
 

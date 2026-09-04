@@ -104,11 +104,11 @@ function ProjectCard({ project, onOpen }) {
       {/* Details */}
       <div className="p-6 flex-1 flex flex-col justify-between space-y-4">
         <div className="space-y-2">
-          <h3 className="text-base font-heading font-extrabold text-white group-hover:text-accent transition-colors duration-300">
+          <h3 className="text-base font-heading font-extrabold text-white group-hover:text-cyan-400 transition-colors duration-300">
             {project.subtitle}
           </h3>
-          <span className="text-[10px] text-muted-text uppercase tracking-widest font-heading block">{project.title}</span>
-          <p className="text-xs text-muted-text leading-relaxed font-body mt-2">
+          <span className="text-[10px] text-slate-400 uppercase tracking-widest font-heading block">{project.title}</span>
+          <p className="text-xs text-slate-300 leading-relaxed font-body mt-2">
             {project.description.slice(0, 110)}...
           </p>
         </div>
@@ -179,10 +179,10 @@ export default function Projects() {
             {/* Section Head */}
             <div className="section-head reveal text-center max-w-3xl mx-auto mb-16">
               <Badge variant="ai" className="mb-3 px-3 py-1 text-xs">Case Studies</Badge>
-              <h2 className="text-3xl sm:text-5xl font-extrabold font-heading text-slate-900 tracking-tight">
-                Real Problems. Digital Solutions.
+              <h2 className="text-3xl sm:text-5xl font-extrabold font-heading text-white tracking-tight leading-tight">
+                Real Problems. <span className="bg-gradient-to-r from-cyan-400 via-sky-300 to-purple-400 bg-clip-text text-transparent">Digital Solutions.</span>
               </h2>
-              <p className="text-slate-600 text-base mt-4 max-w-xl mx-auto font-body">
+              <p className="text-slate-300 text-base mt-4 max-w-xl mx-auto font-body">
                 How Chromolog transforms manual operational friction into measurable enterprise growth.
               </p>
             </div>
@@ -196,10 +196,10 @@ export default function Projects() {
                 { end: 99, suffix: "%", label: "Client Satisfaction" },
               ].map((stat, idx) => (
                 <div key={idx} className="text-center space-y-1">
-                  <strong className="block text-2xl md:text-3xl font-heading font-extrabold text-slate-900">
+                  <strong className="block text-2xl md:text-3xl font-heading font-extrabold text-white">
                     <Counter end={stat.end} suffix={stat.suffix} />
                   </strong>
-                  <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest font-heading block">{stat.label}</span>
+                  <span className="text-[10px] font-bold text-slate-300 uppercase tracking-widest font-heading block">{stat.label}</span>
                 </div>
               ))}
             </div>
@@ -289,10 +289,10 @@ export default function Projects() {
             {/* Case Study Hero Banner */}
             <div className="h-64 md:h-80 rounded-3xl relative overflow-hidden flex items-center justify-center p-8 mb-12 shadow-2xl" style={{ background: selectedProject.gradient }}>
               <i className={`${selectedProject.icon} text-8xl text-white/10 absolute`} />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#050816] to-transparent opacity-95" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0f172a] to-transparent opacity-90" />
               
               <div className="relative z-10 text-center space-y-3 max-w-2xl">
-                <span className="text-[10px] font-bold text-accent uppercase tracking-widest font-heading block">{selectedProject.title}</span>
+                <span className="text-[10px] font-bold text-sky-400 uppercase tracking-widest font-heading block">{selectedProject.title}</span>
                 <h2 className="text-3xl md:text-5xl font-heading font-extrabold text-white leading-tight">
                   {selectedProject.subtitle}
                 </h2>

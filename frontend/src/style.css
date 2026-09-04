@@ -1,35 +1,35 @@
 @import "tailwindcss";
 
 @theme {
-  --color-bg-dark: #f8fafc;
-  --color-surface: #ffffff;
-  --color-surface-secondary: #f1f5f9;
-  --color-primary: #2563eb;
-  --color-secondary: #0ea5e9;
-  --color-accent: #2563eb;
-  --color-purple-glow: #7c3aed;
+  --color-bg-dark: #060818;
+  --color-surface: rgba(255, 255, 255, 0.04);
+  --color-surface-secondary: rgba(255, 255, 255, 0.07);
+  --color-primary: #3b82f6;
+  --color-secondary: #38bdf8;
+  --color-accent: #a855f7;
+  --color-purple-glow: #8b5cf6;
   --color-success: #10b981;
   --color-warning: #f59e0b;
   --color-error: #ef4444;
-  --color-white-text: #0f172a;
-  --color-muted-text: #64748b;
-  --color-border-glow: rgba(15, 23, 42, 0.08);
+  --color-white-text: #ffffff;
+  --color-muted-text: #94a3b8;
+  --color-border-glow: rgba(255, 255, 255, 0.12);
 
   --font-heading: "Space Grotesk", "Sora", sans-serif;
   --font-body: "DM Sans", sans-serif;
 }
 
 /* ═══════════════════════════════════════════════════════════════════════
-   CHROMOLOG TECHNOLOGIES — Global Stylesheet V3 (Clean Light Theme)
-   Signature logo blue & purple gradients, white theme background
+   CHROMOLOG TECHNOLOGIES — Global Stylesheet V3 (Dark Glassmorphism Theme)
+   Reference: Glassmorphism & Gradient (Deep Dark Indigo, Neon Glows & Glass Cards)
    ═══════════════════════════════════════════════════════════════════════ */
 
 :root {
-  --color-bg: #f8fafc;
-  --color-surface: #ffffff;
-  --color-primary: #2563eb;
-  --color-secondary: #0ea5e9;
-  --color-accent: #2563eb;
+  --color-bg: #060818;
+  --color-surface: rgba(255, 255, 255, 0.04);
+  --color-primary: #3b82f6;
+  --color-secondary: #38bdf8;
+  --color-accent: #a855f7;
   --font-heading: "Space Grotesk", "Sora", sans-serif;
   --font-body: "DM Sans", sans-serif;
 }
@@ -37,15 +37,15 @@
 /* ── Reset & Base ────────────────────────────────────────────────────── */
 html {
   scroll-behavior: auto; /* Required for Lenis smooth scroll */
-  background-color: #f8fafc;
-  color: #0f172a;
+  background-color: #060818;
+  color: #ffffff;
   overflow-x: hidden;
 }
 
 body {
   font-family: var(--font-body);
-  background-color: #f8fafc;
-  color: #0f172a;
+  background-color: #060818;
+  color: #ffffff;
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
   position: relative;
@@ -77,7 +77,7 @@ body.is-loading {
 
 /* Selection Color */
 ::selection {
-  background: rgba(79, 70, 229, 0.4);
+  background: rgba(168, 85, 247, 0.4);
   color: #ffffff;
 }
 
@@ -91,25 +91,25 @@ h1, h2, h3, h4, h5, h6 {
 .bg-grid-pattern {
   background-size: 40px 40px;
   background-image: 
-    linear-gradient(to right, rgba(15, 23, 42, 0.04) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(15, 23, 42, 0.04) 1px, transparent 1px);
+    linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
 }
 
 .bg-dot-pattern {
   background-size: 24px 24px;
-  background-image: radial-gradient(rgba(15, 23, 42, 0.06) 1px, transparent 1px);
+  background-image: radial-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 1px);
 }
 
-/* Premium Gradient Texts matched to Logo */
+/* Premium Gradient Texts matched to Logo & Reference Image */
 .gradient-text-primary {
-  background: linear-gradient(135deg, #2563eb 0%, #0ea5e9 50%, #7c3aed 100%);
+  background: linear-gradient(135deg, #ffffff 0%, #38bdf8 50%, #c084fc 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
 .gradient-text-cyan {
-  background: linear-gradient(135deg, #0ea5e9 0%, #2563eb 50%, #7c3aed 100%);
+  background: linear-gradient(135deg, #38bdf8 0%, #818cf8 50%, #c084fc 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -117,15 +117,34 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Glow effects */
 .radial-glow-primary {
-  background: radial-gradient(circle, rgba(37, 99, 235, 0.08) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(56, 189, 248, 0.15) 0%, transparent 70%);
 }
 
 .radial-glow-secondary {
-  background: radial-gradient(circle, rgba(14, 165, 233, 0.08) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(129, 140, 248, 0.15) 0%, transparent 70%);
 }
 
 .radial-glow-purple {
-  background: radial-gradient(circle, rgba(124, 58, 237, 0.08) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(168, 85, 247, 0.18) 0%, transparent 70%);
+}
+
+/* Glassmorphism Card Utilities */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.035);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.glass-panel-interactive {
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.glass-panel-interactive:hover {
+  background: rgba(255, 255, 255, 0.065);
+  border-color: rgba(168, 85, 247, 0.45);
+  box-shadow: 0 14px 40px -10px rgba(124, 58, 237, 0.3);
+  transform: translateY(-4px);
 }
 
 /* Ambient glow animations */
@@ -303,8 +322,7 @@ section {
 }
 
 section:not(#home) {
-  content-visibility: auto;
-  contain-intrinsic-size: 1px 700px;
+  /* content-visibility removed to prevent GSAP ScrollTrigger pinning calculation glitches */
 }
 
 .section-head {

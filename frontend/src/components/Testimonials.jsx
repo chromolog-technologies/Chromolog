@@ -165,10 +165,10 @@ export default function Testimonials() {
           <Badge variant="status" color="primary" className="px-3.5 py-1 text-xs">
             Client Proof & ROI
           </Badge>
-          <h2 className="text-3xl sm:text-4xl font-extrabold font-heading text-slate-900 tracking-tight">
+          <h2 className="text-3xl sm:text-4xl font-extrabold font-heading text-white tracking-tight">
             Trusted by the teams we build for.
           </h2>
-          <p className="text-slate-600 text-base font-body max-w-xl mx-auto">
+          <p className="text-slate-300 text-base font-body max-w-xl mx-auto">
             Real outcomes from real clients across healthcare, education, and enterprise sectors.
           </p>
         </motion.div>
@@ -183,13 +183,13 @@ export default function Testimonials() {
               viewport={{ once: true }}
               transition={{ delay: idx * 0.09, duration: 0.55, ease: easings.spring }}
               whileHover={prefersReducedMotion ? {} : { y: -4, scale: 1.02 }}
-              className="relative bg-white border border-slate-200 rounded-2xl p-5 text-center shadow-sm group hover:border-primary/40 hover:shadow-md transition-all duration-300 cursor-default"
+              className="relative bg-white/[0.03] border border-white/10 backdrop-blur-xl rounded-2xl p-5 text-center shadow-2xl group hover:border-purple-500/40 hover:bg-white/[0.07] transition-all duration-300 cursor-default"
             >
-              <div className="absolute top-3 right-3 w-1.5 h-1.5 rounded-full bg-primary/40 group-hover:bg-primary transition-colors" />
-              <strong className="block text-2xl md:text-3xl font-heading font-extrabold text-slate-900">
+              <div className="absolute top-3 right-3 w-1.5 h-1.5 rounded-full bg-purple-400/40 group-hover:bg-purple-400 transition-colors" />
+              <strong className="block text-2xl md:text-3xl font-heading font-extrabold text-white">
                 <Counter end={metric.end} suffix={metric.suffix} />
               </strong>
-              <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest font-heading mt-1 block">
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest font-heading mt-1 block">
                 {metric.label}
               </span>
             </motion.div>

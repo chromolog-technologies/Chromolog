@@ -80,11 +80,10 @@ export default function Header({ activePage = "home", setActivePage, navigateToS
 
   const menuItems = [
     { label: "Home", id: "home" },
-    { label: "Solutions", id: "services" },
-    { label: "Case Studies", id: "case-studies" },
-    { label: "About", id: "about" },
-    { label: "Insights", id: "blog" },
-    { label: "Contact", id: "contact" },
+    { label: "About Us", id: "about" },
+    { label: "Services", id: "services", hasDropdown: true },
+    { label: "Technologies", id: "technologies" },
+    { label: "Blog", id: "blog" },
   ];
 
   const isActive = (item) => {
@@ -148,12 +147,12 @@ export default function Header({ activePage = "home", setActivePage, navigateToS
     <header
       className={`fixed top-0 left-0 right-0 z-40 transition-all duration-500 border-b ${
         isScrolled
-          ? "bg-white/90 backdrop-blur-xl border-slate-200/80 py-3 shadow-md"
-          : "bg-transparent border-transparent py-5"
+          ? "bg-[#060818]/85 backdrop-blur-xl border-white/10 py-3 shadow-2xl shadow-indigo-950/40"
+          : "bg-transparent border-white/5 py-4 lg:py-5"
       }`}
     >
       <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-[auto_1fr_auto] items-center gap-4 lg:gap-5">
+        <div className="flex items-center justify-between gap-4 lg:gap-8">
 
           {/* Brand Logo */}
           <motion.a
@@ -161,72 +160,59 @@ export default function Header({ activePage = "home", setActivePage, navigateToS
             href="#home"
             onClick={handleBrandClick}
             aria-label="Chromolog Home"
-            whileHover={{ scale: 1.03 }}
+            whileHover={{ scale: 1.02 }}
             transition={{ duration: 0.25, ease: easings.snappy }}
           >
-            <div className="absolute inset-0 bg-gradient-to-r from-primary/10 to-secondary/10 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-full" />
-            <BrandLogo className="h-20 w-auto sm:h-22 lg:h-24 max-w-[300px]" />
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-purple-500/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-full" />
+            <BrandLogo className="h-10 sm:h-12 w-auto max-w-[260px]" />
           </motion.a>
 
           {/* Desktop Menu */}
-          <nav className="hidden xl:flex items-center justify-center gap-0.5 min-w-0 relative" aria-label="Site sections">
+          <nav className="hidden lg:flex items-center justify-center gap-6 lg:gap-8 relative" aria-label="Site sections">
             {menuItems.map((item) => (
               <a
                 key={item.id}
                 href={pageItems.has(item.id) ? `/${item.id}` : `#${item.id}`}
                 onClick={(e) => handleLinkClick(e, item.id)}
                 aria-current={isActive(item) ? "page" : undefined}
-                className={`relative whitespace-nowrap px-2.5 2xl:px-3 py-2 text-[12px] 2xl:text-sm font-heading font-semibold transition-colors duration-300 group ${
-                  isActive(item) ? "text-primary font-bold" : "text-slate-600 hover:text-primary"
+                className={`relative flex items-center gap-1 py-2 text-sm font-heading font-medium transition-colors duration-300 group ${
+                  isActive(item) ? "text-white font-semibold" : "text-slate-300 hover:text-white"
                 }`}
               >
                 <span className="relative z-10">{item.label}</span>
+                {item.hasDropdown && (
+                  <svg className="w-3.5 h-3.5 opacity-70 group-hover:opacity-100 transition-opacity" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                )}
 
-                {/* Shared layout animated active pill underline */}
+                {/* Active indicator bar */}
                 {isActive(item) && (
                   <motion.span
                     layoutId="nav-active-indicator"
-                    className="absolute bottom-0.5 left-2 right-2 h-0.5 rounded-full"
+                    className="absolute bottom-0 left-0 right-0 h-0.5 rounded-full"
                     style={{
-                      background: "linear-gradient(90deg, #2563eb, #0ea5e9)",
-                      boxShadow: "0 0 8px rgba(37, 99, 235, 0.4)",
+                      background: "linear-gradient(90deg, #38bdf8, #a855f7)",
+                      boxShadow: "0 0 12px rgba(168, 85, 247, 0.6)",
                     }}
                     transition={{ duration: 0.35, ease: easings.smooth }}
                   />
-                )}
-
-                {/* Hover underline for non-active items */}
-                {!isActive(item) && (
-                  <span className="absolute bottom-0.5 left-2.5 right-2.5 h-0.5 bg-gradient-to-r from-primary to-secondary transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-300 rounded-full" />
                 )}
               </a>
             ))}
           </nav>
 
-          {/* Desktop CTA Buttons */}
-          <div className="hidden xl:flex items-center justify-end gap-3 whitespace-nowrap">
+          {/* Desktop CTA Button */}
+          <div className="hidden lg:flex items-center justify-end">
             <motion.a
-              href="/case-studies"
-              onClick={(e) => handleLinkClick(e, "case-studies")}
-              className="text-sm font-heading font-semibold text-slate-700 hover:text-primary transition-colors duration-300"
-              whileHover={{ y: -1 }}
-              transition={{ duration: 0.2 }}
-            >
-              Case Studies
-            </motion.a>
-            <motion.div
-              whileHover={{ scale: 1.04, y: -1 }}
+              href="#contact"
+              onClick={(e) => handleLinkClick(e, "contact")}
+              whileHover={{ scale: 1.04, boxShadow: "0 0 25px rgba(124, 58, 237, 0.5)" }}
               whileTap={{ scale: 0.97 }}
-              transition={{ duration: 0.2, ease: easings.snappy }}
+              className="px-6 py-2.5 rounded-full text-sm font-heading font-semibold text-white bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 transition-all duration-300 shadow-lg shadow-purple-500/25"
             >
-              <Button
-                variant="gradient"
-                size="sm"
-                onClick={(e) => handleLinkClick(e, "free-consultation")}
-              >
-                Free Consultation
-              </Button>
-            </motion.div>
+              Contact Us
+            </motion.a>
           </div>
 
           {/* Mobile Menu Actions */}

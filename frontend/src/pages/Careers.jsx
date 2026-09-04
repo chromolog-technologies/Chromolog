@@ -86,12 +86,12 @@ export default function Careers() {
         <div id="career-application" className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start scroll-mt-28">
           <div className="lg:col-span-5">
             <Badge variant="ai" className="px-3 py-1 text-xs">Application</Badge>
-            <h2 className="text-2xl md:text-3xl font-heading font-bold text-white mt-4">Want to grow with us?</h2>
-            <p className="text-sm text-muted-text leading-relaxed mt-4">
+            <h2 className="text-2xl md:text-3xl font-heading font-bold text-slate-900 mt-4">Want to grow with us?</h2>
+            <p className="text-sm text-slate-600 leading-relaxed mt-4">
               Tell us what you want to do, where we can see your work, and how you want to grow with Chromolog.
             </p>
           </div>
-          <Card variant="glass" className="lg:col-span-7 p-6 md:p-8 border-white/[0.08]">
+          <Card variant="glass" className="lg:col-span-7 p-6 md:p-8 border-slate-200 bg-white shadow-sm">
             {submitted && (
               <div className="fs-success-msg">
                 Thanks for applying. Our team will review your profile and get back to you.

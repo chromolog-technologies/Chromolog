@@ -249,13 +249,13 @@ export default function ServiceDetail({ serviceSlug, setActivePage, navigateToSe
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5">
               {service.process.map((p, i) => (
-                <Card key={i} variant="glass" className="p-4 border-white/[0.08] flex flex-col justify-between space-y-3">
+                <Card key={i} variant="glass" className="p-4 border-slate-200 bg-white shadow-sm flex flex-col justify-between space-y-3">
                   <div className="text-2xl font-black font-heading bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
                     {p.step}
                   </div>
                   <div>
-                    <h4 className="text-xs font-bold font-heading text-white mb-1">{p.title}</h4>
-                    <p className="text-[11px] text-muted-text font-body leading-relaxed">{p.desc}</p>
+                    <h4 className="text-xs font-bold font-heading text-slate-900 mb-1">{p.title}</h4>
+                    <p className="text-[11px] text-slate-600 font-body leading-relaxed">{p.desc}</p>
                   </div>
                 </Card>
               ))}
@@ -265,14 +265,14 @@ export default function ServiceDetail({ serviceSlug, setActivePage, navigateToSe
           {/* ── 6. Section 5: Target Industries ─────────────────────────────────── */}
           <section className="space-y-4">
             <div className="text-center max-w-2xl mx-auto space-y-1">
-              <h3 className="text-lg font-bold font-heading text-white">Industries We Transform</h3>
-              <p className="text-xs text-muted-text">Customized business rules for every commercial domain</p>
+              <h3 className="text-lg font-bold font-heading text-slate-900">Industries We Transform</h3>
+              <p className="text-xs text-slate-600">Customized business rules for every commercial domain</p>
             </div>
 
             <div className="flex flex-wrap justify-center gap-2.5">
               {service.industries.map((ind, i) => (
-                <div key={i} className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white/[0.03] border border-white/10 text-xs font-semibold font-heading text-white">
-                  <Building2 className="w-3.5 h-3.5 text-accent" />
+                <div key={i} className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white border border-slate-200 shadow-sm text-xs font-semibold font-heading text-slate-900">
+                  <Building2 className="w-3.5 h-3.5 text-primary" />
                   <span>{ind}</span>
                 </div>
               ))}
@@ -280,13 +280,13 @@ export default function ServiceDetail({ serviceSlug, setActivePage, navigateToSe
           </section>
 
           {/* ── 7. Section 6: Technology Stack ──────────────────────────────────── */}
-          <section className="p-5 rounded-2xl bg-white/[0.02] border border-white/[0.06] space-y-3">
-            <div className="flex items-center gap-2 text-xs font-heading uppercase text-muted-text tracking-wider">
-              <Code2 className="w-4 h-4 text-accent" /> Proven Technology Stack
+          <section className="p-5 rounded-2xl bg-white border border-slate-200 shadow-sm space-y-3">
+            <div className="flex items-center gap-2 text-xs font-heading uppercase text-slate-600 tracking-wider">
+              <Code2 className="w-4 h-4 text-primary" /> Proven Technology Stack
             </div>
             <div className="flex flex-wrap gap-2">
               {service.techStack.map((tech, idx) => (
-                <span key={idx} className="px-3 py-1 rounded-lg bg-white/[0.04] border border-white/[0.08] text-xs font-bold text-white font-heading">
+                <span key={idx} className="px-3 py-1 rounded-lg bg-blue-50 border border-blue-200 text-xs font-bold text-primary font-heading">
                   {tech}
                 </span>
               ))}
@@ -300,7 +300,7 @@ export default function ServiceDetail({ serviceSlug, setActivePage, navigateToSe
                 <Badge variant="status" color="success" className="px-2.5 py-0.5 text-[10px] mb-1">
                   Proven Results
                 </Badge>
-                <h3 className="text-xl font-extrabold font-heading text-white">Case Study Proof</h3>
+                <h3 className="text-xl font-extrabold font-heading text-slate-900">Case Study Proof</h3>
               </div>
               <Button
                 variant="outline"
@@ -317,22 +317,22 @@ export default function ServiceDetail({ serviceSlug, setActivePage, navigateToSe
               </Button>
             </div>
 
-            <Card variant="glass" className="p-5 md:p-6 border-white/10 grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+            <Card variant="glass" className="p-5 md:p-6 border-slate-200 bg-white shadow-sm grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
               <div className="lg:col-span-7 space-y-3">
                 <Badge variant="ai" className="px-2 py-0.5 text-[10px]">
                   {relevantCaseStudy.industry} Case Study
                 </Badge>
-                <h4 className="text-lg font-bold font-heading text-white">
+                <h4 className="text-lg font-bold font-heading text-slate-900">
                   {relevantCaseStudy.title}
                 </h4>
-                <p className="text-xs text-muted-text leading-relaxed">
+                <p className="text-xs text-slate-600 leading-relaxed">
                   {relevantCaseStudy.qualitativeResult}
                 </p>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-1">
                   {relevantCaseStudy.results.map((r, i) => (
-                    <div key={i} className="p-2 rounded-xl bg-white/[0.03] border border-white/[0.06] text-center">
-                      <div className="text-sm font-extrabold text-accent font-heading">{r.metric}</div>
-                      <div className="text-[10px] text-muted-text line-clamp-1">{r.label}</div>
+                    <div key={i} className="p-2 rounded-xl bg-slate-50 border border-slate-200 text-center">
+                      <div className="text-sm font-extrabold text-primary font-heading">{r.metric}</div>
+                      <div className="text-[10px] text-slate-600 line-clamp-1">{r.label}</div>
                     </div>
                   ))}
                 </div>
@@ -341,7 +341,7 @@ export default function ServiceDetail({ serviceSlug, setActivePage, navigateToSe
                 <img
                   src={relevantCaseStudy.image}
                   alt={relevantCaseStudy.title}
-                  className="rounded-xl object-cover w-full h-44 border border-white/10"
+                  className="rounded-xl object-cover w-full h-44 border border-slate-200 shadow-sm"
                 />
               </div>
             </Card>
@@ -350,41 +350,41 @@ export default function ServiceDetail({ serviceSlug, setActivePage, navigateToSe
           {/* ── 9. Section 8: Why Chromolog ───────────────────────────────────────── */}
           <section className="space-y-5">
             <div className="text-center max-w-2xl mx-auto space-y-1">
-              <h2 className="text-2xl font-extrabold font-heading text-white">
+              <h2 className="text-2xl font-extrabold font-heading text-slate-900">
                 Why Growing Businesses Choose Chromolog
               </h2>
-              <p className="text-xs text-muted-text">
+              <p className="text-xs text-slate-600">
                 Engineering excellence backed by commercial responsibility.
               </p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-              <Card variant="glass" className="p-5 border-white/[0.08] text-center space-y-2.5">
-                <div className="w-9 h-9 rounded-xl bg-accent/10 text-accent flex items-center justify-center mx-auto">
+              <Card variant="glass" className="p-5 border-slate-200 bg-white shadow-sm text-center space-y-2.5">
+                <div className="w-9 h-9 rounded-xl bg-blue-50 text-primary flex items-center justify-center mx-auto border border-blue-200">
                   <ShieldCheck className="w-4 h-4" />
                 </div>
-                <h3 className="text-sm font-bold font-heading text-white">100% Code Ownership</h3>
-                <p className="text-xs text-muted-text font-body leading-relaxed">
+                <h3 className="text-sm font-bold font-heading text-slate-900">100% Code Ownership</h3>
+                <p className="text-xs text-slate-600 font-body leading-relaxed">
                   Zero vendor lock-in. Full IP rights and GitHub source code repository access transferred upon project delivery.
                 </p>
               </Card>
 
-              <Card variant="glass" className="p-5 border-white/[0.08] text-center space-y-2.5">
-                <div className="w-9 h-9 rounded-xl bg-primary/20 text-primary flex items-center justify-center mx-auto">
+              <Card variant="glass" className="p-5 border-slate-200 bg-white shadow-sm text-center space-y-2.5">
+                <div className="w-9 h-9 rounded-xl bg-blue-50 text-primary flex items-center justify-center mx-auto border border-blue-200">
                   <Sparkles className="w-4 h-4" />
                 </div>
-                <h3 className="text-sm font-bold font-heading text-white">Sub-Second Speed & Modern Tech</h3>
-                <p className="text-xs text-muted-text font-body leading-relaxed">
+                <h3 className="text-sm font-bold font-heading text-slate-900">Sub-Second Speed &amp; Modern Tech</h3>
+                <p className="text-xs text-slate-600 font-body leading-relaxed">
                   Engineered with modern React and clean backend APIs for blazing speed and optional AI automation capabilities.
                 </p>
               </Card>
 
-              <Card variant="glass" className="p-5 border-white/[0.08] text-center space-y-2.5">
-                <div className="w-9 h-9 rounded-xl bg-success/20 text-success flex items-center justify-center mx-auto">
+              <Card variant="glass" className="p-5 border-slate-200 bg-white shadow-sm text-center space-y-2.5">
+                <div className="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto border border-emerald-200">
                   <Layers className="w-4 h-4" />
                 </div>
-                <h3 className="text-sm font-bold font-heading text-white">Direct Technical Support</h3>
-                <p className="text-xs text-muted-text font-body leading-relaxed">
+                <h3 className="text-sm font-bold font-heading text-slate-900">Direct Technical Support</h3>
+                <p className="text-xs text-slate-600 font-body leading-relaxed">
                   Direct communication with senior engineers ensuring clear requirements, rapid development, and post-launch support.
                 </p>
               </Card>
@@ -394,19 +394,19 @@ export default function ServiceDetail({ serviceSlug, setActivePage, navigateToSe
           {/* ── 10. Section 9: FAQs Accordion (SEO Schema Ready) ───────────────────── */}
           <section className="max-w-3xl mx-auto space-y-5">
             <div className="text-center space-y-1">
-              <h2 className="text-xl font-extrabold font-heading text-white">Frequently Asked Questions</h2>
-              <p className="text-xs text-muted-text">Clear answers to help you make informed software decisions.</p>
+              <h2 className="text-xl font-extrabold font-heading text-slate-900">Frequently Asked Questions</h2>
+              <p className="text-xs text-slate-600">Clear answers to help you make informed software decisions.</p>
             </div>
 
             <div className="space-y-2.5">
               {service.faqs.map((faq, idx) => (
-                <div key={idx} className="rounded-xl bg-white/[0.02] border border-white/[0.08] overflow-hidden">
+                <div key={idx} className="rounded-xl bg-white border border-slate-200 shadow-sm overflow-hidden">
                   <button
                     onClick={() => setOpenFaq(openFaq === idx ? -1 : idx)}
-                    className="w-full px-4 py-3.5 text-left flex items-center justify-between gap-4 font-heading font-semibold text-xs sm:text-sm text-white hover:text-accent transition-colors"
+                    className="w-full px-4 py-3.5 text-left flex items-center justify-between gap-4 font-heading font-semibold text-xs sm:text-sm text-slate-900 hover:text-primary transition-colors"
                   >
                     <span>{faq.q}</span>
-                    <ChevronDown className={`w-4 h-4 shrink-0 transition-transform ${openFaq === idx ? "rotate-180 text-accent" : "text-muted-text"}`} />
+                    <ChevronDown className={`w-4 h-4 shrink-0 transition-transform ${openFaq === idx ? "rotate-180 text-primary" : "text-slate-400"}`} />
                   </button>
                   <AnimatePresence>
                     {openFaq === idx && (
@@ -416,7 +416,7 @@ export default function ServiceDetail({ serviceSlug, setActivePage, navigateToSe
                         exit={{ height: 0, opacity: 0 }}
                         transition={{ duration: 0.25 }}
                       >
-                        <div className="px-4 pb-3.5 text-xs font-body text-muted-text leading-relaxed border-t border-white/[0.04] pt-2.5">
+                        <div className="px-4 pb-3.5 text-xs font-body text-slate-600 leading-relaxed border-t border-slate-100 pt-2.5">
                           {faq.a}
                         </div>
                       </motion.div>
@@ -428,52 +428,52 @@ export default function ServiceDetail({ serviceSlug, setActivePage, navigateToSe
           </section>
 
           {/* ── 11. Section 10: High-Converting CTA & Lead Form ─────────────────── */}
-          <section id="consultation-form" className="p-6 md:p-10 rounded-2xl bg-gradient-to-r from-primary/20 via-bg-dark to-accent/15 border border-white/15 relative overflow-hidden">
+          <section id="consultation-form" className="p-6 md:p-10 rounded-2xl bg-gradient-to-r from-blue-50 via-white to-indigo-50 border border-slate-200 relative overflow-hidden shadow-sm">
             <div className="max-w-4xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
               <div className="lg:col-span-6 space-y-3">
                 <Badge variant="ai" className="px-3 py-0.5 text-[11px]">
                   Free Technology Audit
                 </Badge>
-                <h2 className="text-xl sm:text-2xl font-extrabold font-heading text-white leading-tight">
+                <h2 className="text-xl sm:text-2xl font-extrabold font-heading text-slate-900 leading-tight">
                   Discuss Your Project with Chromolog Engineers
                 </h2>
-                <p className="text-xs text-muted-text font-body leading-relaxed">
+                <p className="text-xs text-slate-600 font-body leading-relaxed">
                   Book a free 30-minute consultation. We'll analyze your current manual workflows and provide a clear system architecture roadmap and quote.
                 </p>
 
-                <div className="space-y-1.5 pt-1 text-xs text-white/90">
+                <div className="space-y-1.5 pt-1 text-xs text-slate-700">
                   <div className="flex items-center gap-2">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-accent" /> No sales pressure — 100% technical advice.
+                    <CheckCircle2 className="w-3.5 h-3.5 text-primary" /> No sales pressure — 100% technical advice.
                   </div>
                   <div className="flex items-center gap-2">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-accent" /> Custom proposal delivered within 24 hours.
+                    <CheckCircle2 className="w-3.5 h-3.5 text-primary" /> Custom proposal delivered within 24 hours.
                   </div>
                 </div>
               </div>
 
               <div className="lg:col-span-6">
-                <Card variant="glass" className="p-5 border-white/15 bg-bg-dark/80 backdrop-blur-xl">
+                <Card variant="glass" className="p-5 border-slate-200 bg-white shadow-md">
                   {submitted ? (
                     <div className="text-center py-6 space-y-2">
-                      <div className="w-10 h-10 rounded-full bg-success/20 text-success flex items-center justify-center mx-auto">
+                      <div className="w-10 h-10 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto">
                         <CheckCircle2 className="w-5 h-5" />
                       </div>
-                      <h3 className="text-base font-bold font-heading text-white">Consultation Requested!</h3>
-                      <p className="text-xs text-muted-text">
+                      <h3 className="text-base font-bold font-heading text-slate-900">Consultation Requested!</h3>
+                      <p className="text-xs text-slate-600">
                         Our lead software architect will review your project details and reach out within 4 hours.
                       </p>
                       <a
                         href={`https://wa.me/919400230723?text=Hi%2C%20I%20just%20submitted%20a%20consultation%20request%20for%20${encodeURIComponent(service.h1)}.`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 text-xs font-bold text-accent hover:underline pt-1 font-heading"
+                        className="inline-flex items-center gap-2 text-xs font-bold text-primary hover:underline pt-1 font-heading"
                       >
                         Need faster response? Chat on WhatsApp →
                       </a>
                     </div>
                   ) : (
                     <form onSubmit={handleSubmit} className="space-y-3">
-                      <div className="text-xs font-bold font-heading text-white mb-1">Get a Free Consultation</div>
+                      <div className="text-xs font-bold font-heading text-slate-900 mb-1">Get a Free Consultation</div>
                       
                       <div>
                         <input
@@ -483,7 +483,7 @@ export default function ServiceDetail({ serviceSlug, setActivePage, navigateToSe
                           placeholder="Your Name *"
                           value={formData.name}
                           onChange={handleFormChange}
-                          className="w-full px-3 py-2 rounded-xl bg-white/[0.04] border border-white/10 text-xs text-white placeholder-muted-text/60 focus:outline-none focus:border-accent"
+                          className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-primary"
                         />
                       </div>
 
@@ -495,7 +495,7 @@ export default function ServiceDetail({ serviceSlug, setActivePage, navigateToSe
                           placeholder="Phone / WhatsApp *"
                           value={formData.phone}
                           onChange={handleFormChange}
-                          className="w-full px-3 py-2 rounded-xl bg-white/[0.04] border border-white/10 text-xs text-white placeholder-muted-text/60 focus:outline-none focus:border-accent"
+                          className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-primary"
                         />
                         <input
                           type="email"
@@ -504,7 +504,7 @@ export default function ServiceDetail({ serviceSlug, setActivePage, navigateToSe
                           placeholder="Work Email *"
                           value={formData.email}
                           onChange={handleFormChange}
-                          className="w-full px-3 py-2 rounded-xl bg-white/[0.04] border border-white/10 text-xs text-white placeholder-muted-text/60 focus:outline-none focus:border-accent"
+                          className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-primary"
                         />
                       </div>
 
@@ -513,7 +513,7 @@ export default function ServiceDetail({ serviceSlug, setActivePage, navigateToSe
                           name="currentSetup"
                           value={formData.currentSetup}
                           onChange={handleFormChange}
-                          className="w-full px-3 py-2 rounded-xl bg-bg-dark border border-white/10 text-xs text-white focus:outline-none focus:border-accent"
+                          className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-900 focus:outline-none focus:border-primary"
                         >
                           <option value="Excel & Manual Processes">Current Setup: Excel / Spreadsheets</option>
                           <option value="WhatsApp Order Chaos">Current Setup: WhatsApp Orders</option>
@@ -530,7 +530,7 @@ export default function ServiceDetail({ serviceSlug, setActivePage, navigateToSe
                           placeholder="Briefly describe your requirements..."
                           value={formData.message}
                           onChange={handleFormChange}
-                          className="w-full px-3 py-2 rounded-xl bg-white/[0.04] border border-white/10 text-xs text-white placeholder-muted-text/60 focus:outline-none focus:border-accent resize-none"
+                          className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-primary resize-none"
                         />
                       </div>
 

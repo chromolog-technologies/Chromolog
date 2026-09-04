@@ -1,12 +1,10 @@
 # Dependencies
 node_modules/
 
-# Production build output
-# dist/
-!frontend/dist/
-!assets/
-!index.html
-dist-ssr/
+# Production build output (GitHub Actions builds frontend/dist)
+frontend/dist/
+/assets/
+/index.html
 
 # Local env & secret files
 .env
@@ -17,7 +15,6 @@ dist-ssr/
 
 # Zip files & local backups
 *.zip
-src.zip
 
 # Logs
 *.log

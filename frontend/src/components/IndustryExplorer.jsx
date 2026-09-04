@@ -112,7 +112,7 @@ export default function IndustryExplorer() {
           <h2 className="text-3xl md:text-4xl font-bold font-heading text-white mt-2">
             Industry Solution Explorer
           </h2>
-          <p className="text-muted-text text-base mt-4 max-w-xl mx-auto font-body">
+          <p className="text-slate-300 text-base mt-4 max-w-xl mx-auto font-body">
             Select a target sector to review standard business problems, solutions, and product integrations.
           </p>
         </div>
@@ -132,19 +132,19 @@ export default function IndustryExplorer() {
                   onFocus={() => trackIndustryInterest(ind.id)}
                   className={`flex items-center justify-between p-4.5 rounded-2xl border text-left transition-all duration-300 ${
                     isActive
-                      ? "bg-white/[0.04] border-primary/45 shadow-xl shadow-primary/5 text-white"
-                      : "bg-white/[0.01] border-white/[0.05] text-muted-text hover:text-white-text hover:bg-white/[0.02]"
+                      ? "bg-white/[0.08] border-cyan-400/50 shadow-lg shadow-cyan-500/10 text-white"
+                      : "bg-white/[0.03] border-white/10 text-slate-300 hover:text-white hover:bg-white/[0.06]"
                   }`}
                 >
                   <div className="flex items-center gap-3.5">
                     <div className={`p-2.5 rounded-xl border ${
-                      isActive ? "bg-primary/20 border-primary/30 text-accent" : "bg-white/[0.02] border-white/[0.06] text-muted-text"
+                      isActive ? "bg-purple-500/20 border-cyan-400/40 text-cyan-400" : "bg-white/[0.04] border-white/10 text-slate-400"
                     }`}>
                       <IndIcon className="w-5 h-5" />
                     </div>
                     <span className="text-base font-heading font-bold">{ind.name}</span>
                   </div>
-                  <ArrowRight className={`w-4 h-4 text-muted-text/30 transition-transform ${isActive ? "translate-x-1 text-white" : ""}`} />
+                  <ArrowRight className={`w-4 h-4 text-slate-400 transition-transform ${isActive ? "translate-x-1 text-cyan-400" : ""}`} />
                 </button>
               );
             })}
@@ -163,36 +163,36 @@ export default function IndustryExplorer() {
               >
                 <Card
                   variant="glass"
-                  className="w-full p-8 md:p-10 border-white/[0.08] shadow-2xl backdrop-blur-xl flex flex-col justify-between"
+                  className="w-full p-8 md:p-10 border-white/15 bg-white/[0.04] backdrop-blur-2xl shadow-2xl flex flex-col justify-between"
                 >
                   <div className="space-y-6">
                     {/* Header */}
                     <div>
-                      <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/[0.04] border border-white/[0.08] rounded-xl mb-3">
+                      <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/[0.05] border border-white/10 rounded-xl mb-3">
                         <SelectedIcon className="w-4 h-4" style={{ color: selectedInd.color }} />
                         <span className="text-xs font-bold font-heading text-white">{selectedInd.name} Solutions</span>
                       </div>
                       <h3 className="text-xl md:text-2xl font-heading font-extrabold text-white leading-tight">
                         {selectedInd.tagline}
                       </h3>
-                      <p className="text-sm text-muted-text leading-relaxed font-body mt-3">
+                      <p className="text-sm text-slate-300 leading-relaxed font-body mt-3">
                         {selectedInd.overview}
                       </p>
                     </div>
 
                     {/* Problem / Solution Grid */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-white/[0.06]">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-white/10">
                       
                       {/* Business Problems */}
                       <div className="space-y-3.5 text-left">
-                        <span className="text-[10px] font-bold text-error uppercase tracking-widest font-heading flex items-center gap-1.5">
+                        <span className="text-[10px] font-bold text-rose-400 uppercase tracking-widest font-heading flex items-center gap-1.5">
                           <HelpCircle className="w-3.5 h-3.5" />
                           Business Challenges
                         </span>
                         <div className="space-y-2">
                           {selectedInd.problems.map((prob, idx) => (
-                            <div key={idx} className="text-xs font-semibold text-muted-text leading-relaxed font-body flex items-start gap-2">
-                              <span className="text-error font-bold mt-0.5">•</span>
+                            <div key={idx} className="text-xs font-semibold text-slate-300 leading-relaxed font-body flex items-start gap-2">
+                              <span className="text-rose-400 font-bold mt-0.5">•</span>
                               <span>{prob}</span>
                             </div>
                           ))}
@@ -201,14 +201,14 @@ export default function IndustryExplorer() {
 
                       {/* Solutions Offered */}
                       <div className="space-y-3.5 text-left">
-                        <span className="text-[10px] font-bold text-success uppercase tracking-widest font-heading flex items-center gap-1.5">
+                        <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-widest font-heading flex items-center gap-1.5">
                           <CheckCircle className="w-3.5 h-3.5" />
                           Engineering Solutions
                         </span>
                         <div className="space-y-2">
                           {selectedInd.solutions.map((sol, idx) => (
-                            <div key={idx} className="text-xs font-semibold text-white-text/95 leading-relaxed font-body flex items-start gap-2">
-                              <span className="text-success font-bold mt-0.5">•</span>
+                            <div key={idx} className="text-xs font-semibold text-slate-200 leading-relaxed font-body flex items-start gap-2">
+                              <span className="text-emerald-400 font-bold mt-0.5">•</span>
                               <span>{sol}</span>
                             </div>
                           ))}
@@ -218,15 +218,15 @@ export default function IndustryExplorer() {
                     </div>
 
                     {/* Benefits */}
-                    <div className="pt-4 border-t border-white/[0.06]">
-                      <span className="text-[10px] font-bold text-accent uppercase tracking-widest font-heading flex items-center gap-1.5 mb-3">
-                        <span className="w-3.5 h-3.5 rounded-full border border-accent/40 flex items-center justify-center text-[7px]">✦</span>
+                    <div className="pt-4 border-t border-white/10">
+                      <span className="text-[10px] font-bold text-cyan-400 uppercase tracking-widest font-heading flex items-center gap-1.5 mb-3">
+                        <span className="w-3.5 h-3.5 rounded-full border border-cyan-400/40 flex items-center justify-center text-[7px]">✦</span>
                         Key Benefits
                       </span>
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                         {selectedInd.benefits && selectedInd.benefits.map((b, idx) => (
-                          <div key={idx} className="flex items-start gap-2 text-xs font-semibold text-slate-100 bg-white/[0.04] border border-white/[0.08] rounded-xl p-3 leading-relaxed">
-                            <span className="text-accent font-extrabold shrink-0 mt-0.5">→</span>
+                          <div key={idx} className="flex items-start gap-2 text-xs font-semibold text-slate-200 bg-white/[0.04] border border-white/10 rounded-xl p-3 leading-relaxed">
+                            <span className="text-cyan-400 font-extrabold shrink-0 mt-0.5">→</span>
                             <span className="font-body">{b}</span>
                           </div>
                         ))}
@@ -234,11 +234,11 @@ export default function IndustryExplorer() {
                     </div>
 
                     {/* Integrated Products & Stacks */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-4 border-t border-white/[0.06]">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-4 border-t border-white/10">
 
                       {/* Products */}
                       <div className="space-y-2 text-left">
-                        <span className="text-[9px] font-bold text-muted-text uppercase tracking-widest font-heading">Deliverables Built</span>
+                        <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest font-heading">Deliverables Built</span>
                         <div className="space-y-1">
                           {selectedInd.products.map((p, idx) => (
                             <span key={idx} className="block text-xs font-bold text-white font-heading">{p}</span>
