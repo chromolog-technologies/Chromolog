@@ -37,10 +37,10 @@ jobs:
           password: ${{ secrets.SFTP_PASSWORD }}
           port: ${{ secrets.SFTP_PORT }}
           script: |
-            rm -rf /home/u818464796/public_html/assets
-            rm -f /home/u818464796/public_html/index.html
-            rm -f /home/u818464796/public_html/favicon*
-            rm -f /home/u818464796/public_html/apple-touch*
+            rm -rf /home/u818464796/domains/chromologtechnologies.com/public_html/assets
+            rm -f /home/u818464796/domains/chromologtechnologies.com/public_html/index.html
+            rm -f /home/u818464796/domains/chromologtechnologies.com/public_html/favicon*
+            rm -f /home/u818464796/domains/chromologtechnologies.com/public_html/apple-touch*
 
       - name: 🚀 SFTP Deploy Frontend
         uses: appleboy/scp-action@v0.1.7
@@ -50,5 +50,5 @@ jobs:
           password: ${{ secrets.SFTP_PASSWORD }}
           port: ${{ secrets.SFTP_PORT }}
           source: "frontend/dist/"
-          target: "/home/u818464796/public_html"
+          target: "/home/u818464796/domains/chromologtechnologies.com/public_html"
           strip_components: 2
