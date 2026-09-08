@@ -2,11 +2,24 @@
 <IfModule mod_rewrite.c>
   RewriteEngine On
   RewriteBase /
+
+  # Pass through real static files and directories first
+  RewriteRule ^assets/ - [L]
+  RewriteRule ^images/ - [L]
+  RewriteRule ^videos/ - [L]
+
   RewriteRule ^index\.html$ - [L]
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
   RewriteRule . /index.html [L]
 </IfModule>
+
+# ─── MIME Types for JS Modules ──────────────────────────────────────
+<IfModule mod_mime.c>
+  AddType application/javascript .js .mjs
+  AddType text/css .css
+</IfModule>
+
 
 # ─── Security Headers ────────────────────────────────────────────────
 <IfModule mod_headers.c>
