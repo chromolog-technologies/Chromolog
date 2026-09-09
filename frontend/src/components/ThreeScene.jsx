@@ -104,6 +104,7 @@ export default function ThreeScene() {
 
         {/* Video Player Showcase */}
         <div className="relative w-full h-full flex items-center justify-center p-2 z-10 overflow-hidden">
+          {/* 
           <video
             ref={videoRef}
             autoPlay
@@ -115,7 +116,27 @@ export default function ThreeScene() {
             <source src={VIDEO_SRC_1} type="video/mp4" />
             <source src={VIDEO_SRC_2} type="video/mp4" />
             <img src={FALLBACK_LOGO} alt="Chromolog Technologies Logo" className="w-full h-full object-contain" />
-          </video>
+          </video> 
+          */}
+          
+          {/* New 3D Logo Image with CSS Rotation */}
+          <style>
+            {`
+              @keyframes spinY {
+                0% { transform: rotateY(0deg); }
+                100% { transform: rotateY(360deg); }
+              }
+              .animate-spin-y {
+                animation: spinY 8s linear infinite;
+                transform-style: preserve-3d;
+              }
+            `}
+          </style>
+          <img 
+            src="/images/3d-logo.png" 
+            alt="Chromolog 3D Logo" 
+            className="w-full h-full object-cover animate-spin-y drop-shadow-[0_10px_25px_rgba(0,0,0,0.5)]" 
+          />
 
           {/* Light Sweep Overlay */}
           <div
