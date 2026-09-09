@@ -12,16 +12,16 @@ export default function Badge({
   
   const variants = {
     status: {
-      primary: "bg-blue-50 border-blue-200 text-blue-700 font-bold",
-      secondary: "bg-sky-50 border-sky-200 text-sky-700 font-bold",
-      success: "bg-emerald-50 border-emerald-200 text-emerald-700 font-bold",
-      warning: "bg-amber-50 border-amber-200 text-amber-800 font-bold",
-      error: "bg-rose-50 border-rose-200 text-rose-700 font-bold",
-      info: "bg-sky-50 border-sky-200 text-sky-700 font-bold",
+      primary: "bg-cyan-500/20 border-cyan-400/40 text-cyan-300 font-bold",
+      secondary: "bg-sky-500/20 border-sky-400/40 text-sky-300 font-bold",
+      success: "bg-emerald-500/20 border-emerald-400/40 text-emerald-300 font-bold",
+      warning: "bg-amber-500/20 border-amber-400/40 text-amber-300 font-bold",
+      error: "bg-rose-500/20 border-rose-400/40 text-rose-300 font-bold",
+      info: "bg-cyan-500/20 border-cyan-400/40 text-cyan-300 font-bold",
     },
-    new: "bg-blue-50 border-blue-300 text-blue-600 font-bold animate-pulse",
-    ai: "bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200 text-blue-700 font-bold shadow-sm",
-    enterprise: "bg-slate-100 border-slate-200 text-slate-800 font-bold transition-all",
+    new: "bg-blue-500/20 border-blue-400/40 text-blue-300 font-bold animate-pulse",
+    ai: "bg-purple-500/20 border-purple-400/40 text-purple-200 font-bold shadow-sm",
+    enterprise: "bg-slate-800/80 border-slate-700 text-slate-200 font-bold transition-all",
   };
 
   const getStyle = () => {

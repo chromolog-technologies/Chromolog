@@ -1,21 +1,118 @@
-// ─── Header — Premium Navigation ─────────────────────────────────────────────
-// Desktop: Shared-layout sliding nav indicator + magnetic CTA buttons
-// Mobile: Clip-path drawer with stagger menu items + reverse-stagger close
-// Scroll: Transparent → dark glass blur
+// ─── Header — Premium Navigation with Services Dropdown ─────────────────────────
 
-import { useState, useEffect } from "react";
-import { Menu, X, ArrowRight } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import {
+  Menu,
+  X,
+  ArrowRight,
+  ChevronDown,
+  ChevronRight,
+  Cpu,
+  Globe,
+  Monitor,
+  RefreshCw,
+  Smartphone,
+  Users,
+  Layers,
+  UserCheck,
+  GraduationCap,
+  Zap,
+} from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Button from "./ui/Button";
 import BrandLogo from "./BrandLogo";
 import { easings } from "../motion/easings";
 
-const pageItems = new Set(["blog", "careers", "products", "services", "case-studies", "free-consultation", "contact"]);
+const pageItems = new Set([
+  "blog",
+  "careers",
+  "products",
+  "services",
+  "case-studies",
+  "free-consultation",
+  "contact",
+]);
+
+const servicesList = [
+  {
+    slug: "custom-software-development",
+    title: "Custom Software",
+    desc: "Bespoke business software & cloud systems",
+    icon: Cpu,
+    badge: "Custom",
+  },
+  {
+    slug: "web-application-development",
+    title: "Web Applications",
+    desc: "High-speed cloud portals & web apps",
+    icon: Globe,
+    badge: "Cloud",
+  },
+  {
+    slug: "website-development",
+    title: "Website Development",
+    desc: "High-converting corporate platforms",
+    icon: Monitor,
+    badge: "Corporate",
+  },
+  {
+    slug: "website-redesign",
+    title: "Website Redesign",
+    desc: "Modernization & speed upgrades",
+    icon: RefreshCw,
+    badge: "Upgrade",
+  },
+  {
+    slug: "mobile-app-development",
+    title: "Mobile App Dev",
+    desc: "iOS & Android Flutter applications",
+    icon: Smartphone,
+    badge: "Mobile",
+  },
+  {
+    slug: "crm-development",
+    title: "Custom CRM",
+    desc: "Sales pipelines & WhatsApp sync",
+    icon: Users,
+    badge: "Sales",
+  },
+  {
+    slug: "erp-development",
+    title: "Custom ERP",
+    desc: "Multi-branch stock & procurement",
+    icon: Layers,
+    badge: "Operations",
+  },
+  {
+    slug: "hrms-development",
+    title: "HRMS & Payroll",
+    desc: "Biometric attendance & rosters",
+    icon: UserCheck,
+    badge: "Workforce",
+  },
+  {
+    slug: "lms-development",
+    title: "LMS Student Portals",
+    desc: "EdTech & automated exams",
+    icon: GraduationCap,
+    badge: "EdTech",
+  },
+  {
+    slug: "business-automation",
+    title: "Business Automation",
+    desc: "Excel & WhatsApp process automation",
+    icon: Zap,
+    badge: "Automation",
+  },
+];
 
 export default function Header({ activePage = "home", setActivePage, navigateToSection }) {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("home");
+  const [isServicesDropdownOpen, setIsServicesDropdownOpen] = useState(false);
+  const [mobileServicesExpanded, setMobileServicesExpanded] = useState(false);
+  const timeoutRef = useRef(null);
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 20);
@@ -50,7 +147,10 @@ export default function Header({ activePage = "home", setActivePage, navigateToS
   // Close drawer on Escape key
   useEffect(() => {
     const handleKey = (e) => {
-      if (e.key === "Escape") setIsDrawerOpen(false);
+      if (e.key === "Escape") {
+        setIsDrawerOpen(false);
+        setIsServicesDropdownOpen(false);
+      }
     };
     window.addEventListener("keydown", handleKey);
     return () => window.removeEventListener("keydown", handleKey);
@@ -59,6 +159,7 @@ export default function Header({ activePage = "home", setActivePage, navigateToS
   const handleLinkClick = (e, sectionId) => {
     e.preventDefault();
     setIsDrawerOpen(false);
+    setIsServicesDropdownOpen(false);
     if (pageItems.has(sectionId) || sectionId.startsWith("services/")) {
       setActivePage(sectionId);
       window.history.pushState({}, "", `/${sectionId}`);
@@ -73,9 +174,21 @@ export default function Header({ activePage = "home", setActivePage, navigateToS
   const handleBrandClick = (e) => {
     e.preventDefault();
     setIsDrawerOpen(false);
+    setIsServicesDropdownOpen(false);
     setActivePage("home");
     window.history.pushState({}, "", "/");
     window.dispatchEvent(new CustomEvent("chromolog:scrollTo", { detail: { id: "home" } }));
+  };
+
+  const handleMouseEnterServices = () => {
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    setIsServicesDropdownOpen(true);
+  };
+
+  const handleMouseLeaveServices = () => {
+    timeoutRef.current = setTimeout(() => {
+      setIsServicesDropdownOpen(false);
+    }, 150);
   };
 
   const menuItems = [
@@ -169,37 +282,136 @@ export default function Header({ activePage = "home", setActivePage, navigateToS
 
           {/* Desktop Menu */}
           <nav className="hidden lg:flex items-center justify-center gap-6 lg:gap-8 relative" aria-label="Site sections">
-            {menuItems.map((item) => (
-              <a
-                key={item.id}
-                href={pageItems.has(item.id) ? `/${item.id}` : `#${item.id}`}
-                onClick={(e) => handleLinkClick(e, item.id)}
-                aria-current={isActive(item) ? "page" : undefined}
-                className={`relative flex items-center gap-1 py-2 text-sm font-heading font-medium transition-colors duration-300 group ${
-                  isActive(item) ? "text-white font-semibold" : "text-slate-300 hover:text-white"
-                }`}
-              >
-                <span className="relative z-10">{item.label}</span>
-                {item.hasDropdown && (
-                  <svg className="w-3.5 h-3.5 opacity-70 group-hover:opacity-100 transition-opacity" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
-                )}
+            {menuItems.map((item) => {
+              if (item.hasDropdown) {
+                return (
+                  <div
+                    key={item.id}
+                    className="relative py-2"
+                    onMouseEnter={handleMouseEnterServices}
+                    onMouseLeave={handleMouseLeaveServices}
+                  >
+                    <a
+                      href="/services"
+                      onClick={(e) => handleLinkClick(e, "services")}
+                      aria-current={isActive(item) ? "page" : undefined}
+                      className={`flex items-center gap-1.5 text-sm font-heading font-medium transition-colors duration-300 group ${
+                        isActive(item) ? "text-white font-semibold" : "text-slate-300 hover:text-white"
+                      }`}
+                    >
+                      <span className="relative z-10">{item.label}</span>
+                      <ChevronDown
+                        className={`w-3.5 h-3.5 opacity-70 group-hover:opacity-100 transition-transform duration-300 ${
+                          isServicesDropdownOpen ? "rotate-180 text-accent opacity-100" : ""
+                        }`}
+                      />
 
-                {/* Active indicator bar */}
-                {isActive(item) && (
-                  <motion.span
-                    layoutId="nav-active-indicator"
-                    className="absolute bottom-0 left-0 right-0 h-0.5 rounded-full"
-                    style={{
-                      background: "linear-gradient(90deg, #38bdf8, #a855f7)",
-                      boxShadow: "0 0 12px rgba(168, 85, 247, 0.6)",
-                    }}
-                    transition={{ duration: 0.35, ease: easings.smooth }}
-                  />
-                )}
-              </a>
-            ))}
+                      {/* Active indicator bar */}
+                      {isActive(item) && (
+                        <motion.span
+                          layoutId="nav-active-indicator"
+                          className="absolute bottom-0 left-0 right-0 h-0.5 rounded-full"
+                          style={{
+                            background: "linear-gradient(90deg, #38bdf8, #a855f7)",
+                            boxShadow: "0 0 12px rgba(168, 85, 247, 0.6)",
+                          }}
+                          transition={{ duration: 0.35, ease: easings.smooth }}
+                        />
+                      )}
+                    </a>
+
+                    {/* ── Services Dropdown Mega Menu ────────────────────────── */}
+                    <AnimatePresence>
+                      {isServicesDropdownOpen && (
+                        <motion.div
+                          initial={{ opacity: 0, y: 12, scale: 0.98 }}
+                          animate={{ opacity: 1, y: 0, scale: 1 }}
+                          exit={{ opacity: 0, y: 8, scale: 0.98 }}
+                          transition={{ duration: 0.22, ease: easings.smooth }}
+                          className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-[680px] bg-[#060818]/95 border border-white/10 backdrop-blur-2xl rounded-2xl p-5 shadow-2xl z-50 overflow-hidden"
+                        >
+                          {/* Top Dropdown Header */}
+                          <div className="flex items-center justify-between pb-3 mb-3 border-b border-white/[0.08]">
+                            <div>
+                              <span className="text-[11px] font-bold font-heading text-accent tracking-wider uppercase">
+                                Priority Engineering Services
+                              </span>
+                              <p className="text-[11px] text-slate-400">
+                                Custom digital systems, web apps, and business software engineered for scale.
+                              </p>
+                            </div>
+                            <a
+                              href="/services"
+                              onClick={(e) => handleLinkClick(e, "services")}
+                              className="text-xs font-bold font-heading text-cyan-300 hover:text-white transition-colors flex items-center gap-1 shrink-0"
+                            >
+                              <span>All Services</span>
+                              <ChevronRight className="w-3.5 h-3.5" />
+                            </a>
+                          </div>
+
+                          {/* 2-Column Services Grid */}
+                          <div className="grid grid-cols-2 gap-1.5">
+                            {servicesList.map((svc) => {
+                              const IconComp = svc.icon;
+                              return (
+                                <a
+                                  key={svc.slug}
+                                  href={`/services/${svc.slug}`}
+                                  onClick={(e) => handleLinkClick(e, `services/${svc.slug}`)}
+                                  className="group flex items-start gap-3 p-2.5 rounded-xl hover:bg-white/[0.06] border border-transparent hover:border-white/10 transition-all duration-200"
+                                >
+                                  <div className="p-2 rounded-lg bg-primary/20 text-accent group-hover:bg-cyan-400 group-hover:text-black transition-colors shrink-0">
+                                    <IconComp className="w-4 h-4" />
+                                  </div>
+                                  <div className="space-y-0.5 min-w-0">
+                                    <div className="flex items-center gap-1.5">
+                                      <span className="text-xs font-bold font-heading text-white group-hover:text-cyan-300 transition-colors truncate">
+                                        {svc.title}
+                                      </span>
+                                    </div>
+                                    <p className="text-[11px] text-slate-400 leading-tight truncate">
+                                      {svc.desc}
+                                    </p>
+                                  </div>
+                                </a>
+                              );
+                            })}
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                );
+              }
+
+              return (
+                <a
+                  key={item.id}
+                  href={pageItems.has(item.id) ? `/${item.id}` : `#${item.id}`}
+                  onClick={(e) => handleLinkClick(e, item.id)}
+                  aria-current={isActive(item) ? "page" : undefined}
+                  className={`relative flex items-center gap-1 py-2 text-sm font-heading font-medium transition-colors duration-300 group ${
+                    isActive(item) ? "text-white font-semibold" : "text-slate-300 hover:text-white"
+                  }`}
+                >
+                  <span className="relative z-10">{item.label}</span>
+
+                  {/* Active indicator bar */}
+                  {isActive(item) && (
+                    <motion.span
+                      layoutId="nav-active-indicator"
+                      className="absolute bottom-0 left-0 right-0 h-0.5 rounded-full"
+                      style={{
+                        background: "linear-gradient(90deg, #38bdf8, #a855f7)",
+                        boxShadow: "0 0 12px rgba(168, 85, 247, 0.6)",
+                      }}
+                      transition={{ duration: 0.35, ease: easings.smooth }}
+                    />
+                  )}
+                </a>
+              );
+            })}
           </nav>
 
           {/* Desktop CTA Button */}
@@ -216,7 +428,7 @@ export default function Header({ activePage = "home", setActivePage, navigateToS
           </div>
 
           {/* Mobile Menu Actions */}
-          <div className="flex xl:hidden items-center justify-end gap-3">
+          <div className="flex lg:hidden items-center justify-end gap-3">
             <motion.div
               whileTap={{ scale: 0.96 }}
               transition={{ duration: 0.15 }}
@@ -278,7 +490,7 @@ export default function Header({ activePage = "home", setActivePage, navigateToS
               exit={{ opacity: 0 }}
               transition={{ duration: 0.3 }}
               onClick={() => setIsDrawerOpen(false)}
-              className="fixed inset-0 top-[65px] bg-black/60 backdrop-blur-md z-30 xl:hidden"
+              className="fixed inset-0 top-[65px] bg-black/60 backdrop-blur-md z-30 lg:hidden"
             />
 
             {/* Clip-path slide-down menu */}
@@ -287,36 +499,100 @@ export default function Header({ activePage = "home", setActivePage, navigateToS
               initial="hidden"
               animate="visible"
               exit="exit"
-              className="absolute top-full left-0 right-0 bg-bg-dark/97 border-b border-white/[0.08] z-30 xl:hidden overflow-hidden shadow-2xl backdrop-blur-xl"
+              className="absolute top-full left-0 right-0 bg-[#060818]/98 border-b border-white/[0.08] z-30 lg:hidden overflow-hidden shadow-2xl backdrop-blur-xl"
               style={{ transformOrigin: "top center" }}
             >
               <div className="px-6 py-6 max-h-[80vh] overflow-y-auto">
-                <nav className="flex flex-col space-y-1" aria-label="Mobile Navigation">
-                  {menuItems.map((item, i) => (
-                    <motion.a
-                      key={item.id}
-                      href={pageItems.has(item.id) ? `/${item.id}` : `#${item.id}`}
-                      onClick={(e) => handleLinkClick(e, item.id)}
-                      aria-current={isActive(item) ? "page" : undefined}
-                      custom={i}
-                      variants={menuItemVariants}
-                      initial="hidden"
-                      animate="visible"
-                      exit="exit"
-                      className={`flex items-center justify-between text-base font-heading font-semibold py-3 px-3 rounded-xl border transition-all ${
-                        isActive(item)
-                          ? "text-white border-primary/20 bg-primary/5"
-                          : "text-muted-text border-transparent hover:text-white hover:bg-white/[0.03] hover:border-white/[0.06]"
-                      }`}
-                    >
-                      <span>{item.label}</span>
-                      <ArrowRight
-                        className={`w-4 h-4 transition-colors ${
-                          isActive(item) ? "text-accent" : "text-muted-text/40"
+                <nav className="flex flex-col space-y-2" aria-label="Mobile Navigation">
+                  {menuItems.map((item, i) => {
+                    if (item.hasDropdown) {
+                      return (
+                        <motion.div
+                          key={item.id}
+                          custom={i}
+                          variants={menuItemVariants}
+                          initial="hidden"
+                          animate="visible"
+                          exit="exit"
+                          className="space-y-1"
+                        >
+                          <div className="flex items-center justify-between text-base font-heading font-semibold py-3 px-3 rounded-xl border border-transparent text-white bg-white/[0.03]">
+                            <a
+                              href="/services"
+                              onClick={(e) => handleLinkClick(e, "services")}
+                              className="flex-1"
+                            >
+                              Services
+                            </a>
+                            <button
+                              onClick={() => setMobileServicesExpanded(!mobileServicesExpanded)}
+                              className="p-1 rounded-lg hover:bg-white/10 transition-colors"
+                              aria-label="Toggle services list"
+                            >
+                              <ChevronDown
+                                className={`w-4 h-4 text-accent transition-transform duration-300 ${
+                                  mobileServicesExpanded ? "rotate-180" : ""
+                                }`}
+                              />
+                            </button>
+                          </div>
+
+                          {/* Mobile Services Sub-list */}
+                          <AnimatePresence>
+                            {(mobileServicesExpanded || activePage.startsWith("services")) && (
+                              <motion.div
+                                initial={{ opacity: 0, height: 0 }}
+                                animate={{ opacity: 1, height: "auto" }}
+                                exit={{ opacity: 0, height: 0 }}
+                                className="pl-3 pr-1 py-1 space-y-1 border-l-2 border-accent/40 my-1"
+                              >
+                                {servicesList.map((svc) => {
+                                  const IconComp = svc.icon;
+                                  return (
+                                    <a
+                                      key={svc.slug}
+                                      href={`/services/${svc.slug}`}
+                                      onClick={(e) => handleLinkClick(e, `services/${svc.slug}`)}
+                                      className="flex items-center gap-2 py-2 px-3 rounded-lg text-xs font-heading text-slate-300 hover:text-white hover:bg-white/[0.06] transition-all"
+                                    >
+                                      <IconComp className="w-3.5 h-3.5 text-accent shrink-0" />
+                                      <span className="truncate">{svc.title}</span>
+                                    </a>
+                                  );
+                                })}
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
+                        </motion.div>
+                      );
+                    }
+
+                    return (
+                      <motion.a
+                        key={item.id}
+                        href={pageItems.has(item.id) ? `/${item.id}` : `#${item.id}`}
+                        onClick={(e) => handleLinkClick(e, item.id)}
+                        aria-current={isActive(item) ? "page" : undefined}
+                        custom={i}
+                        variants={menuItemVariants}
+                        initial="hidden"
+                        animate="visible"
+                        exit="exit"
+                        className={`flex items-center justify-between text-base font-heading font-semibold py-3 px-3 rounded-xl border transition-all ${
+                          isActive(item)
+                            ? "text-white border-primary/20 bg-primary/5"
+                            : "text-slate-300 border-transparent hover:text-white hover:bg-white/[0.03] hover:border-white/[0.06]"
                         }`}
-                      />
-                    </motion.a>
-                  ))}
+                      >
+                        <span>{item.label}</span>
+                        <ArrowRight
+                          className={`w-4 h-4 transition-colors ${
+                            isActive(item) ? "text-accent" : "text-slate-500"
+                          }`}
+                        />
+                      </motion.a>
+                    );
+                  })}
                 </nav>
 
                 {/* Mobile CTA buttons */}

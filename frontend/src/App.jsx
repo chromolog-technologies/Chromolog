@@ -61,11 +61,13 @@ const IndustryPage = lazy(() => import("./pages/IndustryPage"));
 const TechOrbit = lazy(() => import("./components/TechOrbit"));
 const IndustryExplorer = lazy(() => import("./components/IndustryExplorer"));
 const HorizontalScrollShowcase = lazy(() => import("./components/HorizontalScrollShowcase"));
+const BrandVideoShowcase = lazy(() => import("./components/BrandVideoShowcase"));
 
-// Analytics hooks
+// Analytics & SEO hooks
 import useScrollDepth from "./hooks/useScrollDepth";
 import useTimeOnPage from "./hooks/useTimeOnPage";
 import useVisitorIntelligence from "./hooks/useVisitorIntelligence";
+import useDocumentSeo from "./hooks/useDocumentSeo";
 import { trackPageView, trackWhatsApp } from "./utils/analytics";
 
 const WHATSAPP_URL = "https://wa.me/919400230723?text=Hi%2C%20I%20would%20like%20to%20know%20more%20about%20your%20services.";
@@ -146,10 +148,11 @@ export default function App() {
     return true;
   });
 
-  // Analytics hooks
+  // Analytics & SEO hooks
   useScrollDepth(activePage);
   useTimeOnPage();
   useVisitorIntelligence(activePage);
+  useDocumentSeo(activePage);
 
   // Track SPA page views
   useEffect(() => {
@@ -328,6 +331,7 @@ export default function App() {
                 <Projects />
                 <WhoWeHelp />
                 <About navigateToSection={navigateToSection} />
+                <BrandVideoShowcase />
                 <IndustryExplorer />
                 <TechOrbit />
                 <AIShowcase />

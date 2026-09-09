@@ -6,7 +6,7 @@
 
 import React, { lazy, Suspense, useState, useEffect, useRef } from "react";
 import { motion, useSpring, useMotionValue } from "framer-motion";
-import { Code2, Smartphone, Cloud, Compass } from "lucide-react";
+import { Code2, Smartphone, Cloud, Compass, Brain, BarChart3 } from "lucide-react";
 import { trackCTA } from "../utils/analytics";
 import { trackCTAInterest } from "../utils/visitor";
 import { easings } from "../motion/easings";
@@ -172,8 +172,10 @@ export default function Hero({ navigateToSection }) {
 
         </div>
 
-        {/* Right Column: 3D Scene Pedestal Graphics */}
+        {/* Right Column: 3D Scene Pedestal Graphics & Floating Overlay Cards */}
         <div className="lg:col-span-5 relative w-full aspect-square flex items-center justify-center min-h-[380px] md:min-h-[480px]">
+          
+          {/* 3D Particle Constellation Sphere Scene */}
           <motion.div
             className="w-full h-full absolute inset-0 z-10"
             style={{ x: parallaxX, y: parallaxY }}
@@ -184,6 +186,93 @@ export default function Hero({ navigateToSection }) {
               </Suspense>
             )}
           </motion.div>
+
+          {/* Floating Card 1: AI Agent (Top Left) */}
+          <motion.div
+            initial={prefersReducedMotion ? {} : { opacity: 0, scale: 0.8, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.8, ease: easings.expo }}
+            style={{ x: parallaxX, y: parallaxY }}
+            className="absolute top-2 -left-2 sm:-left-6 z-20 pointer-events-none select-none max-w-[210px]"
+          >
+            <motion.div
+              animate={prefersReducedMotion ? {} : { y: [0, -10, 0] }}
+              transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+              className="bg-[#0a0d1d]/85 border border-white/15 rounded-2xl p-4 shadow-[0_10px_30px_rgba(0,0,0,0.5)] backdrop-blur-xl"
+            >
+              <div className="flex items-center gap-2 mb-2">
+                <div className="w-7 h-7 rounded-xl bg-blue-500/20 border border-blue-500/30 flex items-center justify-center text-cyan-400">
+                  <Brain className="w-4 h-4" />
+                </div>
+                <span className="text-xs font-bold font-heading text-white">AI Agent</span>
+                <div className="ml-auto px-2 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-[9px] font-bold text-emerald-400 flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                  <span>Live</span>
+                </div>
+              </div>
+              <p className="text-[11px] text-slate-300 font-body leading-tight">
+                Cognitive OCR and workflow sync active.
+              </p>
+            </motion.div>
+          </motion.div>
+
+          {/* Floating Card 2: Cluster Uptime (Bottom Left) */}
+          <motion.div
+            initial={prefersReducedMotion ? {} : { opacity: 0, scale: 0.8, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 1.0, ease: easings.expo }}
+            style={{ x: parallaxX, y: parallaxY }}
+            className="absolute bottom-2 -left-2 sm:-left-6 z-20 pointer-events-none select-none min-w-[170px]"
+          >
+            <motion.div
+              animate={prefersReducedMotion ? {} : { y: [0, -12, 0] }}
+              transition={{ duration: 5.5, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+              className="bg-[#0a0d1d]/85 border border-white/15 rounded-2xl p-4 shadow-[0_10px_30px_rgba(0,0,0,0.5)] backdrop-blur-xl flex items-center gap-3"
+            >
+              <div className="w-8 h-8 rounded-xl bg-purple-500/20 border border-purple-500/30 flex items-center justify-center text-purple-400 shrink-0">
+                <Cloud className="w-4 h-4" />
+              </div>
+              <div>
+                <span className="text-xs font-bold font-heading text-white block">Cluster</span>
+                <span className="text-[10px] font-bold text-emerald-400 block mt-0.5">99.99% Uptime</span>
+              </div>
+            </motion.div>
+          </motion.div>
+
+          {/* Floating Card 3: ERP Analytics (Bottom Right) */}
+          <motion.div
+            initial={prefersReducedMotion ? {} : { opacity: 0, scale: 0.8, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 1.2, ease: easings.expo }}
+            style={{ x: parallaxX, y: parallaxY }}
+            className="absolute bottom-2 -right-2 sm:-right-6 z-20 pointer-events-none select-none min-w-[200px]"
+          >
+            <motion.div
+              animate={prefersReducedMotion ? {} : { y: [0, 8, 0] }}
+              transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
+              className="bg-[#0a0d1d]/85 border border-white/15 rounded-2xl p-4 shadow-[0_10px_30px_rgba(0,0,0,0.5)] backdrop-blur-xl space-y-2"
+            >
+              <div className="flex items-center gap-2">
+                <div className="w-7 h-7 rounded-xl bg-cyan-500/20 border border-cyan-500/30 flex items-center justify-center text-cyan-400">
+                  <BarChart3 className="w-4 h-4" />
+                </div>
+                <span className="text-xs font-bold font-heading text-white">ERP Analytics</span>
+              </div>
+              <div className="w-full h-1.5 bg-white/10 rounded-full overflow-hidden">
+                <motion.div
+                  className="h-full bg-gradient-to-r from-cyan-400 via-indigo-400 to-purple-400 rounded-full"
+                  initial={{ width: "0%" }}
+                  animate={{ width: "84%" }}
+                  transition={{ duration: 1.2, delay: 1.4, ease: easings.expo }}
+                />
+              </div>
+              <div className="flex items-center justify-between text-[10px] font-semibold">
+                <span className="text-slate-400">Performance</span>
+                <span className="text-cyan-400 font-bold">98.4%</span>
+              </div>
+            </motion.div>
+          </motion.div>
+
         </div>
 
       </div>

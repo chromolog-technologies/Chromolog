@@ -20,7 +20,7 @@ export default function ServicesIndex({ setActivePage }) {
 
   return (
     <PageTransition>
-      <div className="relative min-h-screen bg-bg-dark text-slate-900 font-body pt-12 pb-24">
+      <div className="relative min-h-screen bg-bg-dark text-white font-body pt-12 pb-24">
         {/* Ambient top light */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-[400px] bg-gradient-to-b from-primary/10 to-transparent blur-3xl pointer-events-none z-0" />
 
@@ -31,10 +31,10 @@ export default function ServicesIndex({ setActivePage }) {
             <Badge variant="ai" className="px-4 py-1.5 text-xs font-semibold">
               Digital Systems &amp; Software Engineering
             </Badge>
-            <h1 className="text-3xl sm:text-5xl font-extrabold font-heading text-slate-900 tracking-tight leading-tight">
+            <h1 className="text-3xl sm:text-5xl font-extrabold font-heading text-white tracking-tight leading-tight">
               We Build Digital Systems for Growing Businesses
             </h1>
-            <p className="text-sm sm:text-base text-slate-600 font-body leading-relaxed">
+            <p className="text-sm sm:text-base text-slate-300 font-body leading-relaxed">
               From website upgrades to custom web applications, CRM, HRMS, LMS and business software, Chromolog helps businesses replace manual processes and outdated technology.
             </p>
           </div>
@@ -45,28 +45,28 @@ export default function ServicesIndex({ setActivePage }) {
               <Card
                 key={service.slug}
                 variant="glass"
-                className="p-6 border-slate-200/80 hover:border-primary/40 transition-all duration-300 flex flex-col justify-between group shadow-sm bg-white"
+                className="p-6 border-white/10 hover:border-primary/40 transition-all duration-300 flex flex-col justify-between group shadow-lg bg-[#0a0d1d]/80 backdrop-blur-xl"
               >
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <Badge variant="ai" className="px-2.5 py-0.5 text-[10px]">
                       0{idx + 1} • {service.badge}
                     </Badge>
-                    <span className="text-[10px] text-slate-500 font-heading">Kerala &amp; Dubai</span>
+                    <span className="text-[10px] text-slate-400 font-heading">Kerala &amp; Dubai</span>
                   </div>
 
-                  <h2 className="text-lg font-bold font-heading text-slate-900 group-hover:text-primary transition-colors">
+                  <h2 className="text-lg font-bold font-heading text-white group-hover:text-cyan-400 transition-colors">
                     {service.h1}
                   </h2>
 
-                  <p className="text-xs text-slate-600 line-clamp-3 leading-relaxed">
+                  <p className="text-xs text-slate-300 line-clamp-3 leading-relaxed">
                     {service.hero.solution}
                   </p>
 
-                  <div className="space-y-2 pt-2 border-t border-slate-100">
+                  <div className="space-y-2 pt-2 border-t border-white/10">
                     {service.whatWeBuild.slice(0, 2).map((w, i) => (
-                      <div key={i} className="flex items-center gap-2 text-xs text-slate-700">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-primary shrink-0" />
+                      <div key={i} className="flex items-center gap-2 text-xs text-slate-200">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
                         <span className="line-clamp-1">{w.title}</span>
                       </div>
                     ))}
@@ -77,11 +77,11 @@ export default function ServicesIndex({ setActivePage }) {
                   <Button
                     variant="outline"
                     size="sm"
-                    className="w-full justify-between group-hover:border-primary group-hover:bg-blue-50"
+                    className="w-full justify-between group-hover:border-cyan-400 group-hover:bg-cyan-500/10 text-white"
                     onClick={() => handleServiceClick(service.slug)}
                   >
                     <span>Explore Solution</span>
-                    <ArrowRight className="w-3.5 h-3.5 text-primary group-hover:translate-x-1 transition-transform" />
+                    <ArrowRight className="w-3.5 h-3.5 text-cyan-400 group-hover:translate-x-1 transition-transform" />
                   </Button>
                 </div>
               </Card>
@@ -89,11 +89,11 @@ export default function ServicesIndex({ setActivePage }) {
           </div>
 
           {/* Bottom Free Consultation Banner */}
-          <div className="p-8 md:p-12 rounded-3xl bg-gradient-to-r from-blue-50 via-white to-purple-50 border border-slate-200 text-center max-w-4xl mx-auto space-y-6 shadow-md">
-            <h2 className="text-2xl font-extrabold font-heading text-slate-900">
+          <div className="p-8 md:p-12 rounded-3xl bg-gradient-to-r from-blue-950/40 via-purple-950/30 to-indigo-950/40 border border-white/15 backdrop-blur-2xl text-center max-w-4xl mx-auto space-y-6 shadow-2xl">
+            <h2 className="text-2xl font-extrabold font-heading text-white">
               Not Sure Which System Your Business Needs First?
             </h2>
-            <p className="text-xs sm:text-sm text-slate-600 max-w-xl mx-auto font-medium">
+            <p className="text-xs sm:text-sm text-slate-300 max-w-xl mx-auto font-medium">
               Our software architects analyze your current manual workflows and provide a clear 1-page technology roadmap with zero obligation.
             </p>
             <Button

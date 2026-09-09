@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" style="background-color: #060818; color: #ffffff;">
 
 <head>
   <!-- Google Tag Manager (Uncomment and replace GTM-KTKPFM59 with active container ID) -->
@@ -13,8 +13,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta http-equiv="Content-Security-Policy"
     content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://*.googletagmanager.com https://www.google-analytics.com https://*.google-analytics.com https://unpkg.com https://connect.facebook.net https://snap.licdn.com https://www.clarity.ms; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net; font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net; img-src 'self' data: blob: https: https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com https://*.googletagmanager.com https://*.g.doubleclick.net https://*.google.com; connect-src 'self' https://chromologtechnologies.com https://*.chromologtechnologies.com https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com https://*.g.doubleclick.net https://*.google.com https://www.clarity.ms https://formspree.io; frame-src 'self' https://www.googletagmanager.com https://tagassistant.google.com; object-src 'none'; base-uri 'self'; form-action 'self' https://formspree.io;" />
-  <link rel="icon" type="image/webp" href="/images/chromologtechnologies.webp" />
-  <link rel="shortcut icon" href="/images/chromologtechnologies.webp" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png" />
+  <link rel="shortcut icon" href="/favicon.ico" />
 
   <!-- Primary Meta -->
   <meta name="google-site-verification" content="F32wHvXDCnZmGPiDQmSFBdvg3aNS2GEj_2b8ByxlHck" />
@@ -26,10 +27,15 @@
     content="custom software development company Kerala, web application development Kerala, website development company Kerala, website redesign Kerala, mobile app development company Kerala, custom CRM development Kerala, custom ERP development Kerala, HRMS development company Kerala, LMS development company Kerala, business automation company Kerala" />
   <link id="canonical-url" rel="canonical" href="https://chromologtechnologies.com/" />
   <script>
-    if (typeof window !== 'undefined') {
-      var c = document.getElementById('canonical-url');
-      if (c) { c.setAttribute('href', window.location.origin + window.location.pathname); }
-    }
+    (function() {
+      try {
+        var c = document.getElementById('canonical-url');
+        if (c && window.location) {
+          var p = window.location.pathname.replace(/\/+$/, '') || '/';
+          c.setAttribute('href', 'https://chromologtechnologies.com' + (p === '/' ? '/' : p));
+        }
+      } catch (e) {}
+    })();
   </script>
 
   <!-- Open Graph -->
@@ -56,7 +62,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="Chromolog" />
-  <link rel="apple-touch-icon" href="/images/chromologtechnologies.webp" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
 
   <!-- Resource Hints & Non-blocking Fonts -->
   <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
@@ -267,23 +273,26 @@
   })(window,document,"clarity","script","YOUR_PROJECT_ID");
   </script> -->
 
-  <script type="module" crossorigin src="/assets/index-C0VCzA9T.js"></script>
+  <script type="module" crossorigin src="/assets/index-mwhHQLvL.js"></script>
   <link rel="modulepreload" crossorigin href="/assets/rolldown-runtime-CNC7AqOf.js">
-  <link rel="modulepreload" crossorigin href="/assets/vendor-icons-ChiJydGz.js">
+  <link rel="modulepreload" crossorigin href="/assets/vendor-icons-DieeYxaT.js">
   <link rel="modulepreload" crossorigin href="/assets/vendor-Ba-OduAC.js">
-  <link rel="modulepreload" crossorigin href="/assets/vendor-react-CkSuD7R-.js">
+  <link rel="modulepreload" crossorigin href="/assets/vendor-react-ChaFvgrB.js">
   <link rel="modulepreload" crossorigin href="/assets/vendor-scroll-B2BIKTcG.js">
-  <link rel="modulepreload" crossorigin href="/assets/vendor-motion-BMRutk_d.js">
+  <link rel="modulepreload" crossorigin href="/assets/vendor-motion-B7oV4blr.js">
   <link rel="modulepreload" crossorigin href="/assets/easings-5EUOkksb.js">
-  <link rel="stylesheet" crossorigin href="/assets/index-DzkEYdiI.css">
+  <link rel="stylesheet" crossorigin href="/assets/index-Cz05qqmN.css">
 </head>
 
-<body>
+<body style="background-color: #060818; color: #ffffff; margin: 0;">
   <!-- Google Tag Manager (noscript) -->
   <!-- <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KTKPFM59"
   height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript> -->
 
-  <div id="root">
+  <div id="root"></div>
+
+  <!-- Hidden SEO Crawler Text Fallback (Prevent Flash of Unstyled Content) -->
+  <div id="seo-fallback" style="display:none;" aria-hidden="true">
     <header>
       <nav aria-label="Main Navigation">
         <a href="/">Home</a>
@@ -378,7 +387,7 @@
         </p>
       </section>
     </main>
-  </div>
+  </div>
 </body>
 
 </html>

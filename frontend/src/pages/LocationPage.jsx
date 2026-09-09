@@ -47,9 +47,9 @@ export default function LocationPage({ locationSlug = "kochi", setActivePage }) 
 
   return (
     <PageTransition>
-      <div className="relative min-h-screen bg-bg-dark text-slate-900 font-body pt-12 pb-24">
+      <div className="relative min-h-screen bg-[#060818] text-white font-body pt-12 pb-24">
         {/* Glow */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-[400px] bg-gradient-to-b from-primary/10 via-purple-50 to-transparent blur-3xl pointer-events-none z-0" />
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-[400px] bg-gradient-to-b from-primary/20 via-accent/10 to-transparent blur-3xl pointer-events-none z-0" />
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 space-y-16">
 
@@ -58,10 +58,10 @@ export default function LocationPage({ locationSlug = "kochi", setActivePage }) 
             <Badge variant="status" color="info" className="px-4 py-1.5 text-xs font-semibold">
               <MapPin className="w-3.5 h-3.5 mr-1" /> {loc.name}, {loc.region} Hub
             </Badge>
-            <h1 className="text-3xl sm:text-5xl font-extrabold font-heading text-slate-900 tracking-tight leading-tight">
+            <h1 className="text-3xl sm:text-5xl font-extrabold font-heading text-white tracking-tight leading-tight">
               {loc.h1}
             </h1>
-            <p className="text-sm sm:text-base text-slate-600 font-body leading-relaxed">
+            <p className="text-sm sm:text-base text-slate-300 font-body leading-relaxed">
               {loc.desc}
             </p>
           </div>
@@ -69,9 +69,9 @@ export default function LocationPage({ locationSlug = "kochi", setActivePage }) 
           {/* Local Highlights */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {loc.highlights.map((h, i) => (
-              <Card key={i} variant="glass" className="p-6 border-slate-200 bg-white shadow-sm flex items-center gap-3">
-                <CheckCircle2 className="w-5 h-5 text-primary shrink-0" />
-                <span className="text-sm font-bold font-heading text-slate-900">{h}</span>
+              <Card key={i} variant="glass" className="p-6 border-white/10 bg-[#0a0d1d]/80 backdrop-blur-xl shadow-xl flex items-center gap-3">
+                <CheckCircle2 className="w-5 h-5 text-accent shrink-0" />
+                <span className="text-sm font-bold font-heading text-white">{h}</span>
               </Card>
             ))}
           </div>
@@ -79,8 +79,8 @@ export default function LocationPage({ locationSlug = "kochi", setActivePage }) 
           {/* Services Available in Location */}
           <div className="space-y-6">
             <div className="text-center max-w-2xl mx-auto">
-              <h2 className="text-2xl font-bold font-heading text-slate-900">Services Available in {loc.name}</h2>
-              <p className="text-xs text-slate-600 mt-1">Tailored for regional market requirements</p>
+              <h2 className="text-2xl font-bold font-heading text-white">Services Available in {loc.name}</h2>
+              <p className="text-xs text-slate-400 mt-1">Tailored for regional market requirements</p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -88,14 +88,14 @@ export default function LocationPage({ locationSlug = "kochi", setActivePage }) 
                 <Card
                   key={svc.slug}
                   variant="glass"
-                  className="p-5 border-slate-200 bg-white shadow-sm hover:border-primary/40 transition-all flex flex-col justify-between group"
+                  className="p-5 border-white/10 bg-[#0a0d1d]/80 backdrop-blur-xl shadow-xl hover:border-accent/40 transition-all flex flex-col justify-between group"
                 >
                   <div className="space-y-3">
-                    <div className="text-xs font-bold text-primary font-heading">{svc.badge}</div>
-                    <h3 className="text-base font-bold font-heading text-slate-900 group-hover:text-primary transition-colors">
+                    <div className="text-xs font-bold text-accent font-heading">{svc.badge}</div>
+                    <h3 className="text-base font-bold font-heading text-white group-hover:text-cyan-300 transition-colors">
                       {svc.h1}
                     </h3>
-                    <p className="text-xs text-slate-600 line-clamp-2 leading-relaxed">
+                    <p className="text-xs text-slate-300 line-clamp-2 leading-relaxed">
                       {svc.hero.solution}
                     </p>
                   </div>
@@ -103,7 +103,7 @@ export default function LocationPage({ locationSlug = "kochi", setActivePage }) 
                     <Button
                       variant="outline"
                       size="sm"
-                      className="w-full justify-between"
+                      className="w-full justify-between border-white/10 hover:bg-white/5 text-white"
                       onClick={() => {
                         if (setActivePage) {
                           setActivePage(`services/${svc.slug}`);
@@ -113,7 +113,7 @@ export default function LocationPage({ locationSlug = "kochi", setActivePage }) 
                       }}
                     >
                       <span>Learn More</span>
-                      <ArrowRight className="w-3.5 h-3.5 text-primary" />
+                      <ArrowRight className="w-3.5 h-3.5 text-accent" />
                     </Button>
                   </div>
                 </Card>
@@ -122,8 +122,8 @@ export default function LocationPage({ locationSlug = "kochi", setActivePage }) 
           </div>
 
           {/* Local CTA */}
-          <div className="p-8 rounded-3xl bg-gradient-to-r from-blue-50 via-white to-indigo-50 border border-slate-200 text-center space-y-4 shadow-sm">
-            <h2 className="text-2xl font-extrabold font-heading text-slate-900">
+          <div className="p-8 rounded-3xl bg-gradient-to-r from-primary/20 via-[#0a0d1d] to-accent/20 border border-white/10 text-center space-y-4 shadow-2xl backdrop-blur-xl">
+            <h2 className="text-2xl font-extrabold font-heading text-white">
               Schedule an On-Site or Online Consultation in {loc.name}
             </h2>
             <Button

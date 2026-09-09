@@ -11,7 +11,7 @@ const blogArticles = [
     title: "Orchestrating AI Agent Workflows in Enterprise ERPs",
     category: "AI",
     readTime: "5 Min Read",
-    author: "Abhishek Nair, Chief Architect",
+    author: "Abhisek, Chief Architect",
     date: "July 04, 2026",
     summary: "How cognitive AI agents automate multi-step operational entries, invoice extractions, and data mappings inside customized business software platforms.",
     coverGradient: "linear-gradient(135deg, #1e1b4b, #4f46e5)",
@@ -41,7 +41,7 @@ We are standardizing these cognitive worker flows in our **AlphaGrew Smart Campu
     title: "Laravel 12 vs. Node Express: Selecting the Right API Layer",
     category: "Development",
     readTime: "8 Min Read",
-    author: "Neethumol Tomy, Team Lead",
+    author: "Neethu, Team Lead",
     date: "June 28, 2026",
     summary: "A deep-dive technical comparison of developer performance, DB pooling speeds, and permissions modules inside custom API structures.",
     coverGradient: "linear-gradient(135deg, #180828, #7c3aed)",
@@ -76,7 +76,7 @@ We combine both architectures, utilizing Laravel as our core business monolith a
     title: "Multi-Tenant PostgreSQL Architecture in HRMS Environments",
     category: "Cloud",
     readTime: "6 Min Read",
-    author: "R. Krishnan, DB Architect",
+    author: "Krishnan, DB Architect",
     date: "June 15, 2026",
     summary: "Comparing schema isolation versus single-shared databases for enterprise SaaS products requiring strict compliance boundaries.",
     coverGradient: "linear-gradient(135deg, #052e16, #10b981)",
@@ -103,7 +103,7 @@ In **HumaNode HRMS**, we isolate each tenant into a dedicated schema. Connection
     title: "Why Offline-First Flutter Apps Succeed in Clinical Spaces",
     category: "Healthcare",
     readTime: "7 Min Read",
-    author: "S. Abraham, Mobile Lead",
+    author: "Abraham, Mobile Lead",
     date: "May 22, 2026",
     summary: "How background SQLite caching and queue listeners prevent clinic interruptions during network drops.",
     coverGradient: "linear-gradient(135deg, #0f172a, #00e5ff)",
@@ -126,7 +126,7 @@ We deployed this exact sync mechanism in the **Medical College Chest Hospital** 
     title: "AWS Lightsail vs. ECS: Choosing the Right Deployment Target",
     category: "Cloud",
     readTime: "6 Min Read",
-    author: "R. Krishnan, DB Architect",
+    author: "Krishnan, DB Architect",
     date: "July 01, 2026",
     summary: "A practical cost and scale comparison between AWS Lightsail and Elastic Container Service for startup-stage and enterprise-grade Chromolog deployments.",
     coverGradient: "linear-gradient(135deg, #1a1a2e, #FF9900)",
@@ -171,7 +171,7 @@ All Chromolog production deployments are containerized from day one, ensuring a 
     title: "Chromolog V3: A New Era for Our Digital Presence",
     category: "Company Updates",
     readTime: "3 Min Read",
-    author: "Abhishek Nair, Founder",
+    author: "Abhisek, Founder",
     date: "July 08, 2026",
     summary: "Announcing the complete redesign of Chromolog Technologies' website — powered by React, GSAP, and our new Premium AI-first design system.",
     coverGradient: "linear-gradient(135deg, #0f0c29, #302b63, #24243e)",
@@ -265,16 +265,16 @@ export default function Blog() {
               {/* Head */}
               <div className="text-center max-w-2xl mx-auto space-y-4">
                 <Badge variant="ai" className="px-3 py-1 text-xs">Knowledge Hub</Badge>
-                <h1 className="text-4xl md:text-5xl font-heading font-extrabold text-slate-900 leading-tight">
+                <h1 className="text-4xl md:text-5xl font-heading font-extrabold text-white leading-tight">
                   Insights on AI &amp; Software Engineering
                 </h1>
-                <p className="text-slate-600 text-base font-body">
+                <p className="text-slate-300 text-base font-body">
                   Deep technical articles, database guides, and architectural notes curated by our product team.
                 </p>
               </div>
 
               {/* Filters & Search Toolbar */}
-              <div className="flex flex-col md:flex-row gap-4 items-center justify-between border-y border-slate-200 py-6">
+              <div className="flex flex-col md:flex-row gap-4 items-center justify-between border-y border-white/10 py-6">
                 <div className="flex flex-wrap gap-2 justify-center">
                   {["All", "AI", "Development", "Cloud", "Healthcare", "Company Updates"].map((cat) => (
                     <button
@@ -282,7 +282,7 @@ export default function Blog() {
                       onClick={() => setActiveCategory(cat)}
                       className={`px-4 py-2 border rounded-xl text-xs font-heading font-bold transition-all duration-300 select-none ${activeCategory === cat
                           ? "bg-primary border-primary text-white shadow-lg shadow-primary/15 scale-105"
-                          : "bg-white border-slate-200 text-slate-600 hover:text-slate-900 hover:border-slate-300"
+                          : "bg-[#0a0d1d]/80 border-white/10 text-slate-300 hover:text-white hover:border-white/20"
                         }`}
                     >
                       {cat}
@@ -296,7 +296,7 @@ export default function Blog() {
                     placeholder="Search articles..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 bg-white text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-primary transition-colors font-body shadow-sm"
+                    className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-white/10 bg-[#0a0d1d]/80 text-sm text-white placeholder-slate-400 focus:outline-none focus:border-cyan-400 transition-colors font-body shadow-sm"
                   />
                 </div>
               </div>
@@ -308,30 +308,30 @@ export default function Blog() {
                     <div
                       key={art.id}
                       onClick={() => handleOpenArticle(art)}
-                      className="group cursor-pointer rounded-2xl border border-slate-200 bg-white hover:border-primary/40 hover:shadow-xl transition-all duration-500 overflow-hidden flex flex-col h-full shadow-sm"
+                      className="group cursor-pointer rounded-2xl border border-white/10 bg-[#0a0d1d]/80 backdrop-blur-xl hover:border-cyan-400/40 hover:shadow-xl transition-all duration-500 overflow-hidden flex flex-col h-full shadow-lg"
                     >
                       <div className="h-44 relative flex items-center justify-center p-6" style={{ background: art.coverGradient }}>
                         <BookOpen className="w-12 h-12 text-white/30 absolute transform transition-transform duration-700 group-hover:scale-105" />
-                        <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 to-transparent" />
                         <Badge variant="status" color="primary" className="absolute top-4 right-4">{art.category}</Badge>
                       </div>
                       <div className="p-6 flex-1 flex flex-col justify-between space-y-4">
                         <div className="space-y-2">
-                          <div className="flex items-center gap-4 text-[10px] text-slate-500 font-bold uppercase tracking-widest font-heading">
+                          <div className="flex items-center gap-4 text-[10px] text-slate-400 font-bold uppercase tracking-widest font-heading">
                             <span className="flex items-center gap-1"><Clock className="w-3.5 h-3.5" /> {art.readTime}</span>
                             <span>&bull;</span>
                             <span>{art.date}</span>
                           </div>
-                          <h2 className="text-lg font-heading font-extrabold text-slate-900 group-hover:text-primary transition-colors duration-300">
+                          <h2 className="text-lg font-heading font-extrabold text-white group-hover:text-cyan-400 transition-colors duration-300">
                             {art.title}
                           </h2>
-                          <p className="text-xs text-slate-600 leading-relaxed font-body mt-2">
+                          <p className="text-xs text-slate-300 leading-relaxed font-body mt-2">
                             {art.summary}
                           </p>
                         </div>
-                        <div className="flex justify-between items-center pt-4 border-t border-slate-100 text-[10px] font-bold text-slate-500 uppercase tracking-widest font-heading mt-4">
-                          <span className="text-slate-700">{art.author.split(",")[0]}</span>
-                          <span className="flex items-center gap-1 text-primary group-hover:text-blue-700 transition-colors">
+                        <div className="flex justify-between items-center pt-4 border-t border-white/10 text-[10px] font-bold text-slate-400 uppercase tracking-widest font-heading mt-4">
+                          <span className="text-slate-300">{art.author.split(",")[0]}</span>
+                          <span className="flex items-center gap-1 text-cyan-400 group-hover:text-cyan-300 transition-colors">
                             Read Article <ChevronRight className="w-3 h-3" />
                           </span>
                         </div>
@@ -340,17 +340,17 @@ export default function Blog() {
                   ))}
                 </div>
               ) : (
-                <div className="text-center py-20 border border-slate-200 bg-white rounded-2xl">
-                  <p className="text-sm text-slate-600 font-body">No articles found matching your query.</p>
+                <div className="text-center py-20 border border-white/10 bg-[#0a0d1d]/80 rounded-2xl">
+                  <p className="text-sm text-slate-300 font-body">No articles found matching your query.</p>
                 </div>
               )}
 
               {/* Newsletter card */}
-              <Card variant="glass" className="p-8 border-slate-200 bg-white shadow-md relative z-10 text-center max-w-2xl mx-auto space-y-6">
+              <Card variant="glass" className="p-8 border-white/15 bg-[#0a0d1d]/90 shadow-2xl backdrop-blur-2xl relative z-10 text-center max-w-2xl mx-auto space-y-6">
                 <div className="space-y-2">
-                  <span className="text-[10px] font-bold text-primary uppercase tracking-widest font-heading block">Newsletter</span>
-                  <h3 className="text-2xl font-heading font-bold text-slate-900">Subscribe to Tech Notes</h3>
-                  <p className="text-xs text-slate-600 font-body max-w-sm mx-auto">Receive updates on AI capabilities, web architecture, and multi-tenant databases.</p>
+                  <span className="text-[10px] font-bold text-cyan-400 uppercase tracking-widest font-heading block">Newsletter</span>
+                  <h3 className="text-2xl font-heading font-bold text-white">Subscribe to Tech Notes</h3>
+                  <p className="text-xs text-slate-300 font-body max-w-sm mx-auto">Receive updates on AI capabilities, web architecture, and multi-tenant databases.</p>
                 </div>
 
                 <AnimatePresence mode="wait">
@@ -368,7 +368,7 @@ export default function Blog() {
                         placeholder="Enter your email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        className="w-full px-4 py-2.5 rounded-xl bg-white border border-slate-200 text-slate-900 text-sm focus:outline-none focus:border-primary font-body"
+                        className="w-full px-4 py-2.5 rounded-xl bg-[#050816] border border-white/15 text-white placeholder-slate-400 text-sm focus:outline-none focus:border-cyan-400 font-body"
                         required
                       />
                       <Button variant="primary" type="submit" icon={Send} iconPosition="right">
@@ -380,7 +380,7 @@ export default function Blog() {
                       key="success"
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
-                      className="flex items-center justify-center gap-2 text-success text-sm font-semibold"
+                      className="flex items-center justify-center gap-2 text-emerald-400 text-sm font-semibold"
                     >
                       <CheckCircle className="w-5 h-5" />
                       <span>Thank you! You have successfully subscribed.</span>
@@ -403,7 +403,7 @@ export default function Blog() {
               <div className="flex justify-between items-center">
                 <button
                   onClick={handleBackToBlog}
-                  className="flex items-center gap-2 text-xs font-heading font-bold text-muted-text hover:text-white transition-colors uppercase tracking-wider select-none"
+                  className="flex items-center gap-2 text-xs font-heading font-bold text-slate-300 hover:text-white transition-colors uppercase tracking-wider select-none"
                 >
                   <ArrowLeft className="w-4 h-4" />
                   <span>Back to Hub</span>
@@ -416,29 +416,29 @@ export default function Blog() {
                 <BookOpen className="w-16 h-16 text-white/15 absolute" />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#050816] to-transparent opacity-95" />
                 <div className="relative z-10 text-center space-y-3">
-                  <div className="flex justify-center items-center gap-4 text-[10px] text-accent font-bold uppercase tracking-widest font-heading">
+                  <div className="flex justify-center items-center gap-4 text-[10px] text-cyan-400 font-bold uppercase tracking-widest font-heading">
                     <span>{selectedArticle.readTime}</span>
                     <span>&bull;</span>
                     <span>{selectedArticle.date}</span>
                   </div>
-                  <h1 className="text-2xl md:text-4xl font-heading font-extrabold text-slate-900 leading-tight">
+                  <h1 className="text-2xl md:text-4xl font-heading font-extrabold text-white leading-tight">
                     {selectedArticle.title}
                   </h1>
                 </div>
               </div>
 
               {/* Author & Share */}
-              <div className="flex justify-between items-center border-y border-slate-200 py-4 text-xs">
-                <div className="flex items-center gap-2 text-slate-600">
-                  <User className="w-4 h-4 text-primary" />
-                  <span>By <strong className="text-slate-900">{selectedArticle.author}</strong></span>
+              <div className="flex justify-between items-center border-y border-white/10 py-4 text-xs">
+                <div className="flex items-center gap-2 text-slate-300">
+                  <User className="w-4 h-4 text-cyan-400" />
+                  <span>By <strong className="text-white">{selectedArticle.author}</strong></span>
                 </div>
                 <button
                   onClick={() => {
                     navigator.clipboard.writeText(window.location.href);
                     alert("Article link copied!");
                   }}
-                  className="flex items-center gap-1.5 text-slate-600 hover:text-slate-900 transition-colors font-bold uppercase tracking-wider font-heading text-[10px]"
+                  className="flex items-center gap-1.5 text-slate-300 hover:text-white transition-colors font-bold uppercase tracking-wider font-heading text-[10px]"
                 >
                   <Share2 className="w-3.5 h-3.5" />
                   <span>Share</span>
@@ -446,7 +446,7 @@ export default function Blog() {
               </div>
 
               {/* Main Content Render */}
-              <div className="article-body text-slate-700 text-base leading-relaxed font-body space-y-6 text-left">
+              <div className="article-body text-slate-200 text-base leading-relaxed font-body space-y-6 text-left">
                 {/* Parse Markdown Blocks */}
                 {selectedArticle.content.split("\n\n").map((block, idx) => {
                   const trimBlock = block.trim();
@@ -454,30 +454,30 @@ export default function Blog() {
 
                   if (trimBlock.startsWith("# ")) {
                     return (
-                      <h2 key={idx} className="text-2xl md:text-3xl font-heading font-extrabold text-slate-900 pt-4">
+                      <h2 key={idx} className="text-2xl md:text-3xl font-heading font-extrabold text-white pt-4">
                         {trimBlock.replace("# ", "")}
                       </h2>
                     );
                   }
                   if (trimBlock.startsWith("## ")) {
                     return (
-                      <h3 key={idx} className="text-xl md:text-2xl font-heading font-bold text-slate-900 pt-2 border-b border-slate-200 pb-2">
+                      <h3 key={idx} className="text-xl md:text-2xl font-heading font-bold text-white pt-2 border-b border-white/10 pb-2">
                         {trimBlock.replace("## ", "")}
                       </h3>
                     );
                   }
                   if (trimBlock.startsWith("> [!TIP]")) {
                     return (
-                      <div key={idx} className="p-4 border-l-4 border-sky-500 bg-sky-50 rounded-r-xl text-sm leading-relaxed text-slate-700">
-                        <strong className="text-slate-900 block mb-1">Tip</strong>
+                      <div key={idx} className="p-4 border-l-4 border-cyan-400 bg-cyan-950/40 rounded-r-xl text-sm leading-relaxed text-cyan-200 border-t border-b border-r border-cyan-500/20">
+                        <strong className="text-white block mb-1">Tip</strong>
                         {trimBlock.replace("> [!TIP]\n", "").replace("> ", "")}
                       </div>
                     );
                   }
                   if (trimBlock.startsWith("> [!IMPORTANT]")) {
                     return (
-                      <div key={idx} className="p-4 border-l-4 border-primary bg-blue-50 rounded-r-xl text-sm leading-relaxed text-slate-700">
-                        <strong className="text-slate-900 block mb-1">Important</strong>
+                      <div key={idx} className="p-4 border-l-4 border-purple-400 bg-purple-950/40 rounded-r-xl text-sm leading-relaxed text-purple-200 border-t border-b border-r border-purple-500/20">
+                        <strong className="text-white block mb-1">Important</strong>
                         {trimBlock.replace("> [!IMPORTANT]\n", "").replace("> ", "")}
                       </div>
                     );
