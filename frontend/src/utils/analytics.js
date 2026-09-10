@@ -1,7 +1,6 @@
 /**
  * Chromolog Analytics Utility
- * GA4-ready event tracking. Replace G-XXXXXXXXXX with your real Measurement ID.
- * To enable: uncomment the gtag script in index.html and set your ID.
+ * GA4 event tracking. Measurement ID: G-8LX4DDHZ3K (loaded in index.html).
  */
 
 const isBrowser = () => typeof window !== "undefined";
