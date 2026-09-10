@@ -70,13 +70,13 @@ export default function Services({ setActivePage }) {
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto space-y-3">
           <Badge variant="ai" className="px-3.5 py-1 text-xs">
-            What Can We Modernize?
+            Software Development Services · Kerala &amp; Dubai
           </Badge>
           <h2 className="text-3xl sm:text-5xl font-extrabold font-heading text-white tracking-tight leading-tight">
             What We <span className="bg-gradient-to-r from-cyan-400 via-sky-300 to-purple-400 bg-clip-text text-transparent">Build &amp; Automate</span>
           </h2>
           <p className="text-xs sm:text-base text-slate-300 font-body leading-relaxed">
-            We don't offer generic IT catalog items. We engineer specific digital systems designed to solve operational friction and drive revenue growth.
+            From websites and web apps to custom CRM, ERP and HRMS, Chromolog engineers digital systems that remove Excel and WhatsApp chaos and help Kerala businesses grow.
           </p>
         </div>
 

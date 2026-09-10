@@ -5,33 +5,33 @@ const BASE_URL = "https://chromologtechnologies.com";
 
 const staticMeta = {
   home: {
-    title: "Custom Software & Digital Systems | Chromolog Technologies",
-    description: "Chromolog Technologies builds custom software, web applications, CRM, ERP & HRMS systems to automate processes and scale growing businesses.",
+    title: "Custom Software Development Company in Kerala | Chromolog Technologies",
+    description: "Chromolog is a Kochi-based custom software company building web apps, CRM, ERP, HRMS and business automation for growing businesses in Kerala, Dubai and UAE.",
     path: "/",
   },
   services: {
-    title: "Enterprise Software & Web Development Services | Chromolog Technologies",
-    description: "Explore our end-to-end digital engineering services: custom software development, web applications, mobile apps, CRM, ERP, and HRMS systems.",
+    title: "Software Development Services in Kerala | Web, CRM, ERP, HRMS | Chromolog",
+    description: "Explore Chromolog services: custom software, web applications, website redesign, mobile apps, CRM, ERP, HRMS, LMS and business automation in Kerala & Dubai.",
     path: "/services",
   },
   "case-studies": {
-    title: "Case Studies & Client Proven ROI | Chromolog Technologies",
-    description: "Read real-world case studies of digital systems, bespoke software, CRM, and ERP applications developed by Chromolog Technologies.",
+    title: "Software Case Studies in Kerala & Dubai | Chromolog Technologies",
+    description: "See how Chromolog delivered custom software, CRM, HRMS and web platforms that cut manual work and improved operations for real clients.",
     path: "/case-studies",
   },
   "free-consultation": {
-    title: "Book Free Technology Consultation | Chromolog Technologies",
-    description: "Schedule a 30-minute free technology discovery session with our lead software architects. Audit your workflow and plan your custom software.",
+    title: "Free Software Consultation in Kerala | Chromolog Technologies",
+    description: "Book a free 30-minute consultation with Chromolog. Audit your workflows and plan custom software, CRM, or website upgrades for your business.",
     path: "/free-consultation",
   },
   products: {
-    title: "Products — AI Software, SaaS & Enterprise Platforms | Chromolog Technologies",
-    description: "Discover proprietary digital platforms and business automation software engineered by Chromolog Technologies.",
+    title: "Business Software Products & Platforms | Chromolog Technologies",
+    description: "Explore Chromolog products: AI-ready SaaS platforms, HRMS, campus systems and automation tools engineered for growing enterprises.",
     path: "/products",
   },
   blog: {
-    title: "Technology Insights & Engineering Blog | Chromolog Technologies",
-    description: "In-depth insights, architecture guides, and software engineering articles on custom CRM, ERP, web applications, and business automation.",
+    title: "Software & Digital Transformation Blog | Chromolog Technologies",
+    description: "Practical guides on custom software, CRM vs SaaS, website redesign, HRMS and business automation for Kerala and UAE companies.",
     path: "/blog",
   },
   careers: {
@@ -53,12 +53,12 @@ const staticMeta = {
 
 const locationsMeta = {
   kochi: {
-    title: "Custom Software & Web Application Development Company in Kochi | Chromolog",
-    description: "Chromolog Technologies engineers custom software, web applications, CRM, HRMS, and business automation systems for growing enterprises in Kochi and Infopark.",
+    title: "Software Development Company in Kochi | Custom Web Apps & CRM | Chromolog",
+    description: "Chromolog Technologies is a software development company in Kochi building custom web apps, CRM, HRMS and business automation for Infopark and Kerala enterprises.",
   },
   kerala: {
-    title: "Software Development & Business Automation Company in Kerala | Chromolog",
-    description: "Chromolog helps Kerala businesses transition from manual Excel spreadsheets and legacy websites to modern cloud software.",
+    title: "Custom Software Development Company in Kerala | Chromolog Technologies",
+    description: "Hire Chromolog for custom software, website redesign, CRM and HRMS in Kerala. Replace Excel and WhatsApp workflows with cloud systems you own.",
   },
   dubai: {
     title: "Custom Software & Web Development Company in Dubai, UAE | Chromolog",
@@ -145,7 +145,7 @@ function getMetadataForPage(activePage) {
   // Default fallback
   const cleanPath = activePage.startsWith("/") ? activePage : `/${activePage}`;
   return {
-    title: "Custom Software & Digital Systems | Chromolog Technologies",
+    title: "Custom Software Development Company in Kerala | Chromolog Technologies",
     description: staticMeta.home.description,
     path: cleanPath,
   };

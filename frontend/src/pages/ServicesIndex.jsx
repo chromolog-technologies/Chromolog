@@ -29,13 +29,13 @@ export default function ServicesIndex({ setActivePage }) {
           {/* Header */}
           <div className="text-center max-w-3xl mx-auto space-y-4 pt-6">
             <Badge variant="ai" className="px-4 py-1.5 text-xs font-semibold">
-              Digital Systems &amp; Software Engineering
+              Custom Software Company in Kerala
             </Badge>
             <h1 className="text-3xl sm:text-5xl font-extrabold font-heading text-white tracking-tight leading-tight">
-              We Build Digital Systems for Growing Businesses
+              Software Development Services for Growing Businesses in Kerala
             </h1>
             <p className="text-sm sm:text-base text-slate-300 font-body leading-relaxed">
-              From website upgrades to custom web applications, CRM, HRMS, LMS and business software, Chromolog helps businesses replace manual processes and outdated technology.
+              Chromolog builds custom software, web applications, website redesigns, mobile apps, CRM, ERP, HRMS and LMS platforms for companies in Kochi, Kerala, Dubai and the UAE.
             </p>
           </div>
 

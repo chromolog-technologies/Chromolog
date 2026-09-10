@@ -22,22 +22,22 @@ const featureCards = [
   {
     icon: Code2,
     title: "Custom Software Development",
-    description: "Scalable and secure software tailored to your business.",
+    description: "Bespoke systems built around your exact business workflows.",
   },
   {
     icon: Smartphone,
-    title: "Web & Mobile Solutions",
-    description: "Modern applications that deliver seamless experiences.",
+    title: "Web & Mobile Apps",
+    description: "Fast web portals and Flutter apps for teams and customers.",
   },
   {
     icon: Cloud,
-    title: "Cloud & DevOps Services",
-    description: "Reliable cloud solutions and DevOps best practices.",
+    title: "CRM, ERP & HRMS",
+    description: "Replace Excel and WhatsApp chaos with connected software.",
   },
   {
     icon: Compass,
-    title: "Digital Transformation Consulting",
-    description: "Strategic roadmaps for digital growth and innovation.",
+    title: "Website Development & Redesign",
+    description: "SEO-ready websites that turn visitors into enquiries.",
   },
 ];
 
@@ -117,7 +117,7 @@ export default function Hero({ navigateToSection }) {
             transition={{ duration: 0.5, ease: easings.expo }}
             className="text-xs sm:text-sm font-semibold uppercase tracking-[0.25em] text-purple-400 font-heading"
           >
-            INNOVATE. BUILD. TRANSFORM.
+            CUSTOM SOFTWARE COMPANY · KOCHI, KERALA
           </motion.p>
 
           {/* Main Headline */}
@@ -127,11 +127,11 @@ export default function Hero({ navigateToSection }) {
             transition={{ duration: 0.65, delay: 0.15, ease: easings.expo }}
             className="text-4xl sm:text-5xl md:text-6xl lg:text-[64px] font-extrabold tracking-tight text-white leading-[1.1] font-heading max-w-2xl"
           >
-            Digital Solutions <br />
-            That{" "}
+            Custom Software &amp;{" "}
             <span className="bg-gradient-to-r from-cyan-400 via-indigo-400 to-purple-400 bg-clip-text text-transparent">
-              Drive Growth
-            </span>
+              Digital Systems
+            </span>{" "}
+            for Growing Businesses
           </motion.h1>
 
           {/* Subtitle */}
@@ -141,7 +141,7 @@ export default function Hero({ navigateToSection }) {
             transition={{ duration: 0.65, delay: 0.3, ease: easings.expo }}
             className="text-base sm:text-lg text-slate-300 max-w-xl leading-relaxed font-body font-normal"
           >
-            We build powerful digital products and software solutions that help businesses streamline operations, enhance customer experiences and accelerate growth.
+            Chromolog Technologies builds web applications, CRM, ERP, HRMS and business automation software for companies in Kerala, Dubai and beyond — replacing manual Excel and WhatsApp workflows with systems you own.
           </motion.p>
 
           {/* Action Buttons */}
