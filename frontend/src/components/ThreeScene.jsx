@@ -1,3 +1,4 @@
+/*
 import React, { useEffect, useRef } from "react";
 import * as THREE from "three";
 
@@ -334,6 +335,33 @@ export default function ThreeScene() {
       className="w-full h-full min-h-[350px] md:min-h-[450px] relative pointer-events-none"
       aria-hidden="true"
     />
+  );
+}
+*/
+
+import React from "react";
+
+export default function ThreeScene() {
+  return (
+    <div className="w-full h-full min-h-[350px] md:min-h-[450px] relative flex justify-center items-center pointer-events-none">
+      <style>
+        {`
+          @keyframes spinY {
+            0% { transform: rotateY(0deg); }
+            100% { transform: rotateY(360deg); }
+          }
+          .animate-spin-y {
+            animation: spinY 8s linear infinite;
+            transform-style: preserve-3d;
+          }
+        `}
+      </style>
+      <img 
+        src="/images/chromolog logo transparent.png" 
+        alt="Chromolog 3D Logo" 
+        className="w-full max-w-[400px] object-contain animate-spin-y drop-shadow-[0_10px_25px_rgba(0,0,0,0.5)]" 
+      />
+    </div>
   );
 }
 
