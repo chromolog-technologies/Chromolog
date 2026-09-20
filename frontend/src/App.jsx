@@ -61,7 +61,7 @@ const IndustryPage = lazy(() => import("./pages/IndustryPage"));
 const TechOrbit = lazy(() => import("./components/TechOrbit"));
 const IndustryExplorer = lazy(() => import("./components/IndustryExplorer"));
 const HorizontalScrollShowcase = lazy(() => import("./components/HorizontalScrollShowcase"));
-const BrandVideoShowcase = lazy(() => import("./components/BrandVideoShowcase"));
+
 
 // Analytics & SEO hooks
 import useScrollDepth from "./hooks/useScrollDepth";
@@ -331,7 +331,7 @@ export default function App() {
                 <Projects />
                 <WhoWeHelp />
                 <About navigateToSection={navigateToSection} />
-                <BrandVideoShowcase />
+
                 <IndustryExplorer />
                 <TechOrbit />
                 <AIShowcase />
