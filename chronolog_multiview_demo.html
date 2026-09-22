@@ -1,0 +1,20 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Chronolog 3D Multi-view Reconstruction</title>
+<style>html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#03040b;font-family:Inter,Arial,sans-serif}canvas{display:block}#hud{position:fixed;left:24px;top:20px;color:#fff;background:rgba(10,12,25,.55);border:1px solid rgba(255,255,255,.12);padding:12px 14px;border-radius:12px;backdrop-filter:blur(8px);font-size:13px;z-index:5}#hud b{font-size:15px}#status{opacity:.65;margin-top:5px}</style>
+</head><body><div id="hud"><b>Chronolog — 3D Multi-view GLB</b><div id="status">Auto-rotating • Drag to rotate • Wheel to zoom</div></div>
+<script type="module">
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js';
+import {GLTFLoader} from 'https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/loaders/GLTFLoader.js';
+const scene=new THREE.Scene();
+const camera=new THREE.PerspectiveCamera(34,innerWidth/innerHeight,.1,100);camera.position.set(0,0,3.5);
+const renderer=new THREE.WebGLRenderer({antialias:true,alpha:true,powerPreference:'high-performance'});renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.setSize(innerWidth,innerHeight);renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.15;renderer.setClearColor(0x000000,0);document.body.appendChild(renderer.domElement);
+scene.add(new THREE.HemisphereLight(0x8ec8ff,0x160d2d,1.8));
+const key=new THREE.DirectionalLight(0xffffff,3.4);key.position.set(-3,4,5);scene.add(key);
+const blue=new THREE.PointLight(0x269cff,18,8);blue.position.set(-3,1,-2);scene.add(blue);
+const purple=new THREE.PointLight(0x8c35ff,14,8);purple.position.set(3,-1,-1);scene.add(purple);
+const root=new THREE.Group();scene.add(root);let model;
+new GLTFLoader().load('/chronolog_multiview_reconstructed.glb',g=>{model=g.scene;model.traverse(o=>{if(o.isMesh){o.frustumCulled=true;if(o.material){o.material.side=THREE.DoubleSide;}}});const box=new THREE.Box3().setFromObject(model);const size=box.getSize(new THREE.Vector3());const c=box.getCenter(new THREE.Vector3());model.position.sub(c);model.scale.setScalar(2.15/Math.max(size.x,size.y,size.z));root.add(model);document.getElementById('status').textContent='Auto-rotating • Drag to rotate • Wheel to zoom';},null,e=>document.getElementById('status').textContent='GLB load error: '+e.message);
+let drag=false,lastX=0,lastY=0,vx=0,vy=0,targetY=0,targetX=0;renderer.domElement.addEventListener('pointerdown',e=>{drag=true;lastX=e.clientX;lastY=e.clientY;renderer.domElement.setPointerCapture(e.pointerId)});renderer.domElement.addEventListener('pointermove',e=>{if(!drag)return;const dx=e.clientX-lastX,dy=e.clientY-lastY;targetY+=dx*.008;targetX=THREE.MathUtils.clamp(targetX+dy*.005,-.45,.45);vx=dx*.001;vy=dy*.0006;lastX=e.clientX;lastY=e.clientY});function up(e){drag=false;try{renderer.domElement.releasePointerCapture(e.pointerId)}catch(e){}}renderer.domElement.addEventListener('pointerup',up);renderer.domElement.addEventListener('pointercancel',up);renderer.domElement.addEventListener('wheel',e=>{e.preventDefault();camera.position.z=THREE.MathUtils.clamp(camera.position.z+e.deltaY*.002,2.1,5.0)},{passive:false});
+const clock=new THREE.Clock();function loop(){requestAnimationFrame(loop);const t=clock.getElapsedTime();if(!drag){targetY+=.0038;targetY+=vx;targetX+=vy;vx*=.94;vy*=.94}root.rotation.y=THREE.MathUtils.lerp(root.rotation.y,targetY,.09);root.rotation.x=THREE.MathUtils.lerp(root.rotation.x,targetX,.09);root.position.y=Math.sin(t*.7)*.05;renderer.render(scene,camera)}loop();
+addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)});
+</script></body></html>
