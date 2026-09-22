@@ -48,7 +48,11 @@ export default function GalaxyScene() {
 
   // ── World position calculation ───────────────────────────
   const worldPos = useCallback((p, index, st) => {
-    const depth = Math.min(st.W, st.H) * 0.72 * st.scale;
+    const isMobile = st.W < 640;
+    const baseSize = Math.min(st.W, st.H);
+    const aspectScale = isMobile ? Math.min(1.0, st.W / 440) : 1.0;
+    const depth = baseSize * (isMobile ? 0.44 : 0.72) * st.scale * aspectScale;
+
     const baseAngle = Math.atan2(p.y, p.x);
     const angle = baseAngle + st.simTime * (p.speed || 0.1);
     const radius = Math.hypot(p.x, p.y) * (p.orbit || 1);
@@ -471,20 +475,37 @@ export default function GalaxyScene() {
 
     const distanceTouches = (a, b) => Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY);
     const onTouchStart = (e) => {
-      if (e.touches.length === 2) {
+      if (e.touches.length === 1) {
+        st.drag = true;
+        downX = e.touches[0].clientX;
+        downY = e.touches[0].clientY;
+        hasMoved = false;
+        st.lastX = e.touches[0].clientX;
+        st.lastY = e.touches[0].clientY;
+      } else if (e.touches.length === 2) {
+        st.drag = false;
         st.pinchStart = distanceTouches(e.touches[0], e.touches[1]);
         st.pinchScale = st.scale;
       }
     };
     const onTouchMove = (e) => {
-      if (e.touches.length === 2) {
-        const d = distanceTouches(e.touches[0], e.touches[1]);
-        if (st.pinchStart > 0) {
-          st.scale = Math.max(0.48, Math.min(2.4, st.pinchScale * (d / st.pinchStart)));
+      if (e.touches.length === 1 && st.drag) {
+        if (Math.hypot(e.touches[0].clientX - downX, e.touches[0].clientY - downY) > 5) {
+          hasMoved = true;
         }
+        st.panX += e.touches[0].clientX - st.lastX;
+        st.panY += e.touches[0].clientY - st.lastY;
+        st.lastX = e.touches[0].clientX;
+        st.lastY = e.touches[0].clientY;
+      } else if (e.touches.length === 2 && st.pinchStart > 0) {
+        const d = distanceTouches(e.touches[0], e.touches[1]);
+        st.scale = Math.max(0.48, Math.min(2.4, st.pinchScale * (d / st.pinchStart)));
       }
     };
-    const onTouchEnd = () => { st.pinchStart = 0; };
+    const onTouchEnd = () => {
+      st.drag = false;
+      st.pinchStart = 0;
+    };
 
     const onClick = (e) => {
       if (hasMoved) return; // If user dragged/panned, don't trigger planet click
