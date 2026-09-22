@@ -52,6 +52,7 @@ export default function GalaxyScene() {
     const baseSize = Math.min(st.W, st.H);
     const aspectScale = isMobile ? Math.min(1.0, st.W / 440) : 1.0;
     const depth = baseSize * (isMobile ? 0.44 : 0.72) * st.scale * aspectScale;
+    const coreY = isMobile ? (st.H * 0.44 + st.panY) : (st.H / 2 + st.panY);
 
     const baseAngle = Math.atan2(p.y, p.x);
     const angle = baseAngle + st.simTime * (p.speed || 0.1);
@@ -61,7 +62,7 @@ export default function GalaxyScene() {
     const y = Math.sin(angle) * radius * 0.72 + z * 0.10;
     return {
       x: st.W / 2 + x * depth + st.panX,
-      y: st.H / 2 + y * depth + st.panY,
+      y: coreY + y * depth,
       z,
       rotation: st.simTime * (p.spin || 1.2),
     };
@@ -265,7 +266,9 @@ export default function GalaxyScene() {
       }
       ctx.globalAlpha = 1;
 
-      const core = { x: st.W / 2 + st.panX, y: st.H / 2 + st.panY };
+      const isMobile = st.W < 640;
+      const coreY = isMobile ? (st.H * 0.44 + st.panY) : (st.H / 2 + st.panY);
+      const core = { x: st.W / 2 + st.panX, y: coreY };
 
       // Galaxy rings
       for (let r = 0; r < 4; r++) {
@@ -304,7 +307,7 @@ export default function GalaxyScene() {
       // Orbital tracks
       if (st.orbit) {
         PLANETS.forEach((p, i) => {
-          const depth = Math.min(st.W, st.H) * 0.72 * st.scale;
+          const depth = Math.min(st.W, st.H) * (isMobile ? 0.44 : 0.72) * st.scale;
           const radius = Math.hypot(p.x, p.y) * (p.orbit || 1) * depth;
           const base = Math.atan2(p.y, p.x);
           ctx.save();
@@ -328,7 +331,7 @@ export default function GalaxyScene() {
       }
 
       // Central Chromolog world
-      const R = 74 * st.scale;
+      const R = (isMobile ? 48 : 74) * st.scale;
       const cg = ctx.createRadialGradient(core.x - R * 0.35, core.y - R * 0.45, 3, core.x, core.y, R * 1.35);
       cg.addColorStop(0, "#fff");
       cg.addColorStop(0.08, "#79d9ff");

@@ -93,7 +93,7 @@ export default function Hero({ navigateToSection }) {
   return (
     <section
       ref={heroRef}
-      className="relative min-h-screen flex flex-col justify-between pt-24 sm:pt-28 pb-12 sm:pb-16 overflow-hidden bg-[#060818]"
+      className="relative min-h-screen flex flex-col justify-between pt-20 sm:pt-28 pb-8 sm:pb-16 overflow-hidden bg-[#060818]"
       id="home"
     >
       {/* ── Galaxy Canvas Background (Full Home Section Background) ───────── */}
@@ -108,17 +108,17 @@ export default function Hero({ navigateToSection }) {
       <div className="absolute top-[20%] right-[-5%] w-[40vw] h-[40vw] max-w-[550px] rounded-full bg-purple-600/15 blur-[140px] pointer-events-none z-[1]" />
 
       {/* ── Top Hero Content Container ────────────────────────────────── */}
-      <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-12 w-full z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-8 items-center mb-12 sm:mb-16 pointer-events-none">
+      <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-12 w-full z-10 grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-center mb-8 sm:mb-16 pointer-events-none">
 
         {/* Left Column: Copy & CTAs */}
-        <div className="lg:col-span-8 flex flex-col text-left space-y-4 sm:space-y-6 lg:pr-8">
+        <div className="lg:col-span-8 flex flex-col text-left space-y-3.5 sm:space-y-6 lg:pr-8">
           
           {/* Eyebrow tag */}
           <motion.p
             initial={prefersReducedMotion ? {} : { opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, ease: easings.expo }}
-            className="text-[11px] sm:text-sm font-semibold uppercase tracking-[0.2em] sm:tracking-[0.25em] text-purple-400 font-heading"
+            className="text-[10px] sm:text-sm font-semibold uppercase tracking-[0.18em] sm:tracking-[0.25em] text-purple-400 font-heading"
           >
             CUSTOM SOFTWARE COMPANY · KOCHI, KERALA
           </motion.p>
@@ -128,7 +128,7 @@ export default function Hero({ navigateToSection }) {
             initial={prefersReducedMotion ? {} : { opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.65, delay: 0.15, ease: easings.expo }}
-            className="text-3xl sm:text-5xl md:text-6xl lg:text-[64px] font-extrabold tracking-tight text-white leading-[1.15] sm:leading-[1.1] font-heading max-w-2xl drop-shadow-md"
+            className="text-2xl sm:text-5xl md:text-6xl lg:text-[64px] font-extrabold tracking-tight text-white leading-[1.18] sm:leading-[1.1] font-heading max-w-2xl drop-shadow-md"
           >
             Custom Software &amp;{" "}
             <span className="bg-gradient-to-r from-cyan-400 via-indigo-400 to-purple-400 bg-clip-text text-transparent">
@@ -142,7 +142,7 @@ export default function Hero({ navigateToSection }) {
             initial={prefersReducedMotion ? {} : { opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.65, delay: 0.3, ease: easings.expo }}
-            className="text-sm sm:text-lg text-slate-300 max-w-xl leading-relaxed font-body font-normal drop-shadow"
+            className="text-xs sm:text-lg text-slate-300 max-w-xl leading-relaxed font-body font-normal drop-shadow"
           >
             Chromolog Technologies builds web applications, CRM, ERP, HRMS and business automation software for companies in Kerala, Dubai and beyond — replacing manual Excel and WhatsApp workflows with systems you own.
           </motion.p>
@@ -152,13 +152,13 @@ export default function Hero({ navigateToSection }) {
             initial={prefersReducedMotion ? {} : { opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.65, delay: 0.45, ease: easings.expo }}
-            className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3.5 sm:gap-4 pt-2 sm:pt-4 pointer-events-auto"
+            className="flex flex-row items-center gap-2.5 sm:gap-4 pt-1 sm:pt-4 pointer-events-auto"
           >
             <motion.button
               onClick={handleStartProject}
               whileHover={{ scale: 1.04, boxShadow: "0 0 30px rgba(168, 85, 247, 0.4)" }}
               whileTap={{ scale: 0.97 }}
-              className="w-full sm:w-auto text-center px-6 sm:px-8 py-3 sm:py-3.5 rounded-full text-sm sm:text-base font-heading font-semibold text-white bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 transition-all duration-300 shadow-xl shadow-purple-600/30"
+              className="flex-1 sm:flex-none text-center px-4 sm:px-8 py-2.5 sm:py-3.5 rounded-full text-xs sm:text-base font-heading font-semibold text-white bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 transition-all duration-300 shadow-xl shadow-purple-600/30"
             >
               Explore Our Services
             </motion.button>
@@ -167,7 +167,7 @@ export default function Hero({ navigateToSection }) {
               onClick={handleSeeWork}
               whileHover={{ scale: 1.04, backgroundColor: "rgba(255, 255, 255, 0.12)" }}
               whileTap={{ scale: 0.97 }}
-              className="w-full sm:w-auto text-center px-6 sm:px-8 py-3 sm:py-3.5 rounded-full text-sm sm:text-base font-heading font-semibold text-white bg-white/5 border border-white/20 transition-all duration-300 backdrop-blur-md"
+              className="flex-1 sm:flex-none text-center px-4 sm:px-8 py-2.5 sm:py-3.5 rounded-full text-xs sm:text-base font-heading font-semibold text-white bg-white/5 border border-white/20 transition-all duration-300 backdrop-blur-md"
             >
               View Our Work
             </motion.button>
@@ -179,7 +179,7 @@ export default function Hero({ navigateToSection }) {
 
       {/* ── 4 Glassmorphism Feature Cards Grid ─────────────────────────── */}
       <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-12 w-full z-10 pointer-events-none">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-6">
           {featureCards.map((card, index) => {
             const Icon = card.icon;
             return (
@@ -188,15 +188,15 @@ export default function Hero({ navigateToSection }) {
                 initial={prefersReducedMotion ? {} : { opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.6 + index * 0.1, ease: easings.expo }}
-                className="bg-white/[0.04] backdrop-blur-2xl border border-white/15 rounded-2xl p-5 sm:p-6 hover:border-cyan-400/60 hover:bg-white/[0.08] transition-all duration-300 shadow-[0_8px_32px_rgba(0,229,255,0.12)] group pointer-events-auto cursor-pointer"
+                className="bg-white/[0.04] backdrop-blur-2xl border border-white/15 rounded-xl sm:rounded-2xl p-3 sm:p-6 hover:border-cyan-400/60 hover:bg-white/[0.08] transition-all duration-300 shadow-[0_8px_32px_rgba(0,229,255,0.12)] group pointer-events-auto cursor-pointer"
               >
-                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400 mb-4 sm:mb-5 group-hover:scale-110 group-hover:bg-purple-500/20 transition-all duration-300">
-                  <Icon className="w-5 h-5 sm:w-6 sm:h-6" />
+                <div className="w-7 h-7 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400 mb-2 sm:mb-5 group-hover:scale-110 group-hover:bg-purple-500/20 transition-all duration-300">
+                  <Icon className="w-3.5 h-3.5 sm:w-6 sm:h-6" />
                 </div>
-                <h3 className="text-base sm:text-lg font-heading font-bold text-white mb-1.5 sm:mb-2 leading-snug">
+                <h3 className="text-xs sm:text-lg font-heading font-bold text-white mb-1 leading-snug line-clamp-1 sm:line-clamp-none">
                   {card.title}
                 </h3>
-                <p className="text-xs sm:text-sm font-body text-slate-400 leading-relaxed">
+                <p className="text-[10px] sm:text-sm font-body text-slate-400 leading-tight sm:leading-relaxed line-clamp-2 sm:line-clamp-none">
                   {card.description}
                 </p>
               </motion.div>
