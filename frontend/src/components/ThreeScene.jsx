@@ -1,368 +1,226 @@
-/*
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 
 export default function ThreeScene() {
-  const containerRef = useRef(null);
+  const mountRef = useRef(null);
+  const [hasError, setHasError] = useState(false);
 
   useEffect(() => {
-    if (!containerRef.current) return;
-
-    const container = containerRef.current;
-    const width = container.clientWidth || 500;
-    const height = container.clientHeight || 500;
-    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const isSmallViewport = window.innerWidth < 768;
-
-    // 1. Scene setup
-    const scene = new THREE.Scene();
-    scene.fog = new THREE.FogExp2(0x050816, 0.12);
-
-    // 2. Camera setup
-    const camera = new THREE.PerspectiveCamera(60, width / height, 0.1, 100);
-    camera.position.z = 8;
-
-    // 3. Renderer setup
-    const renderer = new THREE.WebGLRenderer({
-      alpha: true,
-      antialias: !isSmallViewport,
-      powerPreference: "high-performance",
-    });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, isSmallViewport ? 1.35 : 1.75));
-    renderer.setSize(width, height);
-    renderer.domElement.style.pointerEvents = "none";
-    container.appendChild(renderer.domElement);
-
-    // Helper to generate a glowing dot texture
-    const createCircleTexture = () => {
-      const canvas = document.createElement("canvas");
-      canvas.width = 32;
-      canvas.height = 32;
-      const ctx = canvas.getContext("2d");
-
-      // Draw radial gradient
-      const gradient = ctx.createRadialGradient(16, 16, 0, 16, 16, 16);
-      gradient.addColorStop(0, "rgba(255, 255, 255, 1)");
-      gradient.addColorStop(0.2, "rgba(0, 229, 255, 0.8)");
-      gradient.addColorStop(0.5, "rgba(79, 70, 229, 0.3)");
-      gradient.addColorStop(1, "rgba(0, 0, 0, 0)");
-
-      ctx.fillStyle = gradient;
-      ctx.fillRect(0, 0, 32, 32);
-
-      const texture = new THREE.CanvasTexture(canvas);
-      return texture;
-    };
-
-    const particleTexture = createCircleTexture();
-
-    // 4. Create particle network sphere
-    const particleCount = isSmallViewport ? 72 : 120;
-    const sphereRadius = 3.2;
-    const positions = new Float32Array(particleCount * 3);
-    const colors = new Float32Array(particleCount * 3);
-    const particlesData = [];
-
-    const colorPrimary = new THREE.Color("#4f46e5");
-    const colorSecondary = new THREE.Color("#00e5ff");
-    const colorPurple = new THREE.Color("#7c3aed");
-
-    for (let i = 0; i < particleCount; i++) {
-      // Golden ratio spacing on a sphere surface for uniform distribution
-      const phi = Math.acos(-1 + (2 * i) / particleCount);
-      const theta = Math.sqrt(particleCount * Math.PI) * phi;
-
-      const x = sphereRadius * Math.sin(phi) * Math.cos(theta);
-      const y = sphereRadius * Math.sin(phi) * Math.sin(theta);
-      const z = sphereRadius * Math.cos(phi);
-
-      positions[i * 3] = x;
-      positions[i * 3 + 1] = y;
-      positions[i * 3 + 2] = z;
-
-      // Assign gradient colors based on coordinates
-      const colorMix = (y + sphereRadius) / (sphereRadius * 2);
-      const tempColor = colorPrimary.clone().lerp(colorSecondary, colorMix);
-      if (Math.random() > 0.7) tempColor.lerp(colorPurple, 0.5);
-
-      colors[i * 3] = tempColor.r;
-      colors[i * 3 + 1] = tempColor.g;
-      colors[i * 3 + 2] = tempColor.b;
-
-      // Add velocity for slight organic oscillations
-      particlesData.push({
-        velocity: new THREE.Vector3(
-          (Math.random() - 0.5) * 0.02,
-          (Math.random() - 0.5) * 0.02,
-          (Math.random() - 0.5) * 0.02
-        ),
-        originalPos: new THREE.Vector3(x, y, z),
-        oscillationSpeed: 0.5 + Math.random() * 1.5,
-        oscillationRange: 0.1 + Math.random() * 0.15,
-        phase: Math.random() * Math.PI * 2,
-      });
+    if (!mountRef.current) return;
+    
+    try {
+      const canvas = document.createElement('canvas');
+      const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+      if (!gl) {
+        setHasError(true);
+        return;
+      }
+    } catch (e) {
+      setHasError(true);
+      return;
     }
 
-    const particleGeometry = new THREE.BufferGeometry();
-    particleGeometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
-    particleGeometry.setAttribute("color", new THREE.BufferAttribute(colors, 3));
+    const container = mountRef.current;
+    const scene = new THREE.Scene();
+    
+    // Initial camera position (will be updated dynamically once model loads)
+    const camera = new THREE.PerspectiveCamera(35, container.clientWidth / container.clientHeight, 0.1, 100);
+    camera.position.set(0, 0, 5);
 
-    const particleMaterial = new THREE.PointsMaterial({
-      size: 0.4,
-      map: particleTexture,
-      vertexColors: true,
-      transparent: true,
-      blending: THREE.AdditiveBlending,
-      depthWrite: false,
+    const renderer = new THREE.WebGLRenderer({
+      alpha: true,
+      antialias: window.innerWidth > 768,
+      powerPreference: "high-performance",
     });
+    // Limit pixel ratio to 2 for performance (1.5 preferred on mobile, but let's use devicePixelRatio capped at 2)
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setSize(container.clientWidth, container.clientHeight);
+    renderer.setClearColor(0x000000, 0); // Transparent canvas
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.15;
+    container.appendChild(renderer.domElement);
 
-    const pointCloud = new THREE.Points(particleGeometry, particleMaterial);
-    scene.add(pointCloud);
+    // Premium Lighting Setup
+    scene.add(new THREE.HemisphereLight(0x8fc7ff, 0x220b46, 1.8)); // Soft fill
+    
+    const keyLight = new THREE.DirectionalLight(0xffffff, 3.0);
+    keyLight.position.set(3, 4, 5); // Upper-left/front
+    scene.add(keyLight);
+    
+    const blueRimLight = new THREE.DirectionalLight(0x00aaff, 2.5);
+    blueRimLight.position.set(-4, 1, -3); // Rear-left
+    scene.add(blueRimLight);
 
-    // 5. Connection lines segments setup
-    const maxConnections = particleCount * (isSmallViewport ? 3 : 4);
-    const linePositions = new Float32Array(maxConnections * 3 * 2);
-    const lineColors = new Float32Array(maxConnections * 3 * 2);
+    const purpleRimLight = new THREE.DirectionalLight(0x9d00ff, 2.5);
+    purpleRimLight.position.set(4, 1, -3); // Rear-right
+    scene.add(purpleRimLight);
 
-    const lineGeometry = new THREE.BufferGeometry();
-    lineGeometry.setAttribute("position", new THREE.BufferAttribute(linePositions, 3));
-    lineGeometry.setAttribute("color", new THREE.BufferAttribute(lineColors, 3));
+    // Root Group for rotations and floating
+    const root = new THREE.Group();
+    scene.add(root);
 
-    const lineMaterial = new THREE.LineBasicMaterial({
-      vertexColors: true,
-      transparent: true,
-      blending: THREE.AdditiveBlending,
-      depthWrite: false,
-    });
+    let model = null;
+    const loader = new GLTFLoader();
+    
+    loader.load(
+      '/models/chronolog_logo_3d.glb',
+      (gltf) => {
+        model = gltf.scene;
+        
+        // 1. Calculate bounding box of the raw model
+        const box = new THREE.Box3().setFromObject(model);
+        const size = box.getSize(new THREE.Vector3());
+        const center = box.getCenter(new THREE.Vector3());
+        
+        // 2. Center the model (move pivot to true origin)
+        model.position.sub(center);
+        
+        // 3. Normalize scale (fit into a reasonable unit box)
+        const maxDim = Math.max(size.x, size.y, size.z);
+        const scaleTarget = 2.0 / maxDim;
+        model.scale.setScalar(scaleTarget);
 
-    const linesMesh = new THREE.LineSegments(lineGeometry, lineMaterial);
-    scene.add(linesMesh);
+        // 4. Calculate bounding sphere of the scaled model
+        const scaledBox = new THREE.Box3().setFromObject(model);
+        const sphere = scaledBox.getBoundingSphere(new THREE.Sphere());
+        
+        // 5. Adjust Camera Distance based on bounding sphere + safety margin
+        const fov = camera.fov * (Math.PI / 180);
+        let cameraDistance = Math.abs(sphere.radius / Math.sin(fov / 2));
+        
+        // Add safety margin so model occupies ~60-75% of canvas, avoiding clipping
+        cameraDistance *= 1.45; 
+        
+        camera.position.set(0, 0, cameraDistance);
+        camera.updateProjectionMatrix();
 
-    // 6. Lights
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
-    scene.add(ambientLight);
-
-    const cyanLight = new THREE.PointLight(0x00e5ff, 4, 15);
-    cyanLight.position.set(4, 4, 4);
-    scene.add(cyanLight);
-
-    const purpleLight = new THREE.PointLight(0x7c3aed, 4, 15);
-    purpleLight.position.set(-4, -4, 4);
-    scene.add(purpleLight);
-
-    // 7. Mouse Interactivity Variables
-    const mouse = { x: 0, y: 0, targetX: 0, targetY: 0 };
-
-    const handleMouseMove = (e) => {
-      const rect = container.getBoundingClientRect();
-      const clientX = e.clientX - rect.left - rect.width / 2;
-      const clientY = e.clientY - rect.top - rect.height / 2;
-
-      // Map coordinates from -1 to 1
-      mouse.targetX = clientX / (rect.width / 2);
-      mouse.targetY = clientY / (rect.height / 2);
-    };
-
-    const handleMouseLeave = () => {
-      mouse.targetX = 0;
-      mouse.targetY = 0;
-    };
-
-    window.addEventListener("mousemove", handleMouseMove);
-    container.addEventListener("mouseleave", handleMouseLeave);
-
-    // 8. Animation & Render loop
-    const animationStart = performance.now();
-    let animId;
-    let paused = false; // tab hidden or scrolled offscreen
-
-    const animate = () => {
-      if (paused) { animId = 0; return; }
-      animId = requestAnimationFrame(animate);
-
-      const elapsedTime = (performance.now() - animationStart) / 1000;
-      const positionsAttr = pointCloud.geometry.attributes.position;
-      const linesPositionsAttr = linesMesh.geometry.attributes.position;
-      const linesColorsAttr = linesMesh.geometry.attributes.color;
-
-      // Rotate sphere group slowly
-      pointCloud.rotation.y = prefersReducedMotion ? 0.2 : elapsedTime * 0.08;
-      pointCloud.rotation.x = prefersReducedMotion ? 0.1 : elapsedTime * 0.04;
-      linesMesh.rotation.y = pointCloud.rotation.y;
-      linesMesh.rotation.x = pointCloud.rotation.x;
-
-      // Mouse Parallax Lerping
-      mouse.x += (mouse.targetX - mouse.x) * 0.05;
-      mouse.y += (mouse.targetY - mouse.y) * 0.05;
-
-      camera.position.x = prefersReducedMotion ? 0 : mouse.x * 1.5;
-      camera.position.y = prefersReducedMotion ? 0 : -mouse.y * 1.5;
-      camera.lookAt(0, 0, 0);
-
-      // Oscillate particles organically on their sphere seats
-      for (let i = 0; i < particleCount; i++) {
-        const data = particlesData[i];
-        const original = data.originalPos;
-
-        // Spherical offset oscillation
-        const offset = prefersReducedMotion
-          ? 0
-          : Math.sin(elapsedTime * data.oscillationSpeed + data.phase) * data.oscillationRange;
-
-        // Push particle coordinate outward / inward along normal vector
-        const normal = original.clone().normalize();
-        const newPos = original.clone().add(normal.multiplyScalar(offset));
-
-        positionsAttr.setXYZ(i, newPos.x, newPos.y, newPos.z);
+        root.add(model);
+      },
+      undefined,
+      (err) => {
+        console.error('GLB load failed:', err);
+        setHasError(true);
       }
-      positionsAttr.needsUpdate = true;
+    );
 
-      // Rebuild connecting lines based on distance
-      let vertexIdx = 0;
-      let colorIdx = 0;
-      let lineCount = 0;
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.08;
+    controls.enablePan = false;
+    controls.enableZoom = false; 
+    controls.target.set(0, 0, 0);
 
-      for (let i = 0; i < particleCount; i++) {
-        const p1X = positionsAttr.getX(i);
-        const p1Y = positionsAttr.getY(i);
-        const p1Z = positionsAttr.getZ(i);
+    const prefsReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    let pointerDown = false;
+    let lastInteractionTime = Date.now();
+    let floatTime = 0;
 
-        for (let j = i + 1; j < particleCount; j++) {
-          const p2X = positionsAttr.getX(j);
-          const p2Y = positionsAttr.getY(j);
-          const p2Z = positionsAttr.getZ(j);
+    controls.addEventListener('start', () => { pointerDown = true; });
+    controls.addEventListener('end', () => { pointerDown = false; lastInteractionTime = Date.now(); });
 
-          const dx = p1X - p2X;
-          const dy = p1Y - p2Y;
-          const dz = p1Z - p2Z;
-          const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
+    const mouse = new THREE.Vector2();
+    const targetRotation = new THREE.Vector2();
+    
+    const onMouseMove = (event) => {
+      if (pointerDown || prefsReducedMotion) return;
+      const rect = container.getBoundingClientRect();
+      mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+      mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+      // Max tilt: approx ±5 degrees (0.087 rad)
+      targetRotation.x = mouse.y * 0.087;
+      targetRotation.y = mouse.x * 0.087;
+    };
+    
+    // Disable native touch scrolling only on this container to allow OrbitControls
+    container.style.touchAction = 'none';
+    container.addEventListener('mousemove', onMouseMove, { passive: true });
 
-          // Max distance threshold for nodes connectivity
-          if (dist < 1.6 && lineCount < maxConnections) {
-            // Set position vectors
-            linePositions[vertexIdx++] = p1X;
-            linePositions[vertexIdx++] = p1Y;
-            linePositions[vertexIdx++] = p1Z;
-            linePositions[vertexIdx++] = p2X;
-            linePositions[vertexIdx++] = p2Y;
-            linePositions[vertexIdx++] = p2Z;
-
-            // Set color and fade based on distance
-            const alpha = 1.0 - dist / 1.6;
-
-            const c1R = colors[i * 3];
-            const c1G = colors[i * 3 + 1];
-            const c1B = colors[i * 3 + 2];
-
-            const c2R = colors[j * 3];
-            const c2G = colors[j * 3 + 1];
-            const c2B = colors[j * 3 + 2];
-
-            lineColors[colorIdx++] = c1R * alpha * 0.45;
-            lineColors[colorIdx++] = c1G * alpha * 0.45;
-            lineColors[colorIdx++] = c1B * alpha * 0.45;
-            lineColors[colorIdx++] = c2R * alpha * 0.45;
-            lineColors[colorIdx++] = c2G * alpha * 0.45;
-            lineColors[colorIdx++] = c2B * alpha * 0.45;
-
-            lineCount++;
+    const clock = new THREE.Clock();
+    let animationFrameId;
+    
+    const animate = () => {
+      animationFrameId = requestAnimationFrame(animate);
+      const delta = clock.getDelta(); // Frame-rate independent time
+      
+      if (!prefsReducedMotion) {
+        // Subtle floating movement (approx 5-8px equivalent)
+        floatTime += delta * 1.5;
+        root.position.y = Math.sin(floatTime) * 0.04;
+        
+        if (!pointerDown) {
+          const timeSinceInteraction = Date.now() - lastInteractionTime;
+          // Resume auto-rotation after 2 seconds idle
+          if (timeSinceInteraction > 2000) {
+            // One revolution (~360deg = 2*PI rad) every 18 seconds => 0.349 rad/s
+            root.rotation.y += delta * 0.35; 
+          }
+          
+          if (model) {
+             // Subtle cursor parallax
+             model.rotation.x += (targetRotation.x - model.rotation.x) * (delta * 3.0);
+             model.rotation.z += (-targetRotation.y - model.rotation.z) * (delta * 3.0);
           }
         }
       }
 
-      // Draw active lines
-      linesPositionsAttr.needsUpdate = true;
-      linesColorsAttr.needsUpdate = true;
-      linesMesh.geometry.setDrawRange(0, lineCount * 2);
-
+      controls.update();
       renderer.render(scene, camera);
     };
-
     animate();
 
-    // 9. Pause when tab inactive or scene scrolled offscreen (performance)
-    let inView = true;
-    const syncPaused = () => {
-      const shouldPause = document.hidden || !inView;
-      if (shouldPause === paused) return;
-      paused = shouldPause;
-      if (!paused && !animId) animate();
-    };
-    const onVisibility = () => syncPaused();
-    const io = new IntersectionObserver(
-      ([entry]) => { inView = entry.isIntersecting; syncPaused(); },
-      { threshold: 0.01 }
-    );
-    io.observe(container);
-    document.addEventListener("visibilitychange", syncPaused);
-
-    // 10. Resize handler
     const handleResize = () => {
-      if (!containerRef.current) return;
-      const w = container.clientWidth;
-      const h = container.clientHeight;
-      camera.aspect = w / h;
+      if (!container) return;
+      const width = container.clientWidth;
+      const height = container.clientHeight;
+      camera.aspect = width / height;
       camera.updateProjectionMatrix();
-      renderer.setSize(w, h);
+      renderer.setSize(width, height);
     };
-
     window.addEventListener("resize", handleResize);
 
-    // 11. Clean up
     return () => {
-      cancelAnimationFrame(animId);
-      window.removeEventListener("mousemove", handleMouseMove);
-      container.removeEventListener("mouseleave", handleMouseLeave);
+      cancelAnimationFrame(animationFrameId);
       window.removeEventListener("resize", handleResize);
-
-      try {
+      container.removeEventListener('mousemove', onMouseMove);
+      if (container.contains(renderer.domElement)) {
         container.removeChild(renderer.domElement);
-      } catch {
-        // Safe check
       }
-
-      particleGeometry.dispose();
-      particleMaterial.dispose();
-      lineGeometry.dispose();
-      lineMaterial.dispose();
       renderer.dispose();
+      controls.dispose();
     };
   }, []);
 
-  return (
-    <div
-      ref={containerRef}
-      className="w-full h-full min-h-[350px] md:min-h-[450px] relative pointer-events-none"
-      aria-hidden="true"
-    />
-  );
-}
-*/
+  if (hasError) {
+    return (
+      <div className="w-full h-full min-h-[300px] md:min-h-[400px] relative flex justify-center items-center pointer-events-none">
+        <style>{`@keyframes spinY { 0% { transform: rotateY(0deg); } 100% { transform: rotateY(360deg); } } .animate-spin-y { animation: spinY 8s linear infinite; transform-style: preserve-3d; }`}</style>
+        <img src="/images/chromolog logo transparent.png" alt="Chromolog 3D Logo" className="w-full max-w-[400px] object-contain animate-spin-y drop-shadow-[0_10px_25px_rgba(0,0,0,0.5)]" />
+      </div>
+    );
+  }
 
-import React from "react";
-
-export default function ThreeScene() {
   return (
-    <div className="w-full h-full min-h-[350px] md:min-h-[450px] relative flex justify-center items-center pointer-events-none">
-      <style>
-        {`
-          @keyframes spinY {
-            0% { transform: rotateY(0deg); }
-            100% { transform: rotateY(360deg); }
-          }
-          .animate-spin-y {
-            animation: spinY 8s linear infinite;
-            transform-style: preserve-3d;
-          }
-        `}
-      </style>
-      <img 
-        src="/images/chromolog logo transparent.png" 
-        alt="Chromolog 3D Logo" 
-        className="w-full max-w-[400px] object-contain animate-spin-y drop-shadow-[0_10px_25px_rgba(0,0,0,0.5)]" 
+    // Z-index 0 ensures it stays behind floating UI cards which usually have z-10 or higher
+    <div className="w-full h-full min-h-[300px] md:min-h-[400px] relative flex justify-center items-center group z-0">
+      {/* Soft Glow Background */}
+      <div 
+        className="absolute w-full h-full max-w-[150%] max-h-[150%] rounded-full pointer-events-none transition-opacity duration-700 opacity-50 group-hover:opacity-70"
+        style={{
+          background: 'radial-gradient(circle, rgba(0,170,255,0.15) 0%, rgba(157,0,255,0.1) 40%, rgba(0,0,0,0) 70%)',
+          filter: 'blur(40px)',
+          zIndex: -1
+        }}
+      />
+      {/* WebGL Canvas Container */}
+      <div 
+        ref={mountRef} 
+        className="absolute inset-0 w-full h-full z-10 cursor-grab active:cursor-grabbing"
+        aria-label="Interactive 3D Chromolog Logo"
+        role="img"
       />
     </div>
   );
 }
-
-
