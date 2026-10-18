@@ -154,6 +154,8 @@ function public_settings(): array
     $s = settings_all();
     $s['expense_categories'] = array_values(array_filter(array_map('trim', explode("\n", $s['expense_categories']))));
     $s['income_categories'] = array_values(array_filter(array_map('trim', explode("\n", $s['income_categories']))));
+    $s['timezone'] = date_default_timezone_get();
+    $s['today'] = today();
     return $s;
 }
 

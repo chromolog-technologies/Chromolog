@@ -115,7 +115,7 @@ $router->add('PUT', 'leads/{id}', $leadRoles, function ($p) {
     $id = id_param($p);
     $before = find_or_404('leads', $id, 'Lead');
     $data = lead_data(body(), false);
-    $data['updated_at'] = date('Y-m-d H:i:s');
+    $data['updated_at'] = now_utc();
     update('leads', $id, $data);
     if (isset($data['status']) && $data['status'] !== $before['status']) {
         insert('lead_notes', ['lead_id' => $id, 'user_id' => current_user()['id'], 'type' => 'status',
@@ -140,7 +140,7 @@ $router->add('POST', 'leads/{id}/notes', $leadRoles, function ($p) {
         'body' => str_in($b, 'body', 4000, true),
     ]);
     if (array_key_exists('next_follow_up', $b)) {
-        update('leads', (int) $lead['id'], ['next_follow_up' => date_in($b, 'next_follow_up'), 'updated_at' => date('Y-m-d H:i:s')]);
+        update('leads', (int) $lead['id'], ['next_follow_up' => date_in($b, 'next_follow_up'), 'updated_at' => now_utc()]);
     }
     return ['note' => find_or_404('lead_notes', $id, 'Note')];
 });
@@ -155,7 +155,7 @@ $router->add('POST', 'leads/{id}/convert', $leadRoles, function ($p) {
         'name' => $lead['full_name'], 'company' => $lead['company'], 'email' => $lead['email'],
         'phone' => $lead['phone'], 'address' => $lead['location'], 'lead_id' => $lead['id'],
     ]);
-    update('leads', (int) $lead['id'], ['client_id' => $clientId, 'status' => 'won', 'updated_at' => date('Y-m-d H:i:s')]);
+    update('leads', (int) $lead['id'], ['client_id' => $clientId, 'status' => 'won', 'updated_at' => now_utc()]);
     insert('lead_notes', ['lead_id' => $lead['id'], 'user_id' => current_user()['id'], 'type' => 'status', 'body' => 'Converted to client']);
     audit('convert', 'lead', (int) $lead['id']);
     return ['client' => find_or_404('clients', $clientId, 'Client')];

@@ -3,6 +3,7 @@ node_modules/
 
 # Production build output (GitHub Actions builds frontend/dist)
 frontend/dist/
+portal/dist/
 /assets/
 /index.html
 
@@ -35,3 +36,4 @@ growth-api/config.php
 
 # Local Claude preview config
 .claude/
+portal/LOCAL-DEMO.md

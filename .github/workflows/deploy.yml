@@ -39,6 +39,10 @@ jobs:
         env:
           VITE_BOOKING_URL: ${{ vars.VITE_BOOKING_URL }}
 
+      - name: 🏢 Build Company Portal
+        run: npm ci && npm run build
+        working-directory: ./portal
+
       - name: 🧹 Clean Old Frontend Assets
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -73,3 +77,14 @@ jobs:
           source: "growth-api/"
           target: "/home/u818464796/domains/chromologtechnologies.com/public_html/api/ai"
           strip_components: 1
+
+      - name: 🏢 SFTP Deploy Company Portal
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SFTP_SERVER }}
+          username: ${{ secrets.SFTP_USERNAME }}
+          password: ${{ secrets.SFTP_PASSWORD }}
+          port: ${{ secrets.SFTP_PORT }}
+          source: "portal/dist/"
+          target: "/home/u818464796/domains/chromologtechnologies.com/public_html/portal"
+          strip_components: 2

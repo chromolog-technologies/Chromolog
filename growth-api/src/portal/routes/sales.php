@@ -103,7 +103,7 @@ function quotation_save(array $b, ?int $id): int
         'terms' => str_in($b, 'terms', 4000) ?? setting('quotation_terms'),
         'discount' => $lines['discount'], 'tax_rate' => $lines['tax_rate'],
         'subtotal' => $lines['subtotal'], 'total' => $lines['total'],
-        'updated_at' => date('Y-m-d H:i:s'),
+        'updated_at' => now_utc(),
     ];
     if ($id === null) {
         $data['number'] = next_number('quotations', setting('quotation_prefix'));
@@ -156,7 +156,7 @@ $router->add('POST', 'quotations/{id}/convert', [ROLE_ACCOUNTS], function ($p) {
                 'name' => $lead['full_name'], 'company' => $lead['company'], 'email' => $lead['email'],
                 'phone' => $lead['phone'], 'address' => $lead['location'], 'lead_id' => $lead['id'],
             ]);
-            update('leads', (int) $lead['id'], ['client_id' => $clientId, 'status' => 'won', 'updated_at' => date('Y-m-d H:i:s')]);
+            update('leads', (int) $lead['id'], ['client_id' => $clientId, 'status' => 'won', 'updated_at' => now_utc()]);
         }
         $invoiceId = insert('invoices', [
             'number' => next_number('invoices', setting('invoice_prefix')),
@@ -173,7 +173,7 @@ $router->add('POST', 'quotations/{id}/convert', [ROLE_ACCOUNTS], function ($p) {
         save_lines('invoice_items', 'invoice_id', $invoiceId, array_map(
             fn ($it, $i) => $it + ['position' => $i], $quote['items'], array_keys($quote['items'])
         ));
-        update('quotations', (int) $quote['id'], ['status' => 'invoiced', 'client_id' => $clientId, 'updated_at' => date('Y-m-d H:i:s')]);
+        update('quotations', (int) $quote['id'], ['status' => 'invoiced', 'client_id' => $clientId, 'updated_at' => now_utc()]);
         audit('convert', 'quotation', (int) $quote['id']);
         return $invoiceId;
     });
@@ -194,7 +194,7 @@ function refresh_invoice_status(int $id): void
     } elseif ($status === 'draft' && $paid > 0) {
         $status = $paid + 0.005 >= (float) $inv['total'] ? 'paid' : 'partially_paid';
     }
-    update('invoices', $id, ['amount_paid' => $paid, 'status' => $status, 'updated_at' => date('Y-m-d H:i:s')]);
+    update('invoices', $id, ['amount_paid' => $paid, 'status' => $status, 'updated_at' => now_utc()]);
 }
 
 $router->add('GET', 'invoices', $invoiceRoles, function () {
@@ -240,7 +240,7 @@ function invoice_save(array $b, ?int $id): int
         'terms' => str_in($b, 'terms', 4000) ?? setting('invoice_terms'),
         'discount' => $lines['discount'], 'tax_rate' => $lines['tax_rate'],
         'subtotal' => $lines['subtotal'], 'total' => $lines['total'],
-        'updated_at' => date('Y-m-d H:i:s'),
+        'updated_at' => now_utc(),
     ];
     if (array_key_exists('status', $b)) {
         $data['status'] = enum_in($b, 'status', ['draft', 'sent', 'cancelled'], 'draft');
@@ -276,7 +276,7 @@ $router->add('PUT', 'invoices/{id}', $invoiceRoles, function ($p) {
     if (isset($b['items'])) {
         transaction(fn () => invoice_save($b, $id));
     } else {
-        $data = ['updated_at' => date('Y-m-d H:i:s')];
+        $data = ['updated_at' => now_utc()];
         if (array_key_exists('status', $b)) {
             $data['status'] = enum_in($b, 'status', ['draft', 'sent', 'cancelled']);
         }

@@ -139,9 +139,16 @@ function money(float $n): float
     return round($n, 2);
 }
 
+/** Business date in the company timezone (config 'timezone', default Asia/Kolkata). */
 function today(): string
 {
     return date('Y-m-d');
+}
+
+/** Timestamps are stored in UTC, matching SQLite's CURRENT_TIMESTAMP. */
+function now_utc(): string
+{
+    return gmdate('Y-m-d H:i:s');
 }
 
 // ── Data helpers ────────────────────────────────────────────────────────

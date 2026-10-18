@@ -22,6 +22,7 @@ function config(): array
             exit(json_encode(['error' => 'Service not configured']));
         }
         $config = require $path;
+        date_default_timezone_set($config['timezone'] ?? 'Asia/Kolkata');
     }
     return $config;
 }

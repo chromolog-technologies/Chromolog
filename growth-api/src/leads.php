@@ -44,6 +44,6 @@ function notify_new_lead(array $lead): void
     foreach ($lead as $k => $v) {
         $body .= str_pad($k, 18) . ": {$v}\n";
     }
-    $body .= "\nOpen the control panel: https://chromologtechnologies.com/api/ai/admin.php\n";
+    $body .= "\nOpen the control panel: https://chromologtechnologies.com/portal/leads\n";
     send_team_email("[{$score}] New website lead: " . ($lead['full_name'] ?? 'Unknown'), $body, $lead['email'] ?? null);
 }

@@ -230,7 +230,7 @@ $router->add('POST', 'tasks', [ROLE_PROJECT], function () {
         q('INSERT OR IGNORE INTO project_members (project_id, user_id) VALUES (?, ?)', [$projectId, $d['assignee_id']]);
     }
     if ($d['status'] === 'done') {
-        $d['completed_at'] = date('Y-m-d H:i:s');
+        $d['completed_at'] = now_utc();
     }
     $id = insert('tasks', $d);
     audit('create', 'task', $id);
@@ -252,12 +252,12 @@ $router->add('PUT', 'tasks/{id}', [], function ($p) {
         throw new ApiError('This task has been paid out and can no longer change.', 422);
     }
     if (isset($d['status'])) {
-        $d['completed_at'] = $d['status'] === 'done' ? ($task['completed_at'] ?: date('Y-m-d H:i:s')) : null;
+        $d['completed_at'] = $d['status'] === 'done' ? ($task['completed_at'] ?: now_utc()) : null;
     }
     if (!empty($d['assignee_id'])) {
         q('INSERT OR IGNORE INTO project_members (project_id, user_id) VALUES (?, ?)', [$task['project_id'], $d['assignee_id']]);
     }
-    $d['updated_at'] = date('Y-m-d H:i:s');
+    $d['updated_at'] = now_utc();
     update('tasks', $id, $d);
     audit('update', 'task', $id);
     return ['task' => find_or_404('tasks', $id, 'Task')];
@@ -403,7 +403,7 @@ $router->add('POST', 'reports', [], function () {
     $uid = (int) current_user()['id'];
     $existing = q('SELECT id FROM daily_reports WHERE user_id = ? AND date = ?', [$uid, $date])->fetchColumn();
     if ($existing) {
-        update('daily_reports', (int) $existing, $data + ['updated_at' => date('Y-m-d H:i:s')]);
+        update('daily_reports', (int) $existing, $data + ['updated_at' => now_utc()]);
         $id = (int) $existing;
     } else {
         $id = insert('daily_reports', $data + ['user_id' => $uid, 'date' => $date]);

@@ -4,7 +4,7 @@
  * Clean cache auto-purge on update.
  */
 
-const CACHE_NAME = "chromolog-v3-cache-v3";
+const CACHE_NAME = "chromolog-v3-cache-v4";
 const OFFLINE_URL = "/offline";
 
 // Static assets to precache on install
@@ -47,6 +47,10 @@ self.addEventListener("fetch", (event) => {
 
   // Skip external requests
   if (!request.url.startsWith(self.location.origin)) return;
+
+  // Never touch the API or the company portal: private data must not be cached.
+  const path = new URL(request.url).pathname;
+  if (path.startsWith("/api/") || path.startsWith("/portal")) return;
 
   // Navigation requests — network first, fallback to cache
   if (request.mode === "navigate") {
