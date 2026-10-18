@@ -11,6 +11,39 @@ import {
 } from "../utils/visitor";
 
 const CHAT_HISTORY_KEY = "chromolog_ai_chat_history";
+const CHAT_SESSION_KEY = "chromolog_ai_chat_session";
+const AI_CHAT_URL = import.meta.env.VITE_AI_CHAT_URL || "/api/ai/chat.php";
+
+function newSessionId() {
+  return crypto.randomUUID?.() || `${Date.now()}-${Math.random().toString(36).slice(2)}-${Math.random().toString(36).slice(2)}`;
+}
+
+function getSessionId() {
+  try {
+    let id = localStorage.getItem(CHAT_SESSION_KEY);
+    if (!id) {
+      id = newSessionId();
+      localStorage.setItem(CHAT_SESSION_KEY, id);
+    }
+    return id;
+  } catch {
+    return newSessionId();
+  }
+}
+
+// Ask the AI Sales Agent (growth-api). Throws on network/server failure so the caller
+// can fall back to the offline knowledge base below.
+async function askSalesAgent(message) {
+  const res = await fetch(AI_CHAT_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ session_id: getSessionId(), message, page: window.location.pathname }),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (res.ok && data.reply) return { text: data.reply, cards: [] };
+  if (data.error && res.status !== 500) return { text: data.error, cards: [] };
+  throw new Error(`AI chat failed: ${res.status}`);
+}
 
 // ─────────────────────────────────────────────
 // Knowledge Base — pattern-matched responses
@@ -54,7 +87,7 @@ const KB = [
   },
   {
     patterns: ["contact", "reach", "email", "phone", "call", "whatsapp", "get in touch"],
-    response: `Reach Chromolog Technologies:\n\n📧 **Email** — [chromologtech@gmail.com](mailto:chromologtech@gmail.com)\n📱 **WhatsApp** — +91 94002 30723\n🌐 **Website** — chromologtech.com\n\nOr scroll to the **Contact** section at the bottom of this page — we respond within 24 hours.`,
+    response: `Reach Chromolog Technologies:\n\n📧 **Email** — [info@chromologtechnologies.com](mailto:info@chromologtechnologies.com)\n📱 **WhatsApp** — +91 94002 30723\n🌐 **Website** — chromologtechnologies.com\n\nOr scroll to the **Contact** section at the bottom of this page — we respond within 24 hours.`,
   },
   {
     patterns: ["location", "where", "india", "kerala", "based", "office"],
@@ -230,8 +263,7 @@ export default function AIChat({ setActivePage }) {
     if (/web|saas|portal|dashboard/i.test(query)) trackServiceInterest("Web Application Development");
     if (/mobile|flutter|ios|android/i.test(query)) trackServiceInterest("Mobile App Development");
 
-    setTimeout(() => {
-      const reply = getResponse(query);
+    askSalesAgent(query).catch(() => getResponse(query)).then((reply) => {
       const chunks = reply.text.match(/.{1,42}(\s|$)/g) || [reply.text];
       let index = 0;
       const streamId = window.setInterval(() => {
@@ -246,8 +278,8 @@ export default function AIChat({ setActivePage }) {
             { role: "assistant", text: reply.text, cards: reply.cards, id: Date.now() },
           ]);
         }
-      }, 35);
-    }, 450);
+      }, 20);
+    });
   };
 
   const handleReset = () => {
@@ -261,7 +293,12 @@ export default function AIChat({ setActivePage }) {
     setShowSuggestions(true);
     setInput("");
     setStreamingText("");
-    localStorage.removeItem(CHAT_HISTORY_KEY);
+    try {
+      localStorage.removeItem(CHAT_HISTORY_KEY);
+      localStorage.removeItem(CHAT_SESSION_KEY);
+    } catch {
+      // Storage may be unavailable in private browsing.
+    }
   };
 
   return (

@@ -1,0 +1,30 @@
+<?php
+
+/**
+ * Copy this file to the PRIVATE folder on Hostinger (outside public_html):
+ *   /home/u818464796/domains/chromologtechnologies.com/chromolog-private/config.php
+ * and fill in the values. Never commit the real file.
+ */
+return [
+    // From https://console.anthropic.com → API keys. Set a monthly spend limit there too.
+    'anthropic_api_key' => 'sk-ant-...',
+    'model' => 'claude-opus-5-5',
+
+    // SQLite database file, also kept in the private folder.
+    'db_path' => __DIR__ . '/growth.sqlite',
+
+    // Generate with: php -r "echo password_hash('your-password', PASSWORD_DEFAULT), PHP_EOL;"
+    'admin_password_hash' => '',
+
+    // Random string used to hash visitor IPs. Generate with: php -r "echo bin2hex(random_bytes(16)), PHP_EOL;"
+    'ip_salt' => '',
+
+    // New-lead notifications. Leave empty to disable.
+    'notify_email' => 'info@chromologtechnologies.com',
+
+    'allowed_origins' => ['https://chromologtechnologies.com'],
+
+    // Guardrails
+    'rate_limit_per_hour' => 30,   // messages per visitor per hour
+    'daily_message_cap' => 1500,   // total AI replies per day across all visitors
+];

@@ -1,0 +1,12 @@
+# Only the two entry points are reachable from the web.
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteRule ^(chat|admin)\.php$ - [L]
+  RewriteRule ^ - [F,L]
+</IfModule>
+
+<FilesMatch "\.(md|json|lock|sqlite|example\.php)$">
+  Require all denied
+</FilesMatch>
+
+Options -Indexes

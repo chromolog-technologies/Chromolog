@@ -26,3 +26,9 @@ yarn-debug.log*
 Thumbs.db
 .vscode/
 .idea/
+
+# Growth API (AI sales agent): dependencies, secrets and data stay out of git
+growth-api/vendor/
+growth-api/config.php
+*.sqlite
+*.sqlite-*
