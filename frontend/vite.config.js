@@ -27,6 +27,13 @@ export default defineConfig({
   },
   server: {
     port: 8080,
-    host: true
+    host: true,
+    // Local growth-api (cd growth-api && php -S 127.0.0.1:8787), same-origin like production
+    proxy: {
+      '/api/ai': {
+        target: 'http://127.0.0.1:8787',
+        rewrite: (path) => path.replace(/^\/api\/ai/, ''),
+      },
+    },
   }
 })

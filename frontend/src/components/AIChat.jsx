@@ -12,7 +12,13 @@ import {
 
 const CHAT_HISTORY_KEY = "chromolog_ai_chat_history";
 const CHAT_SESSION_KEY = "chromolog_ai_chat_session";
+const LEAD_CAPTURED_KEY = "chromolog_lead_captured";
+// The Claude-powered sales agent is off until an API key is configured; the free
+// offline knowledge base answers instead. Set VITE_AI_CHAT_ENABLED=true to switch.
+const AI_CHAT_ENABLED = import.meta.env.VITE_AI_CHAT_ENABLED === "true";
 const AI_CHAT_URL = import.meta.env.VITE_AI_CHAT_URL || "/api/ai/chat.php";
+const LEAD_URL = import.meta.env.VITE_LEAD_URL || "/api/ai/lead.php";
+const BUYING_INTENT = /(price|pricing|cost|quote|budget|how much|contact|hire|start|consult|call|meeting|demo|proposal|estimate)/i;
 
 function newSessionId() {
   return crypto.randomUUID?.() || `${Date.now()}-${Math.random().toString(36).slice(2)}-${Math.random().toString(36).slice(2)}`;
@@ -43,6 +49,72 @@ async function askSalesAgent(message) {
   if (res.ok && data.reply) return { text: data.reply, cards: [] };
   if (data.error && res.status !== 500) return { text: data.error, cards: [] };
   throw new Error(`AI chat failed: ${res.status}`);
+}
+
+async function submitLead(fields) {
+  const res = await fetch(LEAD_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ ...fields, source: "website_chat", session_id: getSessionId() }),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || "Could not send your details.");
+}
+
+function hasCapturedLead() {
+  try {
+    return localStorage.getItem(LEAD_CAPTURED_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
+// ─────────────────────────────────────────────
+// Inline lead form (free lead capture)
+// ─────────────────────────────────────────────
+function LeadForm({ summary, onDone, onDismiss }) {
+  const [form, setForm] = useState({ full_name: "", phone: "", email: "", service_interest: "", website: "" });
+  const [error, setError] = useState("");
+  const [sending, setSending] = useState(false);
+  const set = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.value }));
+  const field = "w-full bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-2 text-xs text-white placeholder-muted-text/50 focus:outline-none focus:border-accent/40 font-body";
+
+  const submit = async (e) => {
+    e.preventDefault();
+    if (!form.full_name.trim()) return setError("Please enter your name.");
+    if (!form.phone.trim() && !form.email.trim()) return setError("Please add a WhatsApp number or email.");
+    setSending(true);
+    setError("");
+    try {
+      await submitLead({ ...form, summary });
+      trackCTAInterest("AI chat lead form submitted");
+      onDone(form.full_name.trim());
+    } catch (err) {
+      setError(`${err.message} You can also WhatsApp us at +91 94002 30723.`);
+      setSending(false);
+    }
+  };
+
+  return (
+    <form onSubmit={submit} className="rounded-2xl border border-accent/15 bg-accent/5 p-3 space-y-2">
+      <p className="text-xs font-heading font-bold text-white">Get a free consultation</p>
+      <p className="text-[11px] text-muted-text leading-relaxed">Share your details and our team will reach out within one business day.</p>
+      <input className={field} placeholder="Your name *" value={form.full_name} onChange={set("full_name")} maxLength={120} autoComplete="name" />
+      <input className={field} placeholder="WhatsApp / phone" value={form.phone} onChange={set("phone")} maxLength={40} autoComplete="tel" inputMode="tel" />
+      <input className={field} placeholder="Email" type="email" value={form.email} onChange={set("email")} maxLength={160} autoComplete="email" />
+      <input className={field} placeholder="What would you like to build?" value={form.service_interest} onChange={set("service_interest")} maxLength={200} />
+      <input type="text" name="website" value={form.website} onChange={set("website")} tabIndex={-1} autoComplete="off" aria-hidden="true" className="hidden" />
+      {error && <p className="text-[11px] text-red-300">{error}</p>}
+      <div className="flex gap-2 pt-1">
+        <button type="submit" disabled={sending} className="flex-1 rounded-lg bg-gradient-to-br from-primary to-accent text-white text-xs font-bold py-2 disabled:opacity-50">
+          {sending ? "Sending..." : "Request callback"}
+        </button>
+        <button type="button" onClick={onDismiss} className="rounded-lg border border-white/[0.08] text-muted-text text-xs px-3 hover:text-white">
+          Not now
+        </button>
+      </div>
+    </form>
+  );
 }
 
 // ─────────────────────────────────────────────
@@ -222,6 +294,8 @@ export default function AIChat({ setActivePage }) {
   const [isTyping, setIsTyping] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(true);
   const [streamingText, setStreamingText] = useState("");
+  const [showLeadForm, setShowLeadForm] = useState(false);
+  const [leadCaptured, setLeadCaptured] = useState(hasCapturedLead);
   const bottomRef = useRef(null);
   const inputRef = useRef(null);
 
@@ -263,7 +337,13 @@ export default function AIChat({ setActivePage }) {
     if (/web|saas|portal|dashboard/i.test(query)) trackServiceInterest("Web Application Development");
     if (/mobile|flutter|ios|android/i.test(query)) trackServiceInterest("Mobile App Development");
 
-    askSalesAgent(query).catch(() => getResponse(query)).then((reply) => {
+    const userTurns = messages.filter((m) => m.role === "user").length + 1;
+    const wantsLeadForm = !AI_CHAT_ENABLED && !leadCaptured && (BUYING_INTENT.test(query) || userTurns === 3);
+    const getReply = AI_CHAT_ENABLED
+      ? askSalesAgent(query).catch(() => getResponse(query))
+      : new Promise((resolve) => setTimeout(() => resolve(getResponse(query)), 450));
+
+    getReply.then((reply) => {
       const chunks = reply.text.match(/.{1,42}(\s|$)/g) || [reply.text];
       let index = 0;
       const streamId = window.setInterval(() => {
@@ -277,9 +357,28 @@ export default function AIChat({ setActivePage }) {
             ...prev,
             { role: "assistant", text: reply.text, cards: reply.cards, id: Date.now() },
           ]);
+          if (wantsLeadForm) setShowLeadForm(true);
         }
       }, 20);
     });
+  };
+
+  const handleLeadDone = (name) => {
+    setShowLeadForm(false);
+    setLeadCaptured(true);
+    try {
+      localStorage.setItem(LEAD_CAPTURED_KEY, "1");
+    } catch {
+      // Storage may be unavailable in private browsing.
+    }
+    setMessages((prev) => [
+      ...prev,
+      {
+        role: "assistant",
+        text: `Thank you, **${name}**! Our team will reach out within one business day.\n\nNeed us sooner? WhatsApp **+91 94002 30723**.`,
+        id: Date.now(),
+      },
+    ]);
   };
 
   const handleReset = () => {
@@ -291,6 +390,7 @@ export default function AIChat({ setActivePage }) {
       },
     ]);
     setShowSuggestions(true);
+    setShowLeadForm(false);
     setInput("");
     setStreamingText("");
     try {
@@ -467,9 +567,26 @@ export default function AIChat({ setActivePage }) {
                 </div>
               )}
 
+              {/* Lead capture */}
+              {showLeadForm && !isTyping && (
+                <LeadForm
+                  summary={messages.filter((m) => m.role === "user").slice(-5).map((m) => m.text).join(" | ")}
+                  onDone={handleLeadDone}
+                  onDismiss={() => setShowLeadForm(false)}
+                />
+              )}
+
               {/* Quick actions after conversation starts */}
-              {messages.length > 2 && !isTyping && (
+              {messages.length > 2 && !isTyping && !showLeadForm && (
                 <div className="flex gap-2 pt-1 flex-wrap">
+                  {!leadCaptured && (
+                    <button
+                      onClick={() => setShowLeadForm(true)}
+                      className="flex items-center gap-1.5 text-[11px] font-bold text-accent border border-accent/20 bg-accent/10 hover:bg-accent/20 px-3 py-1.5 rounded-xl transition-all font-heading"
+                    >
+                      <ArrowRight className="w-3 h-3" /> Free consultation
+                    </button>
+                  )}
                   <button
                     onClick={() => setActivePage && setActivePage("home")}
                     className="flex items-center gap-1.5 text-[11px] font-bold text-muted-text/70 border border-white/[0.05] bg-white/[0.02] hover:bg-white/[0.05] hover:text-white px-3 py-1.5 rounded-xl transition-all font-heading"

@@ -9,6 +9,8 @@ require __DIR__ . '/src/bootstrap.php';
  */
 
 const STATUSES = ['new', 'contacted', 'meeting', 'proposal', 'won', 'lost', 'spam'];
+const SCORES = ['hot', 'warm', 'cold'];
+const MANUAL_SOURCES = ['whatsapp', 'phone', 'email', 'referral', 'instagram', 'facebook', 'linkedin', 'outbound', 'walk_in', 'other'];
 
 session_set_cookie_params(['httponly' => true, 'secure' => !empty($_SERVER['HTTPS']), 'samesite' => 'Strict']);
 session_start();
@@ -70,9 +72,25 @@ $pdo = db();
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action === 'update') {
     check_csrf();
     $status = in_array($_POST['status'] ?? '', STATUSES, true) ? $_POST['status'] : 'new';
-    $pdo->prepare('UPDATE leads SET status = ?, notes = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?')
-        ->execute([$status, (string) ($_POST['notes'] ?? ''), (int) ($_POST['id'] ?? 0)]);
+    $score = in_array($_POST['score'] ?? '', SCORES, true) ? $_POST['score'] : null;
+    $pdo->prepare('UPDATE leads SET status = ?, score = ?, notes = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?')
+        ->execute([$status, $score, (string) ($_POST['notes'] ?? ''), (int) ($_POST['id'] ?? 0)]);
     header('Location: admin.php?a=lead&id=' . (int) $_POST['id']);
+    exit;
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action === 'add') {
+    check_csrf();
+    $fields = ['source' => in_array($_POST['source'] ?? '', MANUAL_SOURCES, true) ? $_POST['source'] : 'other'];
+    foreach (['full_name', 'email', 'phone', 'company', 'industry', 'location', 'service_interest', 'summary'] as $f) {
+        $fields[$f] = trim((string) ($_POST[$f] ?? ''));
+    }
+    $fields['score'] = in_array($_POST['score'] ?? '', SCORES, true) ? $_POST['score'] : '';
+    $fields = array_filter($fields, fn ($v) => $v !== '');
+    $cols = array_keys($fields);
+    $pdo->prepare('INSERT INTO leads (session_id, ' . implode(', ', $cols) . ') VALUES (?' . str_repeat(', ?', count($cols)) . ')')
+        ->execute(['manual-' . bin2hex(random_bytes(8)), ...array_values($fields)]);
+    header('Location: admin.php?a=lead&id=' . (int) $pdo->lastInsertId());
     exit;
 }
 
@@ -96,13 +114,17 @@ if ($action === 'lead') {
     $msgs->execute([$lead['session_id']]);
 
     $html = '<p><a href="admin.php">← All leads</a></p><div class="grid2"><div class="card"><h2>' . e($lead['full_name']) . '</h2><table>';
-    foreach (['score', 'email', 'phone', 'company', 'role', 'industry', 'location', 'service_interest', 'budget_range', 'timeline', 'summary', 'created_at'] as $f) {
+    foreach (['source', 'email', 'phone', 'company', 'role', 'industry', 'location', 'service_interest', 'budget_range', 'timeline', 'summary', 'created_at'] as $f) {
         $html .= '<tr><th>' . e(str_replace('_', ' ', $f)) . '</th><td>' . e($lead[$f]) . '</td></tr>';
     }
     $html .= '</table><form method="post" action="admin.php?a=update"><input type="hidden" name="csrf" value="' . csrf() . '">'
         . '<input type="hidden" name="id" value="' . (int) $lead['id'] . '"><label>Status <select name="status">';
     foreach (STATUSES as $s) {
         $html .= '<option' . ($s === $lead['status'] ? ' selected' : '') . '>' . $s . '</option>';
+    }
+    $html .= '</select></label><label>Score <select name="score"><option value="">unscored</option>';
+    foreach (SCORES as $s) {
+        $html .= '<option' . ($s === $lead['score'] ? ' selected' : '') . '>' . $s . '</option>';
     }
     $html .= '</select></label><label>Notes<textarea name="notes" rows="4">' . e($lead['notes']) . '</textarea></label><button>Save</button></form></div>'
         . '<div class="card"><h2>Conversation</h2>';
@@ -141,8 +163,9 @@ $windows = ['7 days' => '-7 days', '30 days' => '-30 days', 'All time' => '-100 
 $metrics = [];
 foreach ($windows as $label => $w) {
     $metrics[$label] = [
-        'Chats' => $count("SELECT COUNT(*) FROM conversations WHERE created_at > datetime('now', '{$w}')"),
         'Leads' => $count("SELECT COUNT(*) FROM leads WHERE created_at > datetime('now', '{$w}')"),
+        '· from chat' => $count("SELECT COUNT(*) FROM leads WHERE source = 'website_chat' AND created_at > datetime('now', '{$w}')"),
+        '· from contact form' => $count("SELECT COUNT(*) FROM leads WHERE source IN ('contact_form','digital_audit') AND created_at > datetime('now', '{$w}')"),
         'Hot leads' => $count("SELECT COUNT(*) FROM leads WHERE score = 'hot' AND created_at > datetime('now', '{$w}')"),
         'Meetings+' => $count("SELECT COUNT(*) FROM leads WHERE status IN ('meeting','proposal','won') AND created_at > datetime('now', '{$w}')"),
         'Won' => $count("SELECT COUNT(*) FROM leads WHERE status = 'won' AND created_at > datetime('now', '{$w}')"),
@@ -162,12 +185,24 @@ foreach (array_keys($metrics['7 days']) as $k) {
     }
     $html .= '</tr>';
 }
-$all = $metrics['All time'];
-$html .= '</table><p class="muted">Chat → lead conversion: ' . ($all['Chats'] ? round($all['Leads'] / $all['Chats'] * 100, 1) : 0)
-    . '% · AI tokens (30 days): ' . number_format((int) $tokens['i']) . ' in / ' . number_format((int) $tokens['o']) . ' out</p></div>';
+$html .= '</table><p class="muted">Add WhatsApp, phone and referral inquiries by hand below so the baseline covers every channel.'
+    . ($tokens['i'] ? ' · AI tokens (30 days): ' . number_format((int) $tokens['i']) . ' in / ' . number_format((int) $tokens['o']) . ' out' : '')
+    . '</p></div>';
+
+$html .= '<details class="card"><summary><b>+ Add a lead by hand</b> (WhatsApp, phone, referral, social…)</summary>'
+    . '<form method="post" action="admin.php?a=add" class="addform"><input type="hidden" name="csrf" value="' . csrf() . '">'
+    . '<label>Source <select name="source">';
+foreach (MANUAL_SOURCES as $src) {
+    $html .= '<option>' . $src . '</option>';
+}
+$html .= '</select></label><label>Score <select name="score"><option value="">unscored</option><option>hot</option><option>warm</option><option>cold</option></select></label>';
+foreach (['full_name' => 'Name *', 'phone' => 'Phone', 'email' => 'Email', 'company' => 'Company', 'industry' => 'Industry', 'location' => 'Location', 'service_interest' => 'What they need'] as $f => $label) {
+    $html .= '<label>' . $label . '<input name="' . $f . '"' . ($f === 'full_name' ? ' required' : '') . '></label>';
+}
+$html .= '<label class="wide">Notes<textarea name="summary" rows="2"></textarea></label><button>Add lead</button></form></details>';
 
 $filter = in_array($_GET['status'] ?? '', STATUSES, true) ? $_GET['status'] : null;
-$stmt = $pdo->prepare('SELECT id, full_name, email, phone, company, industry, location, score, status, created_at FROM leads'
+$stmt = $pdo->prepare('SELECT id, source, full_name, email, phone, company, industry, location, score, status, created_at FROM leads'
     . ($filter ? ' WHERE status = ?' : '') . ' ORDER BY id DESC LIMIT 300');
 $stmt->execute($filter ? [$filter] : []);
 
@@ -175,9 +210,9 @@ $html .= '<div class="card"><h2>Leads</h2><p class="filters"><a href="admin.php"
 foreach (STATUSES as $s) {
     $html .= ' · <a href="admin.php?status=' . $s . '">' . $s . '</a>';
 }
-$html .= ' · <a href="admin.php?a=csv">export CSV</a></p><table><tr><th>Name</th><th>Score</th><th>Status</th><th>Contact</th><th>Company</th><th>Industry</th><th>Location</th><th>Created</th></tr>';
+$html .= ' · <a href="admin.php?a=csv">export CSV</a></p><table><tr><th>Name</th><th>Source</th><th>Score</th><th>Status</th><th>Contact</th><th>Company</th><th>Industry</th><th>Location</th><th>Created</th></tr>';
 foreach ($stmt->fetchAll() as $l) {
-    $html .= '<tr><td><a href="admin.php?a=lead&id=' . (int) $l['id'] . '">' . e($l['full_name']) . '</a></td>'
+    $html .= '<tr><td><a href="admin.php?a=lead&id=' . (int) $l['id'] . '">' . e($l['full_name']) . '</a></td><td>' . e(str_replace('_', ' ', $l['source'])) . '</td>'
         . '<td><span class="pill ' . e($l['score']) . '">' . e($l['score']) . '</span></td><td>' . e($l['status']) . '</td>'
         . '<td>' . e($l['email']) . '<br>' . e($l['phone']) . '</td><td>' . e($l['company']) . '</td><td>' . e($l['industry']) . '</td>'
         . '<td>' . e($l['location']) . '</td><td>' . e($l['created_at']) . '</td></tr>';
@@ -197,7 +232,7 @@ function page(string $title, string $body, bool $nav = true): never
         . 'th{color:var(--muted);font-weight:500}a{color:#a99bff}.muted,.filters{color:var(--muted)}'
         . '.pill{padding:2px 8px;border-radius:99px;font-size:12px;background:#333}.hot{background:#5c1f2a;color:#ff9aa8}.warm{background:#5a4214;color:#ffd27a}.cold{background:#1d3550;color:#8fc4ff}'
         . 'input,select,textarea,button{font:inherit;padding:8px 10px;border-radius:8px;border:1px solid var(--line);background:#0f1218;color:var(--text);width:100%;box-sizing:border-box;margin:6px 0 12px}'
-        . 'button{background:var(--accent);border:0;cursor:pointer;width:auto;padding:8px 18px}.login{max-width:340px;margin:12vh auto}.err{color:#ff8a8a}'
+        . 'button{background:var(--accent);border:0;cursor:pointer;width:auto;padding:8px 18px}.login{max-width:340px;margin:12vh auto}.err{color:#ff8a8a}summary{cursor:pointer}.addform{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:0 16px;margin-top:14px}.addform .wide{grid-column:1/-1}'
         . '.grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px}@media(max-width:800px){.grid2{grid-template-columns:1fr}}'
         . '.msg{padding:10px 12px;border-radius:10px;margin-bottom:10px;background:#1b2030}.msg.user{background:#25204a}.msg small{display:block;color:var(--muted);margin-bottom:4px}'
         . '</style></head><body>' . $navHtml . '<main>' . $body . '</main></body></html>';

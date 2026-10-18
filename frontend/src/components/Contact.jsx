@@ -52,6 +52,21 @@ export default function Contact() {
     setSubmitting(true);
     setStatus({ type: '', msg: '' });
 
+    // Also record the inquiry in the Growth OS control panel (fire-and-forget;
+    // Formspree remains the primary delivery so a failure here never blocks the visitor).
+    fetch(import.meta.env.VITE_LEAD_URL || '/api/ai/lead.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        source: 'contact_form',
+        full_name: formData.name,
+        email: formData.email,
+        company: formData.organization,
+        service_interest: formData.service,
+        summary: formData.message,
+      }),
+    }).catch(() => {});
+
     try {
       const response = await fetch('https://formspree.io/f/mzdlrvwb', {
         method: 'POST',
