@@ -315,6 +315,15 @@ const SETTING_DEFAULTS = [
     'quotation_terms' => 'This quotation is valid for 30 days. Final scope will be confirmed in writing.',
     'expense_categories' => "Software & Subscriptions\nHosting & Domains\nFreelancer Payouts\nSalaries\nRent & Utilities\nMarketing & Ads\nEquipment\nTravel\nBank Charges\nTaxes & Fees\nOther",
     'income_categories' => "Advance / Retainer\nInterest\nRefund\nOther",
+    'reminders_enabled' => '1',
+    // ISO weekdays (1 = Monday) on which a daily report is expected.
+    'report_days' => '1,2,3,4,5,6',
+    'ticket_prefix' => 'TKT',
+    // Support targets per priority: first response hours, resolution hours (calendar hours).
+    'sla_urgent' => '1,8',
+    'sla_high' => '4,24',
+    'sla_medium' => '8,72',
+    'sla_low' => '24,120',
 ];
 
 function settings_all(): array

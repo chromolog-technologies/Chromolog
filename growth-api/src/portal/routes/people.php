@@ -203,6 +203,7 @@ $router->add('GET', 'dashboard', [], function () {
             'outstanding' => money((float) $one("SELECT COALESCE(SUM(total - amount_paid),0) FROM invoices WHERE status IN ('sent','partially_paid')")),
             'overdue_invoices' => (int) $one("SELECT COUNT(*) FROM invoices WHERE status IN ('sent','partially_paid') AND due_date < ?", [today()]),
             'pending_payouts' => money((float) $one("SELECT COALESCE(SUM(total),0) FROM payouts WHERE status = 'pending'")),
+            'recurring_due_7_days' => (int) $one("SELECT COUNT(*) FROM recurring_invoices WHERE active = 1 AND next_date <= date(?, '+7 days')", [today()]),
             'contracts_expiring' => (int) $one("SELECT COUNT(*) FROM contracts WHERE status = 'active' AND end_date IS NOT NULL AND end_date <= date('now', '+' || renewal_reminder_days || ' days')"),
         ];
     }
@@ -213,6 +214,8 @@ $router->add('GET', 'dashboard', [], function () {
             'pending_timesheets' => (int) $one("SELECT COUNT(*) FROM timesheets WHERE status = 'pending'"),
             'reports_today' => (int) $one("SELECT COUNT(*) FROM daily_reports WHERE date = ?", [today()]),
             'people' => (int) $one("SELECT COUNT(*) FROM users WHERE active = 1"),
+            'open_tickets' => (int) $one("SELECT COUNT(*) FROM tickets WHERE status NOT IN ('resolved','closed')"),
+            'breached_tickets' => (int) $one("SELECT COUNT(*) FROM tickets WHERE status NOT IN ('resolved','closed') AND ((first_response_at IS NULL AND response_due_at < ?) OR resolve_due_at < ?)", [now_utc(), now_utc()]),
         ];
     }
     // Everyone: own work.
@@ -221,6 +224,7 @@ $router->add('GET', 'dashboard', [], function () {
         'hours_this_month' => (float) $one("SELECT COALESCE(SUM(hours),0) FROM timesheets WHERE user_id = ? AND date >= ?", [$uid, $monthStart]),
         'report_submitted_today' => (bool) $one("SELECT 1 FROM daily_reports WHERE user_id = ? AND date = ?", [$uid, today()]),
         'unpaid_earnings' => money(unpaid_earnings($uid)),
+        'open_tickets' => (int) $one("SELECT COUNT(*) FROM tickets WHERE assignee_id = ? AND status NOT IN ('resolved','closed')", [$uid]),
     ];
     return $out;
 });

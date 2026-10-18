@@ -261,6 +261,73 @@ function portal_migrate(PDO $pdo): void
             created_at     TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
         );
 
+        CREATE TABLE IF NOT EXISTS recurring_invoices (
+            id          INTEGER PRIMARY KEY AUTOINCREMENT,
+            client_id   INTEGER NOT NULL REFERENCES clients(id),
+            contract_id INTEGER REFERENCES contracts(id),
+            title       TEXT NOT NULL,
+            frequency   TEXT NOT NULL DEFAULT 'monthly',
+            next_date   TEXT NOT NULL,
+            end_date    TEXT,
+            auto_send   INTEGER NOT NULL DEFAULT 0,
+            active      INTEGER NOT NULL DEFAULT 1,
+            discount    REAL NOT NULL DEFAULT 0,
+            tax_rate    REAL NOT NULL DEFAULT 0,
+            notes       TEXT,
+            last_invoice_id INTEGER,
+            created_by  INTEGER REFERENCES users(id),
+            created_at  TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+        );
+        CREATE TABLE IF NOT EXISTS recurring_items (
+            id           INTEGER PRIMARY KEY AUTOINCREMENT,
+            recurring_id INTEGER NOT NULL REFERENCES recurring_invoices(id) ON DELETE CASCADE,
+            description  TEXT NOT NULL,
+            quantity     REAL NOT NULL DEFAULT 1,
+            unit_price   REAL NOT NULL DEFAULT 0,
+            amount       REAL NOT NULL DEFAULT 0,
+            position     INTEGER NOT NULL DEFAULT 0
+        );
+
+        CREATE TABLE IF NOT EXISTS tickets (
+            id                INTEGER PRIMARY KEY AUTOINCREMENT,
+            number            TEXT NOT NULL UNIQUE,
+            client_id         INTEGER REFERENCES clients(id),
+            contract_id       INTEGER REFERENCES contracts(id),
+            project_id        INTEGER REFERENCES projects(id),
+            subject           TEXT NOT NULL,
+            description       TEXT,
+            channel           TEXT NOT NULL DEFAULT 'phone',
+            priority          TEXT NOT NULL DEFAULT 'medium',
+            status            TEXT NOT NULL DEFAULT 'open',
+            assignee_id       INTEGER REFERENCES users(id),
+            response_due_at   TEXT NOT NULL,
+            resolve_due_at    TEXT NOT NULL,
+            first_response_at TEXT,
+            resolved_at       TEXT,
+            created_by        INTEGER REFERENCES users(id),
+            created_at        TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            updated_at        TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+        );
+        CREATE TABLE IF NOT EXISTS ticket_comments (
+            id         INTEGER PRIMARY KEY AUTOINCREMENT,
+            ticket_id  INTEGER NOT NULL REFERENCES tickets(id) ON DELETE CASCADE,
+            user_id    INTEGER REFERENCES users(id),
+            body       TEXT NOT NULL,
+            internal   INTEGER NOT NULL DEFAULT 0,
+            created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+        );
+
+        CREATE TABLE IF NOT EXISTS job_runs (
+            id          INTEGER PRIMARY KEY AUTOINCREMENT,
+            job         TEXT NOT NULL,
+            run_date    TEXT NOT NULL,
+            status      TEXT NOT NULL,
+            detail      TEXT,
+            created_at  TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+        );
+
+        CREATE INDEX IF NOT EXISTS idx_tickets_status ON tickets(status);
+        CREATE INDEX IF NOT EXISTS idx_job_runs ON job_runs(job, run_date);
         CREATE INDEX IF NOT EXISTS idx_tasks_project ON tasks(project_id);
         CREATE INDEX IF NOT EXISTS idx_tasks_assignee ON tasks(assignee_id);
         CREATE INDEX IF NOT EXISTS idx_timesheets_user ON timesheets(user_id, date);
@@ -268,6 +335,16 @@ function portal_migrate(PDO $pdo): void
         CREATE INDEX IF NOT EXISTS idx_expenses_date ON expenses(date);
         CREATE INDEX IF NOT EXISTS idx_payments_date ON payments(date);
     SQL);
+
+    $recCols = array_column($pdo->query('PRAGMA table_info(recurring_invoices)')->fetchAll(), 'name');
+    if (!in_array('anchor_day', $recCols, true)) {
+        // Day of month the schedule bills on, so 31 Aug → 30 Sep → 31 Oct (no drift).
+        $pdo->exec('ALTER TABLE recurring_invoices ADD COLUMN anchor_day INTEGER');
+    }
+    $invCols = array_column($pdo->query('PRAGMA table_info(invoices)')->fetchAll(), 'name');
+    if (!in_array('recurring_id', $invCols, true)) {
+        $pdo->exec('ALTER TABLE invoices ADD COLUMN recurring_id INTEGER');
+    }
 
     // CRM fields on the existing website leads table.
     $cols = array_column($pdo->query('PRAGMA table_info(leads)')->fetchAll(), 'name');

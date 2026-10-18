@@ -23,6 +23,24 @@ Everyone can log time, submit a daily report and see their own earnings.
 person's default hourly rate) + fixed amounts on tasks they completed. Accounts creates a payout
 for a period; marking it paid records a "Freelancer Payouts" expense automatically.
 
+## Daily automation
+
+Once a day the server runs three jobs (`growth-api/cron.php`, or **Admin → Automation & backups → Run today's jobs**):
+
+1. **Recurring invoices** — creates each due invoice from its schedule (monthly, quarterly, half-yearly,
+   yearly) on the same day of the month, as a draft or marked sent. Missed periods are caught up.
+2. **Backup** — a zip with a consistent copy of the database and every uploaded bill/contract, kept in
+   `chromolog-private/backups` (newest 14). Admins can download them from the portal.
+3. **Daily digest** — one email per person with only what applies to them: lead follow-ups (marketing),
+   overdue invoices, new recurring invoices, contract renewals, payouts to pay (accounts), missing daily
+   reports, approvals, overdue tasks, tickets past target (project team), and each person's own overdue
+   tasks, open tickets and missed report. Nobody gets an email when there's nothing to report.
+   Switch it off or choose report days in **Company settings**.
+
+**Support tickets** — log client issues (phone, WhatsApp, email…), assign them, and track the first-response
+and resolution targets per priority (set in Company settings). Internal notes don't count as a response.
+The assignee gets an email when a ticket is assigned to them.
+
 ## Run locally
 
 ```bash
@@ -67,14 +85,20 @@ If a host strips the `Authorization` header, send `X-Auth-Token: <key>` instead.
    'uploads_path' => __DIR__ . '/uploads',            // bills & contracts, outside public_html
    'timezone' => 'Asia/Kolkata',
    ```
+   Optional: `'backup_path'` (default `chromolog-private/backups`) and `'backup_keep'` (default 14).
    The portal admin password is the existing `admin_password_hash`.
 2. Push to `main`: GitHub Actions builds the portal and uploads it to `public_html/portal`.
 3. Sign in at https://chromologtechnologies.com/portal/, fill **Company settings** (address, bank
    details for invoices), then create users for each team.
 4. The old panel (`/api/ai/admin.php`) now redirects to the portal's Leads page.
+5. **Cron job** (hPanel → Advanced → Cron Jobs → Custom): run once a day, e.g. 02:30 UTC (08:00 India):
+   ```
+   /usr/bin/php /home/u818464796/domains/chromologtechnologies.com/public_html/api/ai/cron.php
+   ```
+   Check **Automation & backups** the next morning to confirm it ran.
 
 ## Back-ups
 
-Everything is in the SQLite file (`db_path`) plus the `uploads` folder. Download both from
-Hostinger regularly (or ask for an automatic daily copy), and use **Profit & loss → Ledger CSV**
-for your accountant.
+Everything is in the SQLite file (`db_path`) plus the `uploads` folder. The daily job zips both into
+`backups/` (newest 14 kept). Download one from **Automation & backups** every week or two and keep it
+off the server (e.g. Google Drive). Use **Profit & loss → Ledger CSV** for your accountant.

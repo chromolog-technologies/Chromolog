@@ -3,7 +3,7 @@ import { NavLink, Outlet } from "react-router-dom";
 import {
   LayoutDashboard, Users2, Building2, FileSignature, FileText, Receipt, Wallet, PiggyBank, BarChart3,
   HandCoins, FolderKanban, ClipboardCheck, NotebookPen, ListTodo, Timer, FileClock, IndianRupee,
-  UserCog, Settings, LogOut, Menu, X, UserCircle,
+  UserCog, Settings, LogOut, Menu, X, UserCircle, Repeat, LifeBuoy, Workflow,
 } from "lucide-react";
 import { useAuth, can, ROLE_LABELS } from "../lib/auth";
 
@@ -23,6 +23,7 @@ const NAV = [
     title: "Accounts",
     items: [
       { to: "/invoices", label: "Invoices", icon: Receipt, roles: ["accounts"] },
+      { to: "/recurring", label: "Recurring invoices", icon: Repeat, roles: ["accounts"] },
       { to: "/expenses", label: "Expenses & bills", icon: Wallet, roles: ["accounts"] },
       { to: "/income", label: "Other income", icon: PiggyBank, roles: ["accounts"] },
       { to: "/payouts", label: "Freelancer payouts", icon: HandCoins, roles: ["accounts"] },
@@ -33,6 +34,7 @@ const NAV = [
     title: "Projects",
     items: [
       { to: "/projects", label: "Projects", icon: FolderKanban, roles: [] },
+      { to: "/tickets", label: "Support tickets", icon: LifeBuoy, roles: [] },
       { to: "/approvals", label: "Timesheet approvals", icon: ClipboardCheck, roles: ["project"] },
       { to: "/daily-reports", label: "Daily reports", icon: NotebookPen, roles: ["project"] },
     ],
@@ -51,6 +53,7 @@ const NAV = [
     items: [
       { to: "/users", label: "Users & roles", icon: UserCog, roles: ["__admin"] },
       { to: "/settings", label: "Company settings", icon: Settings, roles: ["__admin"] },
+      { to: "/automation", label: "Automation & backups", icon: Workflow, roles: ["__admin"] },
     ],
   },
 ];

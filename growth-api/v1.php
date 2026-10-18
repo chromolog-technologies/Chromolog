@@ -16,8 +16,10 @@ header('X-Content-Type-Options: nosniff');
 header('Referrer-Policy: no-referrer');
 header('Cache-Control: no-store');
 
+require __DIR__ . '/src/portal/jobs.php';
+
 $router = new Router();
-foreach (['people', 'crm', 'sales', 'accounting', 'projects'] as $module) {
+foreach (['people', 'crm', 'sales', 'accounting', 'projects', 'recurring', 'tickets', 'system'] as $module) {
     require __DIR__ . "/src/portal/routes/{$module}.php";
 }
 

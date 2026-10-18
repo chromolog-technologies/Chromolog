@@ -16,6 +16,10 @@ import DocView from "./pages/sales/DocView";
 import Ledger from "./pages/accounts/Ledger";
 import Reports from "./pages/accounts/Reports";
 import Payouts from "./pages/accounts/Payouts";
+import Recurring from "./pages/accounts/Recurring";
+import Tickets from "./pages/tickets/Tickets";
+import TicketDetail from "./pages/tickets/TicketDetail";
+import Automation from "./pages/admin/Automation";
 import PayoutDetail from "./pages/accounts/PayoutDetail";
 import Projects from "./pages/projects/Projects";
 import ProjectDetail from "./pages/projects/ProjectDetail";
@@ -84,6 +88,7 @@ export default function App() {
               <Route path="invoices/:id/edit" element={<Only roles={["accounts"]}><DocEditor kind="invoice" /></Only>} />
 
               <Route path="expenses" element={<Only roles={["accounts"]}><Ledger kind="expenses" /></Only>} />
+              <Route path="recurring" element={<Only roles={["accounts"]}><Recurring /></Only>} />
               <Route path="income" element={<Only roles={["accounts"]}><Ledger kind="income" /></Only>} />
               <Route path="reports" element={<Only roles={["accounts"]}><Reports /></Only>} />
               <Route path="payouts" element={<Only roles={["accounts"]}><Payouts /></Only>} />
@@ -94,6 +99,8 @@ export default function App() {
               <Route path="approvals" element={<Only roles={["project"]}><Approvals /></Only>} />
               <Route path="daily-reports" element={<Only roles={["project"]}><DailyReports /></Only>} />
 
+              <Route path="tickets" element={<Tickets />} />
+              <Route path="tickets/:id" element={<TicketDetail />} />
               <Route path="my/tasks" element={<MyTasks />} />
               <Route path="my/timesheet" element={<MyTimesheet />} />
               <Route path="my/report" element={<MyReport />} />
@@ -101,6 +108,7 @@ export default function App() {
 
               <Route path="users" element={<Only roles="admin"><Users /></Only>} />
               <Route path="settings" element={<Only roles="admin"><CompanySettings /></Only>} />
+              <Route path="automation" element={<Only roles="admin"><Automation /></Only>} />
               <Route path="profile" element={<Profile />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Route>

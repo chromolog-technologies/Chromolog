@@ -9,18 +9,28 @@ use Symfony\Component\Mime\Address;
 use Symfony\Component\Mime\Email;
 
 /**
- * Email the team through Hostinger SMTP, authenticated as a real mailbox.
+ * Send an email through Hostinger SMTP, authenticated as a real mailbox.
  * PHP mail() is not used: the domain's DMARC policy is p=reject, so unauthenticated mail
  * from the web server is silently rejected by Gmail and others.
  *
+ * Development: set config 'mail_log' to a file path and messages are appended there
+ * instead of being sent.
+ *
  * @param array{path: string, name: string, type: string}|null $attachment
- * @return bool true when the message was handed to the SMTP server
+ * @return bool true when the message was handed to the SMTP server (or logged)
  */
-function send_team_email(string $subject, string $body, ?string $replyTo = null, ?array $attachment = null): bool
+function send_email(string $to, string $subject, string $body, ?string $replyTo = null, ?array $attachment = null): bool
 {
     $cfg = config();
-    $to = $cfg['notify_email'] ?? '';
-    if ($to === '' || empty($cfg['smtp_user']) || empty($cfg['smtp_password'])) {
+    if (!filter_var($to, FILTER_VALIDATE_EMAIL)) {
+        return false;
+    }
+    if (!empty($cfg['mail_log'])) {
+        $entry = sprintf("=== %s\nTo: %s\nSubject: %s\n%s\n%s\n\n", gmdate('c'), $to, $subject,
+            $attachment ? "Attachment: {$attachment['name']}" : '', $body);
+        return (bool) file_put_contents($cfg['mail_log'], $entry, FILE_APPEND | LOCK_EX);
+    }
+    if (empty($cfg['smtp_user']) || empty($cfg['smtp_password'])) {
         error_log('Chromolog growth-api: email skipped, SMTP not configured');
         return false;
     }
@@ -47,4 +57,15 @@ function send_team_email(string $subject, string $body, ?string $replyTo = null,
         error_log('Chromolog growth-api: email failed: ' . $e->getMessage());
         return false;
     }
+}
+
+/** Email the company inbox (config notify_email). */
+function send_team_email(string $subject, string $body, ?string $replyTo = null, ?array $attachment = null): bool
+{
+    $to = config()['notify_email'] ?? '';
+    if ($to === '') {
+        error_log('Chromolog growth-api: email skipped, notify_email not configured');
+        return false;
+    }
+    return send_email($to, $subject, $body, $replyTo, $attachment);
 }

@@ -42,6 +42,7 @@ export default function Dashboard() {
                   <Stat label="Net" value={money(d.accounts.net_this_month)} tone={d.accounts.net_this_month >= 0 ? "green" : "red"} />
                   <Stat label="Outstanding invoices" value={money(d.accounts.outstanding)} hint={`${d.accounts.overdue_invoices} overdue`} tone={d.accounts.overdue_invoices ? "amber" : "slate"} onClick={() => nav("/invoices")} />
                   <Stat label="Pending payouts" value={money(d.accounts.pending_payouts)} onClick={() => nav("/payouts")} />
+                  <Stat label="Recurring invoices due (7 days)" value={d.accounts.recurring_due_7_days} onClick={() => nav("/recurring")} />
                   <Stat label="Contracts due for renewal" value={d.accounts.contracts_expiring} tone={d.accounts.contracts_expiring ? "amber" : "slate"} onClick={() => nav("/contracts")} />
                 </div>
               </section>
@@ -55,6 +56,8 @@ export default function Dashboard() {
                   <Stat label="Overdue tasks" value={d.projects.overdue_tasks} tone={d.projects.overdue_tasks ? "red" : "slate"} />
                   <Stat label="Timesheets to approve" value={d.projects.pending_timesheets} tone={d.projects.pending_timesheets ? "amber" : "slate"} onClick={() => nav("/approvals")} />
                   <Stat label="Daily reports today" value={`${d.projects.reports_today}`} hint={`${d.projects.people} active people`} onClick={() => nav("/daily-reports")} />
+                  <Stat label="Open support tickets" value={d.projects.open_tickets} onClick={() => nav("/tickets")} />
+                  <Stat label="Tickets past target" value={d.projects.breached_tickets} tone={d.projects.breached_tickets ? "red" : "slate"} onClick={() => nav("/tickets")} />
                 </div>
               </section>
             )}
@@ -71,6 +74,7 @@ export default function Dashboard() {
                   onClick={() => nav("/my/report")}
                 />
                 <Stat label="Unpaid earnings" value={money(d.me.unpaid_earnings)} onClick={() => nav("/my/earnings")} />
+                {d.me.open_tickets > 0 && <Stat label="My open tickets" value={d.me.open_tickets} tone="amber" onClick={() => nav("/tickets")} />}
               </div>
             </section>
 

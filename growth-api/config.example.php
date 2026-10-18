@@ -21,6 +21,9 @@ return [
     // Company portal: uploaded bills and contracts (keep outside public_html) and business timezone.
     'uploads_path' => __DIR__ . '/uploads',
     'timezone' => 'Asia/Kolkata',
+    // Daily backups (zip of database + uploads); newest N are kept.
+    'backup_path' => __DIR__ . '/backups',
+    'backup_keep' => 14,
 
     // Random string used to hash visitor IPs. Generate with: php -r "echo bin2hex(random_bytes(16)), PHP_EOL;"
     'ip_salt' => '',
