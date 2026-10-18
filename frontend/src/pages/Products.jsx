@@ -89,7 +89,7 @@ export default function Products({ navigateToSection, setActivePage }) {
     setMeta("og:title", "Products — Chromolog Technologies", true);
     setMeta("og:description", "AI-first SaaS and enterprise products engineered to scale businesses worldwide.", true);
     setMeta("og:type", "website", true);
-    setMeta("og:url", "https://chromologtech.com/products", true);
+    setMeta("og:url", "https://chromologtechnologies.com/products", true);
 
     // Structured data: ItemList of products
     const ld = document.createElement("script");

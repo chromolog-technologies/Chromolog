@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { MessageSquare, X, Send, Sparkles, ArrowRight, RotateCcw } from "lucide-react";
-import { trackChatOpen, trackChatMessage, trackSearchQuery } from "../utils/analytics";
+import { trackChatOpen, trackChatMessage, trackSearchQuery, trackFormSubmit } from "../utils/analytics";
 import {
   detectIndustry,
   getRecommendations,
@@ -18,6 +18,8 @@ const LEAD_CAPTURED_KEY = "chromolog_lead_captured";
 const AI_CHAT_ENABLED = import.meta.env.VITE_AI_CHAT_ENABLED === "true";
 const AI_CHAT_URL = import.meta.env.VITE_AI_CHAT_URL || "/api/ai/chat.php";
 const LEAD_URL = import.meta.env.VITE_LEAD_URL || "/api/ai/lead.php";
+// Free-consultation booking page (e.g. Cal.com). Shown after a lead is captured when set.
+const BOOKING_URL = import.meta.env.VITE_BOOKING_URL || "";
 const BUYING_INTENT = /(price|pricing|cost|quote|budget|how much|contact|hire|start|consult|call|meeting|demo|proposal|estimate)/i;
 
 function newSessionId() {
@@ -87,6 +89,7 @@ function LeadForm({ summary, onDone, onDismiss }) {
     setError("");
     try {
       await submitLead({ ...form, summary });
+      trackFormSubmit("ai_chat", form.service_interest.trim() || "unspecified");
       trackCTAInterest("AI chat lead form submitted");
       onDone(form.full_name.trim());
     } catch (err) {
@@ -375,7 +378,10 @@ export default function AIChat({ setActivePage }) {
       ...prev,
       {
         role: "assistant",
-        text: `Thank you, **${name}**! Our team will reach out within one business day.\n\nNeed us sooner? WhatsApp **+91 94002 30723**.`,
+        text: BOOKING_URL
+          ? `Thank you, **${name}**! Our team will reach out within one business day.\n\nWant to pick a time right away? Book your free consultation below, or WhatsApp **+91 94002 30723**.`
+          : `Thank you, **${name}**! Our team will reach out within one business day.\n\nNeed us sooner? WhatsApp **+91 94002 30723**.`,
+        link: BOOKING_URL ? { href: BOOKING_URL, label: "Book a free consultation" } : null,
         id: Date.now(),
       },
     ]);
@@ -493,6 +499,17 @@ export default function AIChat({ setActivePage }) {
                     {msg.role === "assistant" ? (
                       <>
                         <MarkdownText text={msg.text} />
+                        {msg.link && (
+                          <a
+                            href={msg.link.href}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={() => trackCTAInterest("AI chat booking link")}
+                            className="mt-3 inline-flex items-center gap-1.5 rounded-lg bg-gradient-to-br from-primary to-accent text-white text-xs font-bold px-3 py-2 hover:opacity-90"
+                          >
+                            <ArrowRight className="w-3 h-3" /> {msg.link.label}
+                          </a>
+                        )}
                         {msg.cards?.length > 0 && (
                           <div className="grid gap-2 mt-3">
                             {msg.cards.map((card) => (
