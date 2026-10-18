@@ -1,7 +1,12 @@
 # Only the entry points are reachable from the web.
 <IfModule mod_rewrite.c>
   RewriteEngine On
-  RewriteRule ^(chat|lead|careers|admin)\.php$ - [L]
+  # Pass the Authorization header through to PHP (stripped by some shared hosts).
+  RewriteCond %{HTTP:Authorization} .
+  RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+  # Company portal API: /api/ai/v1/<route>
+  RewriteRule ^v1/(.*)$ v1.php?route=$1 [QSA,L]
+  RewriteRule ^(chat|lead|careers|admin|v1)\.php$ - [L]
   RewriteRule ^ - [F,L]
 </IfModule>
 

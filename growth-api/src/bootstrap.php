@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 require __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/portal/schema.php';
 
 /**
  * Secrets and data live OUTSIDE public_html. On Hostinger the API is deployed to
@@ -32,8 +33,9 @@ function db(): PDO
         $pdo = new PDO('sqlite:' . config()['db_path']);
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
-        $pdo->exec('PRAGMA journal_mode = WAL; PRAGMA busy_timeout = 5000;');
+        $pdo->exec('PRAGMA journal_mode = WAL; PRAGMA busy_timeout = 5000; PRAGMA foreign_keys = ON;');
         migrate($pdo);
+        portal_migrate($pdo);
     }
     return $pdo;
 }

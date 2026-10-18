@@ -32,3 +32,6 @@ growth-api/vendor/
 growth-api/config.php
 *.sqlite
 *.sqlite-*
+
+# Local Claude preview config
+.claude/
