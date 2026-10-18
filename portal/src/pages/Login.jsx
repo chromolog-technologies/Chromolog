@@ -1,17 +1,17 @@
 import { useState } from "react";
-import { Navigate, useLocation } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 import { LogIn } from "lucide-react";
 import { useAuth } from "../lib/auth";
 import { Button, Input } from "../components/ui";
 
 export default function Login() {
   const { user, login } = useAuth();
-  const location = useLocation();
   const [form, setForm] = useState({ email: "", password: "", remember: false });
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
 
-  if (user) return <Navigate to={location.state?.from || "/"} replace />;
+  // Always start on the dashboard; each role sees its own sections there.
+  if (user) return <Navigate to="/" replace />;
 
   const submit = async (e) => {
     e.preventDefault();

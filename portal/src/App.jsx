@@ -1,4 +1,4 @@
-import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-router-dom";
+import { BrowserRouter, Link, Navigate, Route, Routes } from "react-router-dom";
 import { ShieldAlert } from "lucide-react";
 import { AuthProvider, useAuth, can } from "./lib/auth";
 import { ToastProvider, Loading } from "./components/ui";
@@ -31,9 +31,8 @@ import Profile from "./pages/Profile";
 
 function RequireAuth({ children }) {
   const { user, loading } = useAuth();
-  const location = useLocation();
   if (loading) return <Loading />;
-  if (!user) return <Navigate to="/login" replace state={{ from: location.pathname }} />;
+  if (!user) return <Navigate to="/login" replace />;
   return children;
 }
 
@@ -45,7 +44,10 @@ function Only({ roles, children }) {
   return (
     <div className="flex flex-col items-center justify-center py-24 text-slate-500">
       <ShieldAlert className="h-10 w-10 mb-3 text-slate-400" />
-      <p className="text-sm">You don't have access to this page.</p>
+      <p className="text-sm">This page isn't part of your role.</p>
+      <Link to="/" className="mt-4 inline-flex items-center rounded-lg bg-brand-600 px-3.5 py-2 text-sm font-medium text-white hover:bg-brand-700">
+        Go to my dashboard
+      </Link>
     </div>
   );
 }
