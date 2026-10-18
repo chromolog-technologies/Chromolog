@@ -6,6 +6,7 @@ import {
   UserCog, Settings, LogOut, Menu, X, UserCircle, Repeat, LifeBuoy, Workflow,
 } from "lucide-react";
 import { useAuth, can, ROLE_LABELS } from "../lib/auth";
+import { BrandMark } from "./Brand";
 
 /** Menu sections; `roles` lists who sees an item (admin always does). Empty = everyone. */
 const NAV = [
@@ -103,7 +104,7 @@ export default function Layout() {
   const sidebar = (
     <div className="flex h-full flex-col bg-sidebar">
       <div className="flex items-center gap-2.5 px-5 h-16 border-b border-white/10">
-        <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-brand-500 to-fuchsia-500 flex items-center justify-center text-white font-bold">C</div>
+        <BrandMark className="h-9 w-9" />
         <div className="leading-tight">
           <div className="text-sm font-semibold text-white">{settings?.company_name || "Chromolog"}</div>
           <div className="text-[11px] text-slate-400">Company portal</div>
@@ -141,7 +142,10 @@ export default function Layout() {
           <button onClick={() => setOpen((o) => !o)} aria-label="Open menu" className="text-slate-600">
             {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
-          <span className="text-sm font-semibold">Chromolog Portal</span>
+          <span className="flex items-center gap-2 text-sm font-semibold">
+            <BrandMark className="h-6 w-6" />
+            Chromolog Portal
+          </span>
           <span className="w-5" />
         </header>
         <main className="p-4 sm:p-6 lg:p-8 max-w-7xl">

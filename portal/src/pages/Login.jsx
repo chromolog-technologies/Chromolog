@@ -3,6 +3,7 @@ import { Navigate } from "react-router-dom";
 import { LogIn } from "lucide-react";
 import { useAuth } from "../lib/auth";
 import { Button, Input } from "../components/ui";
+import { BrandLogo } from "../components/Brand";
 
 export default function Login() {
   const { user, login } = useAuth();
@@ -30,8 +31,8 @@ export default function Login() {
     <div className="min-h-full flex items-center justify-center bg-sidebar px-4 py-12">
       <form onSubmit={submit} className="w-full max-w-sm bg-white rounded-2xl shadow-xl p-8 space-y-5">
         <div className="text-center">
-          <div className="mx-auto h-11 w-11 rounded-xl bg-gradient-to-br from-brand-500 to-fuchsia-500 flex items-center justify-center text-white text-lg font-bold">C</div>
-          <h1 className="mt-4 text-lg font-semibold text-slate-900">Chromolog Portal</h1>
+          <BrandLogo className="mx-auto h-28 w-auto" />
+          <h1 className="mt-4 text-lg font-semibold text-slate-900">Company Portal</h1>
           <p className="text-sm text-slate-500">Sign in to continue</p>
         </div>
         <Input label="Email" type="email" autoComplete="username" required value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
