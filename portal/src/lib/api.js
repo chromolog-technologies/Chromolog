@@ -1,26 +1,8 @@
-// Portal API client. The token lives in sessionStorage (cleared when the browser closes)
-// unless "keep me signed in" is chosen, which uses localStorage.
+// Portal API client. The sign-in lives in an HttpOnly cookie set by the server, so no token is
+// ever stored where page scripts could read it. Every request sends X-Portal-Request, which the
+// server requires on cookie requests that change data (protection against cross-site forgery).
 
 const API = import.meta.env.VITE_PORTAL_API || "/api/ai/v1";
-const KEY = "chromolog_portal_token";
-
-export function getToken() {
-  try {
-    return sessionStorage.getItem(KEY) || localStorage.getItem(KEY);
-  } catch {
-    return null;
-  }
-}
-
-export function setToken(token, remember) {
-  try {
-    sessionStorage.removeItem(KEY);
-    localStorage.removeItem(KEY);
-    if (token) (remember ? localStorage : sessionStorage).setItem(KEY, token);
-  } catch {
-    // Storage unavailable (private mode): the session lasts until reload.
-  }
-}
 
 export class ApiError extends Error {
   constructor(message, status) {
@@ -39,10 +21,7 @@ export function setUnauthorizedHandler(fn) {
  * Multipart updates are sent as POST with _method=PUT, since PHP only parses files on POST.
  */
 export async function api(path, { method = "GET", body, raw = false } = {}) {
-  const headers = {};
-  const token = getToken();
-  if (token) headers.Authorization = `Bearer ${token}`;
-
+  const headers = { "X-Portal-Request": "1" };
   let payload;
   let httpMethod = method;
   if (body instanceof FormData) {
@@ -56,15 +35,16 @@ export async function api(path, { method = "GET", body, raw = false } = {}) {
     payload = JSON.stringify(body);
   }
 
+  const cleanPath = path.replace(/^\//, "");
   let res;
   try {
-    res = await fetch(`${API}/${path.replace(/^\//, "")}`, { method: httpMethod, headers, body: payload });
+    res = await fetch(`${API}/${cleanPath}`, { method: httpMethod, headers, body: payload, credentials: "same-origin" });
   } catch {
     throw new ApiError("Cannot reach the server. Check your connection.", 0);
   }
   if (raw && res.ok) return res;
   const data = await res.json().catch(() => ({}));
-  if (res.status === 401 && token) onUnauthorized();
+  if (res.status === 401 && cleanPath !== "auth/login") onUnauthorized();
   if (!res.ok) throw new ApiError(data.error || `Request failed (${res.status})`, res.status);
   return data;
 }

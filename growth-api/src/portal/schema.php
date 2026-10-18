@@ -336,6 +336,30 @@ function portal_migrate(PDO $pdo): void
         CREATE INDEX IF NOT EXISTS idx_payments_date ON payments(date);
     SQL);
 
+    // Security columns.
+    $addColumns = [
+        'users' => [
+            'failed_logins' => 'INTEGER NOT NULL DEFAULT 0',
+            'locked_until' => 'TEXT',
+            'last_login_at' => 'TEXT',
+            'must_change_password' => 'INTEGER NOT NULL DEFAULT 0',
+            'password_changed_at' => 'TEXT',
+        ],
+        'api_tokens' => ['kind' => "TEXT NOT NULL DEFAULT 'api_key'"],
+        'audit_log' => ['detail' => 'TEXT', 'ip_hash' => 'TEXT'],
+    ];
+    foreach ($addColumns as $table => $columns) {
+        $existing = array_column($pdo->query("PRAGMA table_info({$table})")->fetchAll(), 'name');
+        foreach ($columns as $col => $type) {
+            if (!in_array($col, $existing, true)) {
+                $pdo->exec("ALTER TABLE {$table} ADD COLUMN {$col} {$type}");
+                if ($table === 'api_tokens') {
+                    $pdo->exec("UPDATE api_tokens SET kind = 'session' WHERE label = 'login'");
+                }
+            }
+        }
+    }
+
     $recCols = array_column($pdo->query('PRAGMA table_info(recurring_invoices)')->fetchAll(), 'name');
     if (!in_array('anchor_day', $recCols, true)) {
         // Day of month the schedule bills on, so 31 Aug → 30 Sep → 31 Oct (no drift).

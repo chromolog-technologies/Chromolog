@@ -98,7 +98,8 @@ function quotation_save(array $b, ?int $id): int
         'title' => str_in($b, 'title', 200),
         'issue_date' => date_in($b, 'issue_date') ?? today(),
         'valid_until' => date_in($b, 'valid_until') ?? date('Y-m-d', strtotime('+30 days')),
-        'status' => enum_in($b, 'status', QUOTE_STATUSES, 'draft'),
+        // "invoiced" is only set by converting to an invoice.
+        'status' => enum_in($b, 'status', ['draft', 'sent', 'accepted', 'rejected'], 'draft'),
         'notes' => str_in($b, 'notes', 4000),
         'terms' => str_in($b, 'terms', 4000) ?? setting('quotation_terms'),
         'discount' => $lines['discount'], 'tax_rate' => $lines['tax_rate'],
@@ -279,6 +280,9 @@ $router->add('PUT', 'invoices/{id}', $invoiceRoles, function ($p) {
         $data = ['updated_at' => now_utc()];
         if (array_key_exists('status', $b)) {
             $data['status'] = enum_in($b, 'status', ['draft', 'sent', 'cancelled']);
+            if ($data['status'] === 'cancelled' && (float) $inv['amount_paid'] > 0) {
+                throw new ApiError('This invoice has payments recorded. Remove the payments before cancelling it.', 422);
+            }
         }
         if (array_key_exists('notes', $b)) {
             $data['notes'] = str_in($b, 'notes', 4000);

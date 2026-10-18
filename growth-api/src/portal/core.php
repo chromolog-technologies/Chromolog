@@ -134,6 +134,17 @@ function id_param(array $params, string $key = 'id'): int
     return (int) ($params[$key] ?? 0);
 }
 
+/** Make a CSV row safe to open in Excel: text starting with = + - @ would run as a formula. */
+function csv_safe(array $row): array
+{
+    return array_map(function ($v) {
+        if (is_string($v) && $v !== '' && !is_numeric($v) && in_array($v[0], ['=', '+', '-', '@', "\t", "\r"], true)) {
+            return "'" . $v;
+        }
+        return $v;
+    }, array_values($row));
+}
+
 function money(float $n): float
 {
     return round($n, 2);
@@ -190,13 +201,18 @@ function update(string $table, int $id, array $data): void
 function transaction(callable $fn): mixed
 {
     $pdo = db();
-    $pdo->beginTransaction();
+    if ($pdo->inTransaction()) {
+        return $fn();
+    }
+    // IMMEDIATE takes the write lock up front, so two people saving at once can't
+    // both read the same "next invoice number".
+    $pdo->exec('BEGIN IMMEDIATE');
     try {
         $result = $fn();
-        $pdo->commit();
+        $pdo->exec('COMMIT');
         return $result;
     } catch (Throwable $e) {
-        $pdo->rollBack();
+        $pdo->exec('ROLLBACK');
         throw $e;
     }
 }
@@ -225,14 +241,31 @@ function current_user(): ?array
     if ($user === false) {
         $user = null;
         $token = bearer_token();
+        $fromCookie = false;
+        if ($token === null && !empty($_COOKIE[SESSION_COOKIE])) {
+            $token = (string) $_COOKIE[SESSION_COOKIE];
+            $fromCookie = true;
+        }
         if ($token !== null) {
             $row = q(
-                "SELECT u.*, t.id AS token_id FROM api_tokens t JOIN users u ON u.id = t.user_id
+                "SELECT u.*, t.id AS token_id, t.kind AS token_kind, t.last_used_at AS token_last_used FROM api_tokens t
+                 JOIN users u ON u.id = t.user_id
                  WHERE t.token_hash = ? AND t.expires_at > datetime('now') AND u.active = 1",
                 [hash('sha256', $token)]
             )->fetch();
+            // Normal sign-ins end after a period without activity.
+            if ($row && $row['token_kind'] === 'session' && $row['token_last_used']
+                && strtotime($row['token_last_used'] . ' UTC') < time() - SESSION_IDLE_MINUTES * 60) {
+                q('DELETE FROM api_tokens WHERE id = ?', [$row['token_id']]);
+                $row = false;
+            }
             if ($row) {
-                q("UPDATE api_tokens SET last_used_at = CURRENT_TIMESTAMP WHERE id = ?", [$row['token_id']]);
+                // Cookie sessions: state-changing requests must carry the portal header (CSRF guard).
+                $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
+                if ($fromCookie && !in_array($method, ['GET', 'HEAD', 'OPTIONS'], true) && ($_SERVER['HTTP_X_PORTAL_REQUEST'] ?? '') !== '1') {
+                    throw new ApiError('Request blocked for security reasons. Please refresh the page.', 403);
+                }
+                q('UPDATE api_tokens SET last_used_at = CURRENT_TIMESTAMP WHERE id = ?', [$row['token_id']]);
                 unset($row['password_hash']);
                 $user = $row;
             }
@@ -241,11 +274,18 @@ function current_user(): ?array
     return $user;
 }
 
+/** Routes a user who must change their password may still call. */
+const PASSWORD_CHANGE_ALLOWED = ['me', 'me/password', 'auth/logout', 'settings'];
+
 function require_role(string ...$roles): array
 {
     $user = current_user();
     if (!$user) {
         throw new ApiError('Please sign in.', 401);
+    }
+    if ((int) $user['must_change_password'] === 1 && $user['token_kind'] !== 'api_key'
+        && !in_array($GLOBALS['portal_route'] ?? '', PASSWORD_CHANGE_ALLOWED, true)) {
+        throw new ApiError('Please set a new password first.', 403);
     }
     if ($roles && $user['role'] !== ROLE_ADMIN && !in_array($user['role'], $roles, true)) {
         throw new ApiError('You do not have access to this.', 403);
@@ -262,7 +302,7 @@ function has_role(string ...$roles): bool
 function issue_token(int $userId, string $label, int $days): string
 {
     $token = bin2hex(random_bytes(32));
-    q("INSERT INTO api_tokens (user_id, token_hash, label, expires_at) VALUES (?, ?, ?, datetime('now', ?))",
+    q("INSERT INTO api_tokens (user_id, token_hash, label, kind, expires_at) VALUES (?, ?, ?, 'api_key', datetime('now', ?))",
         [$userId, hash('sha256', $token), $label, "+{$days} days"]);
     return $token;
 }
@@ -273,6 +313,9 @@ function public_user(array $u): array
         'id' => (int) $u['id'], 'name' => $u['name'], 'email' => $u['email'], 'role' => $u['role'],
         'phone' => $u['phone'] ?? null, 'hourly_rate' => (float) ($u['hourly_rate'] ?? 0),
         'active' => (bool) ($u['active'] ?? 1), 'created_at' => $u['created_at'] ?? null,
+        'last_login_at' => $u['last_login_at'] ?? null,
+        'locked' => !empty($u['locked_until']) && strtotime($u['locked_until'] . ' UTC') > time(),
+        'must_change_password' => (bool) ($u['must_change_password'] ?? 0),
     ];
 }
 

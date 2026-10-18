@@ -25,9 +25,16 @@ export function money(n) {
 
 export function date(d) {
   if (!d) return "—";
-  const dt = new Date(d.length === 10 ? `${d}T00:00:00` : d.replace(" ", "T"));
+  // Plain dates (YYYY-MM-DD) are business dates; timestamps are stored in UTC and shown in
+  // the company timezone (so "created 00:30 IST" isn't shown as the previous day).
+  if (d.length === 10) {
+    const dt = new Date(`${d}T00:00:00Z`);
+    if (Number.isNaN(dt.getTime())) return d;
+    return dt.toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric", timeZone: "UTC" });
+  }
+  const dt = new Date(d.replace(" ", "T") + (d.includes("T") || d.endsWith("Z") ? "" : "Z"));
   if (Number.isNaN(dt.getTime())) return d;
-  return dt.toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
+  return dt.toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric", timeZone });
 }
 
 export function dateTime(d) {

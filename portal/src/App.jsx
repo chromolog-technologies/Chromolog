@@ -32,11 +32,14 @@ import MyEarnings from "./pages/my/MyEarnings";
 import Users from "./pages/admin/Users";
 import CompanySettings from "./pages/admin/CompanySettings";
 import Profile from "./pages/Profile";
+import ForcePasswordChange from "./pages/ForcePasswordChange";
+import SecurityLog from "./pages/admin/SecurityLog";
 
 function RequireAuth({ children }) {
   const { user, loading } = useAuth();
   if (loading) return <Loading />;
   if (!user) return <Navigate to="/login" replace />;
+  if (user.must_change_password) return <ForcePasswordChange />;
   return children;
 }
 
@@ -109,6 +112,7 @@ export default function App() {
               <Route path="users" element={<Only roles="admin"><Users /></Only>} />
               <Route path="settings" element={<Only roles="admin"><CompanySettings /></Only>} />
               <Route path="automation" element={<Only roles="admin"><Automation /></Only>} />
+              <Route path="security" element={<Only roles="admin"><SecurityLog /></Only>} />
               <Route path="profile" element={<Profile />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Route>

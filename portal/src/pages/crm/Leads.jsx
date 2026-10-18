@@ -20,7 +20,8 @@ export default function Leads() {
   const [adding, setAdding] = useState(false);
 
   const qs = new URLSearchParams();
-  if (status) qs.set("status", status);
+  if (status && status !== "all") qs.set("status", status);
+  if (!status && !followUp) qs.set("open", "1");
   if (followUp) qs.set("follow_up_due", "1");
   if (q) qs.set("q", q);
   const leads = useApi(`leads?${qs}`);
@@ -47,7 +48,7 @@ export default function Leads() {
       <Tabs
         value={tab}
         onChange={setTab}
-        tabs={[["open", "All open"], ["follow", "Follow-ups due"], ...LEAD_STATUSES.map((s) => [s, label(s)])]}
+        tabs={[["open", "Open"], ["follow", "Follow-ups due"], ...LEAD_STATUSES.map((s) => [s, label(s)]), ["all", "All"]]}
       />
       <Card padded={false}>
         <form

@@ -52,6 +52,8 @@ $router->add('GET', 'leads', $leadRoles, function () {
     if ($s = query('status')) {
         $where[] = 'l.status = ?';
         $args[] = $s;
+    } elseif (query('open')) {
+        $where[] = "l.status IN ('new','contacted','meeting','proposal')";
     } elseif (!query('include_closed')) {
         $where[] = "l.status != 'spam'";
     }
@@ -86,7 +88,7 @@ $router->add('GET', 'leads/export', $leadRoles, function () {
         score, status, estimated_value, next_follow_up, summary, created_at FROM leads ORDER BY id DESC')->fetchAll();
     fputcsv($out, array_keys($rows[0] ?? ['id' => '']), escape: '');
     foreach ($rows as $r) {
-        fputcsv($out, $r, escape: '');
+        fputcsv($out, csv_safe($r), escape: '');
     }
     exit;
 });

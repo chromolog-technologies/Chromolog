@@ -6,7 +6,7 @@ import { Button, Input } from "../components/ui";
 import { BrandLogo } from "../components/Brand";
 
 export default function Login() {
-  const { user, login } = useAuth();
+  const { user, login, expired } = useAuth();
   const [form, setForm] = useState({ email: "", password: "", remember: false });
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
@@ -35,11 +35,12 @@ export default function Login() {
           <h1 className="mt-4 text-lg font-semibold text-slate-900">Company Portal</h1>
           <p className="text-sm text-slate-500">Sign in to continue</p>
         </div>
+        {expired && <p className="text-sm rounded-lg bg-amber-50 text-amber-800 p-3">Your session ended for security. Please sign in again.</p>}
         <Input label="Email" type="email" autoComplete="username" required value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
         <Input label="Password" type="password" autoComplete="current-password" required value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} />
         <label className="flex items-center gap-2 text-sm text-slate-600">
           <input type="checkbox" checked={form.remember} onChange={(e) => setForm({ ...form, remember: e.target.checked })} className="rounded border-slate-300" />
-          Keep me signed in on this device
+          Keep me signed in on this device (7 days)
         </label>
         {error && <p className="text-sm text-red-600" role="alert">{error}</p>}
         <Button type="submit" busy={busy} icon={LogIn} className="w-full">

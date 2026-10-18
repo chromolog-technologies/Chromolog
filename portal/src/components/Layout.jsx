@@ -3,7 +3,7 @@ import { NavLink, Outlet } from "react-router-dom";
 import {
   LayoutDashboard, Users2, Building2, FileSignature, FileText, Receipt, Wallet, PiggyBank, BarChart3,
   HandCoins, FolderKanban, ClipboardCheck, NotebookPen, ListTodo, Timer, FileClock, IndianRupee,
-  UserCog, Settings, LogOut, Menu, X, UserCircle, Repeat, LifeBuoy, Workflow,
+  UserCog, Settings, LogOut, Menu, X, UserCircle, Repeat, LifeBuoy, Workflow, ShieldCheck,
 } from "lucide-react";
 import { useAuth, can, ROLE_LABELS } from "../lib/auth";
 import { BrandMark } from "./Brand";
@@ -55,6 +55,7 @@ const NAV = [
       { to: "/users", label: "Users & roles", icon: UserCog, roles: ["__admin"] },
       { to: "/settings", label: "Company settings", icon: Settings, roles: ["__admin"] },
       { to: "/automation", label: "Automation & backups", icon: Workflow, roles: ["__admin"] },
+      { to: "/security", label: "Security log", icon: ShieldCheck, roles: ["__admin"] },
     ],
   },
 ];

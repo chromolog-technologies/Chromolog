@@ -2,7 +2,9 @@ import { useState } from "react";
 import { Plus } from "lucide-react";
 import { api } from "../../lib/api";
 import { useAuth, ROLE_LABELS } from "../../lib/auth";
-import { money, date } from "../../lib/format";
+import { money, date, dateTime } from "../../lib/format";
+import { isStrong } from "../../lib/password";
+import PasswordField from "../../components/PasswordField";
 import { useApi, useAction, useForm, Async, PageHeader, Card, Table, Badge, Button, Modal, Input, Select } from "../../components/ui";
 
 const ROLE_HELP = {
@@ -30,7 +32,14 @@ export default function Users() {
                 { key: "email", label: "Email" },
                 { key: "role", label: "Role", render: (r) => <Badge tone={r.role === "admin" ? "brand" : "slate"}>{ROLE_LABELS[r.role]}</Badge> },
                 { key: "hourly_rate", label: "Default rate / hour", align: "right", render: (r) => (r.hourly_rate ? money(r.hourly_rate) : "—") },
-                { key: "active", label: "Status", render: (r) => (r.active ? <Badge tone="green">Active</Badge> : <Badge tone="slate">Disabled</Badge>) },
+                { key: "active", label: "Status", render: (r) => (
+                  <div className="flex flex-wrap gap-1">
+                    {r.active ? <Badge tone="green">Active</Badge> : <Badge tone="slate">Disabled</Badge>}
+                    {r.locked && <Badge tone="red">Locked</Badge>}
+                    {r.must_change_password && <Badge tone="amber">Must set password</Badge>}
+                  </div>
+                ) },
+                { key: "last_login_at", label: "Last sign-in", render: (r) => (r.last_login_at ? dateTime(r.last_login_at) : <span className="text-slate-400">Never</span>) },
                 { key: "created_at", label: "Added", render: (r) => date(r.created_at) },
               ]}
             />
@@ -64,6 +73,7 @@ function UserForm({ user: u, onClose, onSaved }) {
   });
   const [run, busy] = useAction();
   const save = () => run(async () => {
+    if ((isNew || f.password) && !isStrong(f.password, f)) throw new Error("The password doesn't meet all the rules yet.");
     const body = { ...f };
     if (!isNew && !body.password) delete body.password;
     await api(isNew ? "users" : `users/${u.id}`, { method: isNew ? "POST" : "PUT", body });
@@ -79,15 +89,31 @@ function UserForm({ user: u, onClose, onSaved }) {
         <Input label="Phone" value={f.phone} onChange={set("phone")} />
         <Select label="Role" value={f.role} onChange={set("role")} disabled={self} options={Object.entries(ROLE_LABELS).map(([k, v]) => [k, v])} hint={ROLE_HELP[f.role]} />
         <Input label="Default rate per hour" type="number" min="0" step="any" value={f.hourly_rate} onChange={set("hourly_rate")} hint="Used for payouts unless a project sets its own rate" />
-        <Input label={isNew ? "Password * (min 8 chars)" : "New password (leave blank to keep)"} type="password" autoComplete="new-password" value={f.password} onChange={set("password")} />
       </div>
+      <PasswordField
+        label={isNew ? "Temporary password *" : "Reset password (leave blank to keep)"}
+        value={f.password}
+        onChange={(v) => set("password")(v)}
+        who={f}
+        allowGenerate
+      />
       {!isNew && !self && (
         <label className="flex items-center gap-2 text-sm">
           <input type="checkbox" checked={!!f.active} onChange={set("active")} className="rounded border-slate-300" />
           Active (untick to block this person from signing in)
         </label>
       )}
-      {isNew && <p className="text-xs text-slate-500">Share the email and password with the person; they can change the password on their Profile page.</p>}
+      {u.locked && (
+        <div className="flex items-center justify-between gap-3 rounded-lg bg-red-50 p-3 text-sm text-red-700">
+          Locked after too many wrong passwords.
+          <Button size="sm" variant="secondary" busy={busy} onClick={() => run(async () => { await api(`users/${u.id}`, { method: "PUT", body: { unlock: true } }); onSaved(); onClose(); }, "Account unlocked")}>Unlock now</Button>
+        </div>
+      )}
+      <p className="text-xs text-slate-500">
+        {isNew || f.password
+          ? "Share this temporary password privately (not by email or group chat). They'll be asked to set their own at first sign-in, and all their current sessions end."
+          : "Leave the password blank to keep the current one."}
+      </p>
     </Modal>
   );
 }

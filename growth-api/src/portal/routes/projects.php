@@ -99,6 +99,23 @@ $router->add('GET', 'projects/{id}', [], function ($p) use ($projectSummary) {
         FROM project_members pm JOIN users u ON u.id = pm.user_id WHERE pm.project_id = ? ORDER BY u.name', [$id])->fetchAll();
     $tasks = q('SELECT t.*, u.name AS assignee_name FROM tasks t LEFT JOIN users u ON u.id = t.assignee_id
         WHERE t.project_id = ? ORDER BY CASE t.status WHEN \'in_progress\' THEN 0 WHEN \'review\' THEN 1 WHEN \'todo\' THEN 2 ELSE 3 END, t.due_date IS NULL, t.due_date', [$id])->fetchAll();
+    if (!is_manager()) {
+        // People only see their own rate and their own fixed task pay.
+        $me = (int) current_user()['id'];
+        foreach ($members as &$m) {
+            if ((int) $m['id'] !== $me) {
+                unset($m['rate'], $m['hourly_rate'], $m['effective_rate']);
+            }
+        }
+        unset($m);
+        foreach ($tasks as &$t) {
+            if ((int) $t['assignee_id'] !== $me) {
+                unset($t['fixed_amount']);
+            }
+        }
+        unset($t);
+        unset($project['budget']);
+    }
     $out = ['project' => $project, 'members' => $members, 'tasks' => $tasks];
     if (has_role(ROLE_PROJECT, ROLE_ACCOUNTS)) {
         // Effort cost so far = approved hours × rate + fixed task amounts done.

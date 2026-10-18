@@ -158,7 +158,7 @@ $router->add('GET', 'reports/ledger.csv', [ROLE_ACCOUNTS], function () {
     $out = fopen('php://output', 'w');
     fputcsv($out, ['Date', 'Type', 'Category', 'Party', 'Description', 'Amount', 'Payment method', 'Reference'], escape: '');
     foreach ($rows as $r) {
-        fputcsv($out, array_values($r), escape: '');
+        fputcsv($out, csv_safe($r), escape: '');
     }
     exit;
 });

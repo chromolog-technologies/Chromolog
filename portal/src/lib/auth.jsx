@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
-import { api, getToken, setToken, setUnauthorizedHandler } from "./api";
+import { api, setUnauthorizedHandler } from "./api";
 import { setCurrency, setTimeZone } from "./format";
 
 const AuthContext = createContext(null);
@@ -13,49 +13,46 @@ export const ROLE_LABELS = {
 };
 
 export function AuthProvider({ children }) {
-  const [state, setState] = useState({ loading: !!getToken(), user: null, settings: null });
+  const [state, setState] = useState({ loading: true, user: null, settings: null, expired: false });
 
   const applySession = useCallback((user, settings) => {
     if (settings) {
       setCurrency(settings.currency, settings.currency_symbol);
       setTimeZone(settings.timezone);
     }
-    setState({ loading: false, user, settings });
+    setState({ loading: false, user, settings, expired: false });
   }, []);
 
   const logout = useCallback(async () => {
     try {
       await api("auth/logout", { method: "POST" });
     } catch {
-      // Token may already be invalid; sign out locally regardless.
+      // Session may already have ended; sign out locally regardless.
     }
-    setToken(null);
-    setState({ loading: false, user: null, settings: null });
+    setState({ loading: false, user: null, settings: null, expired: false });
   }, []);
 
   useEffect(() => {
-    setUnauthorizedHandler(() => {
-      setToken(null);
-      setState({ loading: false, user: null, settings: null });
-    });
-    if (!getToken()) return;
+    // Session ended on the server (idle timeout, password changed elsewhere, account disabled).
+    setUnauthorizedHandler(() => setState((s) => ({ loading: false, user: null, settings: null, expired: !!s.user })));
     api("me")
       .then((d) => applySession(d.user, d.settings))
-      .catch(() => {
-        setToken(null);
-        setState({ loading: false, user: null, settings: null });
-      });
+      .catch(() => setState({ loading: false, user: null, settings: null, expired: false }));
   }, [applySession]);
 
   const login = useCallback(
     async (email, password, remember) => {
-      const d = await api("auth/login", { method: "POST", body: { email, password } });
-      setToken(d.token, remember);
+      await api("auth/login", { method: "POST", body: { email, password, remember } });
       const me = await api("me");
       applySession(me.user, me.settings);
     },
     [applySession]
   );
+
+  const refreshMe = useCallback(async () => {
+    const me = await api("me");
+    applySession(me.user, me.settings);
+  }, [applySession]);
 
   const refreshSettings = useCallback(async () => {
     const d = await api("settings");
@@ -64,8 +61,8 @@ export function AuthProvider({ children }) {
   }, []);
 
   const value = useMemo(
-    () => ({ ...state, login, logout, refreshSettings }),
-    [state, login, logout, refreshSettings]
+    () => ({ ...state, login, logout, refreshMe, refreshSettings }),
+    [state, login, logout, refreshMe, refreshSettings]
   );
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

@@ -4,6 +4,8 @@ import { api } from "../lib/api";
 import { useAuth, ROLE_LABELS } from "../lib/auth";
 import { date, dateTime } from "../lib/format";
 import { useApi, useAction, useForm, useToast, PageHeader, Card, Button, Input, Table } from "../components/ui";
+import PasswordField from "../components/PasswordField";
+import { isStrong } from "../lib/password";
 
 export default function Profile() {
   const { user } = useAuth();
@@ -39,10 +41,10 @@ export default function Profile() {
         <Card title="Change password">
           <div className="space-y-4">
             <Input label="Current password" type="password" autoComplete="current-password" value={pw.current_password} onChange={setPw("current_password")} />
-            <Input label="New password (min 8 characters)" type="password" autoComplete="new-password" value={pw.new_password} onChange={setPw("new_password")} />
+            <PasswordField value={pw.new_password} onChange={(v) => setPw("new_password")(v)} who={user} />
             <Input label="Confirm new password" type="password" autoComplete="new-password" value={pw.confirm} onChange={setPw("confirm")} />
             <div className="flex justify-end">
-              <Button onClick={changePassword} busy={busy} disabled={!pw.current_password || !pw.new_password}>Change password</Button>
+              <Button onClick={changePassword} busy={busy} disabled={!pw.current_password || !isStrong(pw.new_password, user) || pw.new_password !== pw.confirm}>Change password</Button>
             </div>
           </div>
         </Card>

@@ -11,10 +11,16 @@ declare(strict_types=1);
 require __DIR__ . '/src/bootstrap.php';
 require __DIR__ . '/src/mailer.php';
 require __DIR__ . '/src/portal/core.php';
+require __DIR__ . '/src/portal/security.php';
 
 header('X-Content-Type-Options: nosniff');
 header('Referrer-Policy: no-referrer');
 header('Cache-Control: no-store');
+header('X-Frame-Options: DENY');
+header("Content-Security-Policy: default-src 'none'; frame-ancestors 'none'");
+if (is_https()) {
+    header('Strict-Transport-Security: max-age=31536000');
+}
 
 require __DIR__ . '/src/portal/jobs.php';
 
@@ -26,6 +32,7 @@ foreach (['people', 'crm', 'sales', 'accounting', 'projects', 'recurring', 'tick
 try {
     ensure_admin_user();
     $route = (string) ($_GET['route'] ?? '');
+    $GLOBALS['portal_route'] = trim($route, '/');
     $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
     // HTML forms with files can only POST; allow _method=PUT override for multipart updates.
     if ($method === 'POST' && in_array($_POST['_method'] ?? '', ['PUT', 'DELETE'], true)) {
@@ -34,6 +41,16 @@ try {
     json_response($router->dispatch($method, $route));
 } catch (ApiError $e) {
     json_response(['error' => $e->getMessage()], $e->status);
+} catch (PDOException $e) {
+    // Turn database constraint errors into clear messages instead of a generic 500.
+    if (str_contains($e->getMessage(), 'FOREIGN KEY constraint failed')) {
+        json_response(['error' => 'One of the selected records (person, client, project…) does not exist any more. Refresh and try again.'], 422);
+    }
+    if (str_contains($e->getMessage(), 'UNIQUE constraint failed')) {
+        json_response(['error' => 'That already exists. Please refresh and try again.'], 409);
+    }
+    error_log('Chromolog portal API: ' . $e->getMessage() . ' @ ' . $e->getFile() . ':' . $e->getLine());
+    json_response(['error' => 'Something went wrong. Please try again.'], 500);
 } catch (Throwable $e) {
     error_log('Chromolog portal API: ' . $e->getMessage() . ' @ ' . $e->getFile() . ':' . $e->getLine());
     json_response(['error' => 'Something went wrong. Please try again.'], 500);
