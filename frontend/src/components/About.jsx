@@ -24,7 +24,7 @@ const stories = [
     id: "story",
     tabLabel: "Our Story",
     icon: BookOpen,
-    content: "Chromolog Technologies was established with a singular focus: to build digital products that combine clean, modular code with human-centric interfaces. Based in Kerala, India, we have partnered with institutions and enterprises to design, develop, and deploy production-grade software ecosystems that scale effortlessly.",
+    content: "Chromolog Technologies was established with a singular focus: to build digital products that combine clean, modular code with human-centric interfaces. Based in Kerala, India, we design, build and support production software, from a hospital token booking system in live use since 2021 to Android apps and websites for smaller clients.",
     title: "Crafting intelligent architectures since day one.",
   },
   {
@@ -44,11 +44,10 @@ const stories = [
 ];
 
 const milestones = [
-  { year: "2022", title: "Inception & Foundations", desc: "Chromolog was founded with a target to modernize custom software. Formed a core team of senior product engineers in Ernakulam, Kerala." },
-  { year: "2023", title: "Engineering Foundations", desc: "Built our core stack of Laravel, React and Flutter, and began designing scalable, queue-driven business systems." },
-  { year: "2024", title: "Product Ecosystems", desc: "Incubated HumaNode HRMS architecture, shifting towards multi-tenant scoping and Laravel + React modular infrastructures." },
-  { year: "2025", title: "AI-First Evolution", desc: "Standardized cognitive APIs, offline-first barcode syncs, and intelligent queue scheduling, transforming operations into AI-led systems." },
-  { year: "2026", title: "Global Scale & Agents", desc: "Incubating autonomous agent pipelines, vector search connectors, and premium cloud deployments for international modern teams." },
+  { year: "2020", title: "First Major Project", desc: "Started building the online token booking system for GMC Chest Hospital, Thrissur." },
+  { year: "2021", title: "GMC Version 1 Goes Live", desc: "Released the first version of the hospital's token booking system, replacing physical queues for patients." },
+  { year: "2022–2025", title: "Apps & Websites for Clients", desc: "Built Android apps and websites for a range of clients while continuing to support the GMC system." },
+  { year: "2026", title: "GMC 2.0 & Our Own Products", desc: "Released GMC version 2.0 with a new admin dashboard and push notifications. YCDC moved into client testing, and our SaaS products HumaNode HRMS and AlphaGrew became available." },
 ];
 
 export default function About({ navigateToSection }) {

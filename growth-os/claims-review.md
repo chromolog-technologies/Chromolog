@@ -106,5 +106,7 @@ AlphaGrew = own SaaS; everything else = built to order):
   (`App.jsx`; the component is kept for later).
 - Case Studies page now shows only GMC Chest Hospital.
 
-Still open: confirm the founding year (2022) and the other About timeline years, and whether
-the "100% IP ownership" and "24/7 monitoring" promises match your contracts.
+About timeline: now uses confirmed dates (GMC started 2020, v1 2021, apps & websites
+2022–2025, GMC v2.0 2026); no founding year is claimed.
+
+Still open: whether the "100% IP ownership" and "24/7 monitoring" promises match your contracts.

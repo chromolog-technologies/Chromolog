@@ -16,6 +16,13 @@ their operations — without them having to build and maintain a large in-house 
 - WhatsApp / phone: +91 94002 30723
 - We work remotely with clients in India, the UAE and selected international markets.
 
+## History
+
+- 2020: started building the GMC Chest Hospital, Thrissur token booking system.
+- 2021: GMC version 1 went live.
+- 2022–2025: Android apps and websites for clients (confidential), while supporting GMC.
+- 2026: GMC version 2.0 released; YCDC in client testing; HumaNode HRMS and AlphaGrew available.
+
 ## Services
 
 - **Web Development** — business websites, e-commerce, landing pages, portals, custom web apps.
@@ -49,7 +56,8 @@ Firebase, AWS, Docker, CI/CD, and LLM APIs including Claude.
 ## Our work (the only projects the agents may mention)
 
 - **GMC Chest Hospital, Thrissur — online token booking system** (completed, live; Chromolog
-  provides ongoing support). Digital token booking and queue management: a Flutter patient app
+  provides ongoing support). Started in 2020, version 1 live in 2021, version 2.0 released in
+  2026 (new admin dashboard and push notifications). Digital token booking and queue management: a Flutter patient app
   to book and track tokens, a doctor app to call patients in order, a React admin dashboard,
   and push notifications when a token is called. Live at https://gmcchtsrtoken.com/ and on
   Google Play.
@@ -59,10 +67,13 @@ Firebase, AWS, Docker, CI/CD, and LLM APIs including Claude.
   A demo version is available on request.
 - **AlphaGrew** — Chromolog's own Smart Campus & Career Intelligence SaaS platform
   (admissions, fees, placements, AI-assisted resume scoring).
+- **Android apps and websites for smaller clients** (2022–2025). Client names are
+  confidential: never name or describe these clients, only say we have built Android apps and
+  websites for other clients.
 
-Everything else (retail billing, restaurant ordering, CRM, logistics, websites, AI
+Everything else (retail billing, restaurant ordering, CRM, logistics, AI
 automation…) is work we can build to the client's requirements — describe it as a capability,
-never as a past project. GMC is our only completed client project: do not claim other
+never as a past project. GMC is our flagship completed project: do not claim other named
 clients, client counts, or results. Do not invent numbers.
 
 ## How we work
