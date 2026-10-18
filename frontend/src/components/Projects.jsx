@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, Check, Sparkles, AlertCircle, BarChart3, Clock, ShieldCheck } from "lucide-react";
+import { ArrowLeft, Check, Sparkles, AlertCircle, BarChart3, Clock, ShieldCheck, ExternalLink } from "lucide-react";
 import Counter from "./Counter";
 import Badge from "./ui/Badge";
 import Button from "./ui/Button";
@@ -9,22 +9,25 @@ import Card from "./ui/Card";
 const projData = [
   {
     id: 1,
-    title: "Medical College Chest Hospital",
-    subtitle: "Real-time Patient Token System",
+    title: "GMC Chest Hospital, Thrissur",
+    subtitle: "Online Token Booking & Queue System",
     industry: "Healthcare",
     filters: ["Healthcare"],
-    status: "Approved",
+    status: "Live (v2.0)",
     statusKey: "approved",
-    description: "Upgrading a legacy medical registry system into a synchronized Laravel and offline-first Flutter queue display ecosystem, reducing wait times and logging patient logs securely.",
-    tech: ["Flutter SDK", "Laravel REST API", "MySQL RDS", "Firebase FCM", "WebSockets"],
-    modules: ["Patient QR Ticketing", "Real-time Display Queue", "Biometric Doctor Check-in", "SMS Notification Alerts", "Audit logging dashboard"],
+    description: "A digital token booking and queue management system that replaces physical queuing at GMC Chest Hospital, Thrissur, with a patient app, a doctor queue app and an admin web dashboard.",
+    tech: ["Flutter", "Laravel REST API", "MySQL", "React + Vite", "Firebase Cloud Messaging"],
+    modules: ["Online token booking (chemo & follow-up)", "Doctor queue with Call Next", "Walk-in & staff token booking", "Admin dashboard for units, doctors & patients", "Hospital-wide push announcements"],
     icon: "ri-hospital-line",
     gradient: "linear-gradient(135deg,#0c4a6e,#0284c7,#38bdf8)",
-    objectives: ["Modernize legacy paper ticketing", "Minimize patient crowding", "Provide live queue display interfaces", "Track check-in statistics in real time"],
-    challenges: ["Migrating legacy DB with zero clinic downtime", "Handling 5,000+ daily concurrent queue requests", "Real-time synchronization across multiple local smart TVs"],
-    solutions: ["Laravel background jobs for transaction queues", "Local cache fallback for low network hours", "Firebase socket triggers for instant queue updates"],
-    timeline: "6 Months",
-    impact: ["42% Patient wait time reduction", "99.9% Queue uptime maintained", "Zero data discrepancies logged"],
+    objectives: ["Replace physical queues with digital tokens", "Let patients book the next clinic day from their phone", "Give doctors a live queue for their unit", "Give hospital staff full control of bookings"],
+    challenges: ["Fair token allocation across online, walk-in and staff bookings", "Preventing duplicate bookings under concurrent load", "Alerting patients the moment their token is called"],
+    solutions: ["Token engine with separate pools per booking source", "Database transactions with row locking and retries", "Firebase push alerts when a doctor calls the next token"],
+    impact: ["3 Connected apps: patient, doctor & admin", "~300 Tokens per unit per day", "Live Push alerts when a token is called"],
+    links: [
+      { label: "Visit the live system", href: "https://gmcchtsrtoken.com/" },
+      { label: "Get the app on Google Play", href: "https://play.google.com/store/apps/details?id=gmcch.vast.token" },
+    ],
   },
   {
     id: 2,
@@ -309,10 +312,12 @@ export default function Projects() {
                 <Card variant="glass" className="p-6 border-white/[0.08] backdrop-blur-xl">
                   <span className="text-[10px] font-bold text-muted-text uppercase tracking-widest font-heading block mb-4">Specs Sheet</span>
                   <div className="space-y-3.5 text-xs text-white/95">
-                    <div className="flex justify-between border-b border-white/[0.04] pb-2">
-                      <span className="text-muted-text">Timeline:</span>
-                      <strong className="flex items-center gap-1"><Clock className="w-3.5 h-3.5 text-accent" /> {selectedProject.timeline}</strong>
-                    </div>
+                    {selectedProject.timeline && (
+                      <div className="flex justify-between border-b border-white/[0.04] pb-2">
+                        <span className="text-muted-text">Timeline:</span>
+                        <strong className="flex items-center gap-1"><Clock className="w-3.5 h-3.5 text-accent" /> {selectedProject.timeline}</strong>
+                      </div>
+                    )}
                     <div className="flex justify-between border-b border-white/[0.04] pb-2">
                       <span className="text-muted-text">Status:</span>
                       <strong className="text-accent">{selectedProject.status}</strong>
@@ -367,6 +372,21 @@ export default function Projects() {
                   <p className="text-base text-white/90 leading-relaxed font-body">
                     {selectedProject.description}
                   </p>
+                  {selectedProject.links?.length > 0 && (
+                    <div className="flex flex-wrap gap-3 pt-2">
+                      {selectedProject.links.map((link) => (
+                        <a
+                          key={link.href}
+                          href={link.href}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1.5 text-xs font-bold font-heading text-white px-4 py-2 rounded-xl bg-gradient-to-br from-primary to-accent hover:opacity-90 transition-opacity"
+                        >
+                          {link.label} <ExternalLink className="w-3.5 h-3.5" />
+                        </a>
+                      ))}
+                    </div>
+                  )}
                 </Card>
 
                 {/* Solutions & Tech Stack */}

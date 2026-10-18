@@ -138,11 +138,11 @@ const KB = [
   },
   {
     patterns: ["products", "portfolio", "case studies", "projects", "work", "built"],
-    response: `Key products we've shipped:\n\n→ **AlphaGrew Smart Campus ERP** — University placement & admissions\n→ **HumaNode HRMS** — Enterprise HR, payroll & attendance\n→ **Medical College Chest Hospital App** — Patient token system\n→ **Restaurant QR Ordering Platform** — Kitchen display + billing\n→ **Retail Billing & Inventory** — Multi-store POS\n→ **YCDC Enterprise Transformation** — Business automation suite\n\nTap **"View Projects"** to see full case studies.`,
+    response: `Key products we've shipped:\n\n→ **AlphaGrew Smart Campus ERP** — University placement & admissions\n→ **HumaNode HRMS** — Enterprise HR, payroll & attendance\n→ **GMC Chest Hospital, Thrissur** — Online token booking app\n→ **Restaurant QR Ordering Platform** — Kitchen display + billing\n→ **Retail Billing & Inventory** — Multi-store POS\n→ **YCDC Enterprise Transformation** — Business automation suite\n\nTap **"View Projects"** to see full case studies.`,
   },
   {
     patterns: ["healthcare", "hospital", "clinic", "patient", "medical"],
-    response: `For healthcare, we build:\n\n→ **Patient Token Systems** — real-time queue displays\n→ **Offline-first clinic apps** — Flutter with SQLite sync\n→ **Biometric attendance** — staff management\n→ **Encrypted medical records** — HIPAA-ready architecture\n\nOur flagship healthcare product is the **Medical College Chest Hospital Token System** — deployed across 3 wards.`,
+    response: `For healthcare, we build:\n\n→ **Patient Token Systems** — real-time queue displays\n→ **Offline-first clinic apps** — Flutter with SQLite sync\n→ **Biometric attendance** — staff management\n→ **Encrypted medical records** — HIPAA-ready architecture\n\nOur flagship healthcare project is the **GMC Chest Hospital, Thrissur** online token booking system — live at gmcchtsrtoken.com and on Google Play.`,
   },
   {
     patterns: ["education", "university", "campus", "students", "erp", "placement"],

@@ -18,7 +18,7 @@ const industries = [
     problems: ["Legacy patient queuing bottlenecks", "High concurrency check-in crashes", "Complex scheduling synchronisations"],
     solutions: ["Real-time Patient Token Monitors", "Biometric SDK background listeners", "Encrypted medical database records"],
     benefits: ["42% reduction in patient wait times", "Zero data loss during network drops", "Full compliance with healthcare data standards"],
-    products: ["Medical College Chest Hospital", "Cloud Clinic SaaS"],
+    products: ["GMC Chest Hospital Thrissur", "Cloud Clinic SaaS"],
     tech: ["Laravel REST", "Flutter Client", "MySQL", "Firebase Sync"],
   },
   {

@@ -50,11 +50,10 @@ Firebase, AWS, Docker, CI/CD, and LLM APIs including Claude.
 
 - **AlphaGrew Smart Campus ERP** — admissions, fees and placement management for a university.
 - **HumaNode HRMS** — HR, payroll and attendance.
-- **Medical College Chest Hospital token system** — patient queue/token management.
-- **GMCC Hospital Patient Portal** — digital token booking and queue management for oncology
-  (chemo, radiation, follow-up) patients: a Flutter patient app to book and track tokens, a
-  doctor app to call patients in order, a React admin dashboard, and push notifications when a
-  token is called.
+- **GMC Chest Hospital, Thrissur — online token booking system** — digital token booking and
+  queue management: a Flutter patient app to book and track tokens, a doctor app to call
+  patients in order, a React admin dashboard, and push notifications when a token is called.
+  Live at https://gmcchtsrtoken.com/ and on Google Play.
 - **Restaurant QR ordering platform** — QR menu ordering, kitchen display and billing.
 - **Retail billing and inventory** — multi-store point of sale.
 - **YCDC enterprise transformation** — business automation suite.

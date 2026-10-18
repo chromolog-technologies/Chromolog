@@ -6,7 +6,7 @@ import Card from "../components/ui/Card";
 import Button from "../components/ui/Button";
 import Badge from "../components/ui/Badge";
 import PageTransition from "../components/motion/PageTransition";
-import { ArrowRight, CheckCircle2, AlertTriangle, Building2, TrendingUp, Sparkles } from "lucide-react";
+import { ArrowRight, CheckCircle2, AlertTriangle, Building2, TrendingUp, Sparkles, ExternalLink } from "lucide-react";
 
 export default function CaseStudies({ setActivePage }) {
   const [selectedCase, setSelectedCase] = useState(caseStudiesData[0]);
@@ -113,6 +113,22 @@ export default function CaseStudies({ setActivePage }) {
                     "{selectedCase.qualitativeResult}"
                   </p>
                 </div>
+
+                {selectedCase.links?.length > 0 && (
+                  <div className="flex flex-wrap gap-3">
+                    {selectedCase.links.map((link) => (
+                      <a
+                        key={link.href}
+                        href={link.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 text-xs font-bold font-heading text-white px-4 py-2 rounded-xl bg-gradient-to-br from-primary to-accent hover:opacity-90 transition-opacity"
+                      >
+                        {link.label} <ExternalLink className="w-3.5 h-3.5" />
+                      </a>
+                    ))}
+                  </div>
+                )}
               </div>
 
             </div>
