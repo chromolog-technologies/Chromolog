@@ -19,8 +19,13 @@ return [
     // Random string used to hash visitor IPs. Generate with: php -r "echo bin2hex(random_bytes(16)), PHP_EOL;"
     'ip_salt' => '',
 
-    // New-lead notifications. Leave empty to disable.
+    // New-lead notifications, sent through Hostinger SMTP as a real mailbox (the domain's
+    // DMARC policy rejects anything else). Use the mailbox's own password from hPanel → Emails.
     'notify_email' => 'info@chromologtechnologies.com',
+    'smtp_host' => 'smtp.hostinger.com',
+    'smtp_port' => 465,
+    'smtp_user' => 'info@chromologtechnologies.com',
+    'smtp_password' => '',
 
     'allowed_origins' => ['https://chromologtechnologies.com'],
 

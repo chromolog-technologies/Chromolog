@@ -29,6 +29,9 @@ gets an email.
    - `anthropic_api_key` (leave as is in free mode)
    - `admin_password_hash`: run `php -r "echo password_hash('YOUR-PASSWORD', PASSWORD_DEFAULT), PHP_EOL;"`
    - `ip_salt`: run `php -r "echo bin2hex(random_bytes(16)), PHP_EOL;"`
+   - `smtp_password`: the password of the `info@chromologtechnologies.com` mailbox (hPanel →
+     Emails). Lead emails are sent through Hostinger SMTP because the domain's DMARC policy
+     rejects unauthenticated mail.
 4. **Deploy**: push to `main`. GitHub Actions installs dependencies and uploads this folder to
    `public_html/api/ai/`.
 5. **Test**: open the website chat and ask a question, then sign in at `/api/ai/admin.php`.
