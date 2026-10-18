@@ -126,7 +126,7 @@ function LeadForm({ summary, onDone, onDismiss }) {
 const KB = [
   {
     patterns: ["who are you", "what is chromolog", "about", "company", "what do you do"],
-    response: `**Chromolog Technologies** is a premium AI-first software development company based in Kerala, India.\n\nWe build intelligent web apps, mobile apps, enterprise ERPs, HRMS systems, AI automation pipelines, and custom SaaS platforms for clients across 12+ industries globally.`,
+    response: `**Chromolog Technologies** is a premium AI-first software development company based in Kerala, India.\n\nWe build intelligent web apps, mobile apps, enterprise ERPs, HRMS systems, AI automation pipelines, and custom SaaS platforms for healthcare, education, retail, startups and growing businesses.`,
   },
   {
     patterns: ["services", "what can you build", "what do you offer", "capabilities"],
@@ -138,15 +138,15 @@ const KB = [
   },
   {
     patterns: ["products", "portfolio", "case studies", "projects", "work", "built"],
-    response: `Key products we've shipped:\n\n→ **AlphaGrew Smart Campus ERP** — University placement & admissions\n→ **HumaNode HRMS** — Enterprise HR, payroll & attendance\n→ **GMC Chest Hospital, Thrissur** — Online token booking app\n→ **Restaurant QR Ordering Platform** — Kitchen display + billing\n→ **Retail Billing & Inventory** — Multi-store POS\n→ **YCDC Enterprise Transformation** — Business automation suite\n\nTap **"View Projects"** to see full case studies.`,
+    response: `Our work so far:\n\n→ **GMC Chest Hospital, Thrissur** — Online token booking system (live, with ongoing support)\n→ **YCDC Workflow Platform** — Approval & document automation (in testing with the client)\n→ **HumaNode HRMS** — Our own HR SaaS (demo available)\n→ **AlphaGrew** — Our own smart campus & career intelligence SaaS\n\nWe also build custom software for any business need. Tap **"View Projects"** for details.`,
   },
   {
     patterns: ["healthcare", "hospital", "clinic", "patient", "medical"],
-    response: `For healthcare, we build:\n\n→ **Patient Token Systems** — real-time queue displays\n→ **Offline-first clinic apps** — Flutter with SQLite sync\n→ **Biometric attendance** — staff management\n→ **Encrypted medical records** — HIPAA-ready architecture\n\nOur flagship healthcare project is the **GMC Chest Hospital, Thrissur** online token booking system — live at gmcchtsrtoken.com and on Google Play.`,
+    response: `For healthcare, we build:\n\n→ **Patient Token Systems** — real-time queue displays\n→ **Offline-first clinic apps** — Flutter with SQLite sync\n→ **Biometric attendance** — staff management\n→ **Secure patient records** — encrypted, role-based access\n\nOur flagship healthcare project is the **GMC Chest Hospital, Thrissur** online token booking system — live at gmcchtsrtoken.com and on Google Play.`,
   },
   {
     patterns: ["education", "university", "campus", "students", "erp", "placement"],
-    response: `For education, we build:\n\n→ **Smart Campus ERPs** — admissions, fees, placement\n→ **AI Resume Analyzers** — placement scoring\n→ **Library E-Gate Systems** — RFID integration\n→ **Multi-persona dashboards** — student, faculty, admin views\n\nOur **AlphaGrew Platform** handles 10,000+ student profiles and 8,500+ placement applications per semester.`,
+    response: `For education, we build:\n\n→ **Smart Campus ERPs** — admissions, fees, placement\n→ **AI Resume Analyzers** — placement scoring\n→ **Library E-Gate Systems** — RFID integration\n→ **Multi-persona dashboards** — student, faculty, admin views\n\n**AlphaGrew** is our own smart campus & career intelligence SaaS platform — ask us for a walkthrough.`,
   },
   {
     patterns: ["tech stack", "technology", "framework", "react", "flutter", "laravel", "next", "node"],
@@ -166,7 +166,7 @@ const KB = [
   },
   {
     patterns: ["location", "where", "india", "kerala", "based", "office"],
-    response: `Chromolog Technologies is headquartered in **Kerala, India** 🇮🇳\n\nWe serve clients globally — from Kerala-based businesses to international startups — delivering fully remote, timezone-aware software development engagements.`,
+    response: `Chromolog Technologies is headquartered in **Kerala, India** 🇮🇳\n\nWe work with businesses in Kerala, the UAE and beyond, with fully remote, timezone-aware engagements.`,
   },
   {
     patterns: ["timeline", "how long", "duration", "weeks", "months", "deadline"],

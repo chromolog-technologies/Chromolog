@@ -26,7 +26,7 @@ Most enterprise software relies on manual inputs. Operations staff spend hours c
 ## Deploying Autonomous AI Agents
 By integrating language models (like GPT-4 and Claude 3.5) with local vector store indexes, we establish secure cognitive workers. When a vendor email enters the network:
 1. **Intake**: A background worker grabs attachments (PDFs, scans).
-2. **Cognitive OCR**: Document layout parsers pull keys (Vendor, Subtotal, GST, Items) with 99% accuracy.
+2. **Cognitive OCR**: Document layout parsers pull keys (Vendor, Subtotal, GST, Items), with low-confidence fields flagged for human review.
 3. **Validation**: The AI agent cross-checks fields with active purchase agreements.
 4. **Automation**: If verified, a secure REST API updates the database automatically.
 
@@ -118,7 +118,7 @@ By utilizing Dart Hive and local SQLite caching inside Flutter apps:
 - The UI transitions smoothly even without a connection.
 - Background sync queues process and upload data when the network is restored.
 
-We deployed this exact sync mechanism in the **Medical College Chest Hospital** token display upgrade, guaranteeing 100% check-in reliability.
+The **GMC Chest Hospital, Thrissur** patient app we built uses this kind of on-device storage (Drift / SQLite) in Flutter.
     `,
   },
   {

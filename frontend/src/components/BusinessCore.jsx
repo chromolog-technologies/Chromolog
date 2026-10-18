@@ -38,9 +38,9 @@ const beforeNodes = [
 ];
 
 const afterNodes = [
-  { id: "website", title: "Website", icon: Globe, desc: "High-speed lead generation engine", color: "#00E5FF", metric: "3x Inbound Leads" },
+  { id: "website", title: "Website", icon: Globe, desc: "High-speed lead generation engine", color: "#00E5FF", metric: "More Inbound Leads" },
   { id: "crm", title: "CRM", icon: UserCheck, desc: "Pipeline & automated WhatsApp sync", color: "#6366F1", metric: "Zero Lost Leads" },
-  { id: "automation", title: "Automation", icon: Cpu, desc: "Instant billing & inventory triggers", color: "#10B981", metric: "100% Automated" },
+  { id: "automation", title: "Automation", icon: Cpu, desc: "Instant billing & inventory triggers", color: "#10B981", metric: "Automated Triggers" },
   { id: "dashboard", title: "Dashboard", icon: BarChart3, desc: "Real-time executive revenue KPIs", color: "#F59E0B", metric: "Live Telemetry" },
   { id: "mobile", title: "Mobile", icon: Smartphone, desc: "Flutter iOS/Android with offline sync", color: "#06B6D4", metric: "< 50ms Latency" },
   { id: "ai", title: "AI Engine", icon: Brain, desc: "Document OCR & intelligent workflows", color: "#A855F7", metric: "Smart Processing" },

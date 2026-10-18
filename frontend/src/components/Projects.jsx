@@ -15,7 +15,7 @@ const projData = [
     filters: ["Healthcare"],
     status: "Live (v2.0)",
     statusKey: "approved",
-    description: "A digital token booking and queue management system that replaces physical queuing at GMC Chest Hospital, Thrissur, with a patient app, a doctor queue app and an admin web dashboard.",
+    description: "A digital token booking and queue management system that replaces physical queuing at GMC Chest Hospital, Thrissur, with a patient app, a doctor queue app and an admin web dashboard. Chromolog continues to provide ongoing support.",
     tech: ["Flutter", "Laravel REST API", "MySQL", "React + Vite", "Firebase Cloud Messaging"],
     modules: ["Online token booking (chemo & follow-up)", "Doctor queue with Call Next", "Walk-in & staff token booking", "Admin dashboard for units, doctors & patients", "Hospital-wide push announcements"],
     icon: "ri-hospital-line",
@@ -35,28 +35,26 @@ const projData = [
     subtitle: "Enterprise Workflow Automator",
     industry: "Enterprise",
     filters: ["Enterprise"],
-    status: "In Development",
+    status: "Client Testing",
     statusKey: "development",
-    description: "A centralized approval and departmental document automation platform designed to standardize multi-role corporate flows.",
+    description: "A centralized approval and departmental document automation platform designed to standardize multi-role corporate flows. Development is complete and the system is now in testing with the client.",
     tech: ["Laravel PHP", "React.js SPA", "PostgreSQL", "Tailwind CSS", "Redis"],
     modules: ["Dynamic Form Builders", "Approval Chain Engines", "PDF Invoice generation", "Role RBAC managers", "Activity trail monitoring"],
     icon: "ri-building-4-line",
     gradient: "linear-gradient(135deg,#1e1b4b,#4f46e5,#818cf8)",
     objectives: ["Digitize multi-stage approval lists", "Unify company document systems", "Render analytics reports on pipeline speeds", "Enforce strict audit security"],
-    challenges: ["Configuring variable approval paths dynamically", "Migrating 8 years of server files", "Maintaining high page response speeds under heavy uploads"],
+    challenges: ["Configuring variable approval paths dynamically", "Migrating existing company documents", "Maintaining high page response speeds under heavy uploads"],
     solutions: ["Domain-driven repository patterns", "Queue PDF compilation jobs", "Redis database query caching"],
-    timeline: "9 Months",
-    impact: ["84% Less paper file reliance", "12 hours saved per approval loop", "100% Audit trace coverage"],
   },
   {
     id: 3,
     title: "HumaNode HRMS",
-    subtitle: "Multi-Tenant HR Management",
+    subtitle: "Our Multi-Tenant HR SaaS",
     industry: "HR",
     filters: ["HR"],
-    status: "Architecture Completed",
+    status: "SaaS Product · Demo Available",
     statusKey: "architecture",
-    description: "An enterprise Human Resource Management System engineered with multi-db tenant isolation, automated payroll computations, and biometric schedules.",
+    description: "Chromolog's own HR management SaaS, engineered with multi-tenant data isolation, automated payroll computations, and biometric schedules. A demo version is available on request.",
     tech: ["Laravel 12", "React SPA", "PostgreSQL DB", "Spatie Permission", "Redis queues"],
     modules: ["Multi-Tenant database isolation", "Hourly Payroll runner", "Leave approval routing", "Biometric REST connector", "Employee profile directories"],
     icon: "ri-team-line",
@@ -64,18 +62,16 @@ const projData = [
     objectives: ["Build scalable tenant routing structure", "Automate complex payroll tax rules", "Connect local biometric scan terminals", "Enforce precise RBAC permissions"],
     challenges: ["Ensuring absolute data separation between companies", "Real-time sync of biometric clock-ins", "Handling massive queued payroll updates concurrently"],
     solutions: ["Tenant database separation connections", "Background cron listeners", "Laravel Horizon queue job workers"],
-    timeline: "12 Months",
-    impact: ["100% Secure tenant isolation", "Instant payroll calculations", "99.8% Biometric capture reliability"],
   },
   {
     id: 4,
-    title: "AlphaGrew Smart Campus ERP",
-    subtitle: "Education Management Ecosystem",
+    title: "AlphaGrew",
+    subtitle: "Smart Campus & Career Intelligence Platform",
     industry: "Education",
     filters: ["Education", "AI"],
-    status: "Product Development",
+    status: "SaaS Product",
     statusKey: "development",
-    description: "A unified EdTech platform organizing admissions, automated fee modules, parent notifications, and an AI-powered student placement helper.",
+    description: "Chromolog's own EdTech SaaS platform, organizing admissions, automated fee modules, parent notifications, and an AI-powered student placement helper.",
     tech: ["React.js", "Flutter", "Laravel Framework", "MySQL", "OpenAI API"],
     modules: ["Online Admissions gateway", "Automated Fee Reminders", "AI Resume scoring scanner", "Persona-specific mobile apps", "Academic grading systems"],
     icon: "ri-graduation-cap-line",
@@ -83,8 +79,6 @@ const projData = [
     objectives: ["Unify school admin operations", "Automate payment follow-ups", "Empower placements with AI resume parsing", "Support student, faculty, and parent apps"],
     challenges: ["Massive development scope", "Handling payment gateway callbacks reliably", "AI model response latency for CV checks"],
     solutions: ["Strict feature flag scoping", "Laravel callback queue retry systems", "RAG vector retrieval indexing"],
-    timeline: "18 Months",
-    impact: ["92% Online fee collection rate", "10,000+ Students registered", "85% Placement team workload cut"],
   },
 ];
 
@@ -193,10 +187,10 @@ export default function Projects() {
             {/* Statistics */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-12 border-b border-slate-200 pb-12">
               {[
-                { end: 12, suffix: "+", label: "Projects Completed" },
-                { end: 6, suffix: "+", label: "Industries Served" },
-                { end: 100, suffix: "+", label: "Modules Delivered" },
-                { end: 99, suffix: "%", label: "Client Satisfaction" },
+                { end: 1, suffix: "", label: "Live Hospital System" },
+                { end: 1, suffix: "", label: "Enterprise Project in Client Testing" },
+                { end: 2, suffix: "", label: "Own SaaS Products" },
+                { end: 5, suffix: "", label: "Focus Industries" },
               ].map((stat, idx) => (
                 <div key={idx} className="text-center space-y-1">
                   <strong className="block text-2xl md:text-3xl font-heading font-extrabold text-white">
@@ -210,7 +204,7 @@ export default function Projects() {
             {/* Filters & Search Toolbar */}
             <div className="flex flex-col md:flex-row gap-4 items-center justify-between mb-10">
               <div className="flex flex-wrap gap-2 justify-center">
-                {["all", "Healthcare", "Education", "Retail", "Enterprise", "HR", "AI"].map((filter) => (
+                {["all", "Healthcare", "Education", "Enterprise", "HR", "AI"].map((filter) => (
                   <button
                     key={filter}
                     onClick={() => setActiveFilter(filter)}
@@ -433,22 +427,24 @@ export default function Projects() {
                 </Card>
 
                 {/* Outcomes & Business Impact */}
-                <Card variant="glass" className="p-8 border-white/[0.08] backdrop-blur-xl space-y-6 text-left">
-                  <span className="text-[10px] font-bold text-accent uppercase tracking-widest font-heading flex items-center gap-1.5">
-                    <BarChart3 className="w-4 h-4" />
-                    Business Impact Benchmarks
-                  </span>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    {selectedProject.impact.map((imp, idx) => (
-                      <div key={idx} className="bg-[#050816]/75 border border-white/[0.04] p-4 rounded-xl text-center space-y-1">
-                        <strong className="block text-base md:text-lg font-heading font-extrabold text-white">{imp.split(" ")[0]}</strong>
-                        <span className="text-[9px] font-bold text-muted-text uppercase tracking-wider block leading-relaxed">
-                          {imp.split(" ").slice(1).join(" ")}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </Card>
+                {selectedProject.impact?.length > 0 && (
+                  <Card variant="glass" className="p-8 border-white/[0.08] backdrop-blur-xl space-y-6 text-left">
+                    <span className="text-[10px] font-bold text-accent uppercase tracking-widest font-heading flex items-center gap-1.5">
+                      <BarChart3 className="w-4 h-4" />
+                      Business Impact Benchmarks
+                    </span>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                      {selectedProject.impact.map((imp, idx) => (
+                        <div key={idx} className="bg-[#050816]/75 border border-white/[0.04] p-4 rounded-xl text-center space-y-1">
+                          <strong className="block text-base md:text-lg font-heading font-extrabold text-white">{imp.split(" ")[0]}</strong>
+                          <span className="text-[9px] font-bold text-muted-text uppercase tracking-wider block leading-relaxed">
+                            {imp.split(" ").slice(1).join(" ")}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </Card>
+                )}
 
               </div>
 

@@ -46,20 +46,24 @@ Firebase, AWS, Docker, CI/CD, and LLM APIs including Claude.
    partner.
 5. **Growing SMEs** — modernising outdated systems, automating repetitive work, adding AI.
 
-## Work we have shipped (as listed on our website)
+## Our work (the only projects the agents may mention)
 
-- **AlphaGrew Smart Campus ERP** — admissions, fees and placement management for a university.
-- **HumaNode HRMS** — HR, payroll and attendance.
-- **GMC Chest Hospital, Thrissur — online token booking system** — digital token booking and
-  queue management: a Flutter patient app to book and track tokens, a doctor app to call
-  patients in order, a React admin dashboard, and push notifications when a token is called.
-  Live at https://gmcchtsrtoken.com/ and on Google Play.
-- **Restaurant QR ordering platform** — QR menu ordering, kitchen display and billing.
-- **Retail billing and inventory** — multi-store point of sale.
-- **YCDC enterprise transformation** — business automation suite.
+- **GMC Chest Hospital, Thrissur — online token booking system** (completed, live; Chromolog
+  provides ongoing support). Digital token booking and queue management: a Flutter patient app
+  to book and track tokens, a doctor app to call patients in order, a React admin dashboard,
+  and push notifications when a token is called. Live at https://gmcchtsrtoken.com/ and on
+  Google Play.
+- **YCDC workflow platform** (client project; development complete, now in testing with the
+  client). Approval and document automation for multi-role company workflows.
+- **HumaNode HRMS** — Chromolog's own HR SaaS product (multi-tenant HR, payroll, attendance).
+  A demo version is available on request.
+- **AlphaGrew** — Chromolog's own Smart Campus & Career Intelligence SaaS platform
+  (admissions, fees, placements, AI-assisted resume scoring).
 
-Full case studies are on the website's Case Studies page. Do not invent client names, numbers
-or results beyond this list.
+Everything else (retail billing, restaurant ordering, CRM, logistics, websites, AI
+automation…) is work we can build to the client's requirements — describe it as a capability,
+never as a past project. GMC is our only completed client project: do not claim other
+clients, client counts, or results. Do not invent numbers.
 
 ## How we work
 

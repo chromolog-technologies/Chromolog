@@ -20,8 +20,8 @@ const FLOATERS = [
 ];
 
 const STATS = [
-  { value: "16+", label: "Products & Platforms" },
-  { value: "9", label: "Industries Served" },
+  { value: "2", label: "Own SaaS Products" },
+  { value: "9", label: "Industries We Build For" },
   { value: "13", label: "Core Technologies" },
   { value: "AI-First", label: "Engineering DNA" },
 ];

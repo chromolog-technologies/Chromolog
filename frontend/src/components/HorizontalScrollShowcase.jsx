@@ -48,7 +48,7 @@ const showcaseCards = [
     description:
       "Deploy self-executing digital agents and RAG document intelligence pipelines that automate high-friction workflows, parse unstructured data, and scale your operations 24/7.",
     icon: Cpu,
-    metrics: "99.4% Accuracy • Instant RAG",
+    metrics: "Human Review • Instant RAG",
     gradient: "from-purple-600/20 via-fuchsia-600/20 to-pink-500/30",
     accentColor: "#c084fc",
     highlights: ["Self-Operating", "Sub-second RAG", "Audit Compliance"],

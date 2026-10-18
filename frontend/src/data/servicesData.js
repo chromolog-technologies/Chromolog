@@ -749,7 +749,7 @@ export const servicesData = {
     faqs: [
       {
         q: "How much time can business automation save our company?",
-        a: "Our client case studies demonstrate an average of 65% to 80% reduction in manual data entry hours within the first month of deployment.",
+        a: "It depends on how manual your current process is. In the free consultation we map your workflow and estimate realistically which steps can be automated before you commit to anything.",
       },
       {
         q: "Do we need to stop using WhatsApp or Excel entirely?",

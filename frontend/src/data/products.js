@@ -7,6 +7,7 @@
 // key → { label, color(css var group), dot } used by <StatusBadge />
 export const STATUS = {
   live: { label: "Live", tone: "success" },
+  demo: { label: "Demo Available", tone: "success" },
   featured: { label: "Featured", tone: "accent" },
   enterprise: { label: "Enterprise", tone: "primary" },
   development: { label: "In Development", tone: "secondary" },
@@ -87,7 +88,7 @@ export const FEATURED_PRODUCTS = [
     id: "humanode-hrms",
     name: "HumaNode HRMS",
     category: "Enterprise HRMS",
-    status: "soon",
+    status: "demo",
     icon: "ri-team-line",
     gradient: ["#06b6d4", "#4f46e5"],
     accent: "#06b6d4",
@@ -132,7 +133,7 @@ export const FEATURED_PRODUCTS = [
     id: "hospital-token",
     name: "Hospital Token Management",
     category: "Healthcare",
-    status: "enterprise",
+    status: "live",
     icon: "ri-hospital-line",
     gradient: ["#22c55e", "#06b6d4"],
     accent: "#22c55e",
@@ -275,7 +276,7 @@ export const AI_PRODUCTS = [
     desc: "Parses, scores and ranks resumes against a role in seconds — with skill-gap insight.",
     useCases: ["Campus placements", "Bulk hiring", "Talent screening"],
     tech: ["Python", "OpenAI", "spaCy"],
-    benefits: ["10x faster screening", "Bias-aware scoring", "Skill-gap reports"],
+    benefits: ["Faster resume screening", "Bias-aware scoring", "Skill-gap reports"],
   },
   {
     id: "ocr",
@@ -285,7 +286,7 @@ export const AI_PRODUCTS = [
     desc: "Turns scans, invoices and forms into structured, validated data with high accuracy.",
     useCases: ["Invoice capture", "KYC documents", "Records digitization"],
     tech: ["Python", "Tesseract", "OpenAI"],
-    benefits: ["99% field accuracy", "Any language", "Human-in-loop review"],
+    benefits: ["Accurate field extraction", "Multi-language support", "Human-in-loop review"],
   },
   {
     id: "voice-ai",
@@ -295,7 +296,7 @@ export const AI_PRODUCTS = [
     desc: "Real-time speech-to-action: transcribe, understand intent and respond in natural voice.",
     useCases: ["Call centers", "Voice booking", "Accessibility"],
     tech: ["Python", "Whisper", "Gemini"],
-    benefits: ["Sub-second latency", "40+ languages", "Sentiment aware"],
+    benefits: ["Low-latency responses", "Multi-language support", "Sentiment aware"],
   },
   {
     id: "chatbot",
@@ -369,8 +370,8 @@ export const INDUSTRIES = [
     tagline: "Digital care, shorter queues, better outcomes.",
     products: ["Hospital Token Management", "Clinic Management SaaS", "Tele-consult Suite"],
     technologies: ["Flutter", "Laravel", "Firebase", "PostgreSQL"],
-    benefits: ["Cut OP wait times by 60%", "Paperless patient records", "Live capacity analytics"],
-    caseStudy: { title: "Chest Hospital App", metric: "60% shorter queues", desc: "Digitized outpatient flow across departments with live token displays." },
+    benefits: ["Shorter OP queues", "Paperless patient records", "Live capacity analytics"],
+    caseStudy: { title: "GMC Chest Hospital, Thrissur", metric: "Live", desc: "Online token booking with patient, doctor and admin apps. Supported by Chromolog." },
   },
   {
     id: "education",
@@ -381,7 +382,7 @@ export const INDUSTRIES = [
     products: ["Alphagrew Campus ERP", "LMS Platform", "AI Placement Suite"],
     technologies: ["React", "Laravel", "Python", "OpenAI"],
     benefits: ["Automated placements", "Unified student data", "AI-driven readiness scoring"],
-    caseStudy: { title: "Alphagrew ERP", metric: "3x placement throughput", desc: "AI matching connected students to recruiters and tripled drive efficiency." },
+    caseStudy: { title: "AlphaGrew", metric: "Our SaaS", desc: "Smart campus and career intelligence platform built and owned by Chromolog." },
   },
   {
     id: "retail",
@@ -392,7 +393,6 @@ export const INDUSTRIES = [
     products: ["Retail POS SaaS", "AI CRM Platform", "Recommendation Engine"],
     technologies: ["Next.js", "Python", "PostgreSQL", "Redis"],
     benefits: ["Personalized upsell", "Unified inventory", "Real-time sales intelligence"],
-    caseStudy: { title: "iPhone Multi-Store Vault", metric: "Unified 8 stores", desc: "Central inventory & sales across branches with live dashboards." },
   },
   {
     id: "hospitality",
@@ -403,7 +403,6 @@ export const INDUSTRIES = [
     products: ["Restaurant ERP", "Booking Engine", "Event Management System"],
     technologies: ["Next.js", "Laravel", "AWS", "PostgreSQL"],
     benefits: ["Contactless ordering", "Event automation", "Occupancy analytics"],
-    caseStudy: { title: "Restaurant ERP", metric: "Orders automated", desc: "End-to-end restaurant management with kitchen display, billing, and analytics." },
   },
   {
     id: "finance",
@@ -414,7 +413,6 @@ export const INDUSTRIES = [
     products: ["AI Invoice Generator", "Business Analytics", "Collections CRM"],
     technologies: ["Laravel", "Python", "PostgreSQL", "Docker"],
     benefits: ["Automated reconciliation", "Fraud & anomaly alerts", "Audit-ready trails"],
-    caseStudy: { title: "AI Analytics Suite", metric: "Forecasts in real time", desc: "Predictive KPIs and anomaly alerts for finance leadership." },
   },
   {
     id: "manufacturing",
@@ -425,7 +423,6 @@ export const INDUSTRIES = [
     products: ["Production ERP", "Image QC", "IoT Dashboards"],
     technologies: ["Python", "PyTorch", "PostgreSQL", "Docker"],
     benefits: ["Predictive maintenance", "Vision-based QC", "Live floor visibility"],
-    caseStudy: { title: "Vision QC Pilot", metric: "Defects caught early", desc: "Camera-based quality control flags defects before shipping." },
   },
   {
     id: "government",
@@ -436,7 +433,7 @@ export const INDUSTRIES = [
     products: ["Citizen Portals", "Workflow Automation", "Records Digitization"],
     technologies: ["React", "Laravel", "PostgreSQL", "AWS"],
     benefits: ["Paperless workflows", "Transparent tracking", "Secure records"],
-    caseStudy: { title: "YCDC Transformation Portal", metric: "End-to-end digital", desc: "Digitized multi-stage citizen workflows with audit trails." },
+    caseStudy: { title: "YCDC Workflow Platform", metric: "Client testing", desc: "Approval and document automation platform; development complete, now in testing with the client." },
   },
   {
     id: "construction",
@@ -447,7 +444,6 @@ export const INDUSTRIES = [
     products: ["Construction ERP", "Site Tracking", "Vendor CRM"],
     technologies: ["Flutter", "Laravel", "PostgreSQL", "AWS"],
     benefits: ["Live site progress", "Material & cost control", "Vendor coordination"],
-    caseStudy: { title: "Site Ops Suite", metric: "One command center", desc: "Unified tracking of sites, materials, labor and billing." },
   },
   {
     id: "logistics",
@@ -458,7 +454,6 @@ export const INDUSTRIES = [
     products: ["Fleet Platform", "Route Optimizer", "Delivery App"],
     technologies: ["Flutter", "Python", "PostgreSQL", "Redis"],
     benefits: ["Optimized routes", "Live tracking", "Proof of delivery"],
-    caseStudy: { title: "Vehicle Service Platform", metric: "Fleet visibility", desc: "Scheduling, tracking and service history in one app." },
   },
 ];
 

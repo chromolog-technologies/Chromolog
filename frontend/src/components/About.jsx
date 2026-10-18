@@ -45,7 +45,7 @@ const stories = [
 
 const milestones = [
   { year: "2022", title: "Inception & Foundations", desc: "Chromolog was founded with a target to modernize custom software. Formed a core team of senior product engineers in Ernakulam, Kerala." },
-  { year: "2023", title: "Enterprise Scalability", desc: "Successfully delivered custom ERP and queue displays for retail and education centers, handling high daily transaction volumes." },
+  { year: "2023", title: "Engineering Foundations", desc: "Built our core stack of Laravel, React and Flutter, and began designing scalable, queue-driven business systems." },
   { year: "2024", title: "Product Ecosystems", desc: "Incubated HumaNode HRMS architecture, shifting towards multi-tenant scoping and Laravel + React modular infrastructures." },
   { year: "2025", title: "AI-First Evolution", desc: "Standardized cognitive APIs, offline-first barcode syncs, and intelligent queue scheduling, transforming operations into AI-led systems." },
   { year: "2026", title: "Global Scale & Agents", desc: "Incubating autonomous agent pipelines, vector search connectors, and premium cloud deployments for international modern teams." },

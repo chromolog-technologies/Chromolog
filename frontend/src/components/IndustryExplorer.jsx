@@ -17,8 +17,8 @@ const industries = [
     overview: "We design cloud-native clinic management software, offline-first biometric scanners, and intelligent hospital queue display systems complying with secure data isolation standards.",
     problems: ["Legacy patient queuing bottlenecks", "High concurrency check-in crashes", "Complex scheduling synchronisations"],
     solutions: ["Real-time Patient Token Monitors", "Biometric SDK background listeners", "Encrypted medical database records"],
-    benefits: ["42% reduction in patient wait times", "Zero data loss during network drops", "Full compliance with healthcare data standards"],
-    products: ["GMC Chest Hospital Thrissur", "Cloud Clinic SaaS"],
+    benefits: ["Patients book tokens from their phone instead of queuing", "Doctors see a live queue for their unit", "Push alerts when a token is called"],
+    products: ["GMC Chest Hospital, Thrissur token system (live)", "Clinic & appointment systems (built to order)"],
     tech: ["Laravel REST", "Flutter Client", "MySQL", "Firebase Sync"],
   },
   {
@@ -30,8 +30,8 @@ const industries = [
     overview: "Replacing fragmented school and college tools with modular, multi-persona campus ERPs containing placements dashboards, grading trackers, and automated fee modules.",
     problems: ["Scattered student records data", "Manual student placement sorting", "Inefficient parent-teacher messaging"],
     solutions: ["AlphaGrew Placement Predictors", "Multi-portal persona layouts", "Automated PDF certificate builders"],
-    benefits: ["92% online fee collection rate", "85% reduction in placement team workload", "10,000+ students on single platform"],
-    products: ["AlphaGrew Smart Campus ERP", "Library E-Gate system"],
+    benefits: ["Admissions, fees and placements on one platform", "AI-assisted resume and readiness scoring", "Separate portals for students, faculty and parents"],
+    products: ["AlphaGrew (our SaaS product)", "Custom campus & student portals (built to order)"],
     tech: ["React SPA", "Laravel", "PostgreSQL", "Node.js API"],
   },
   {
@@ -43,8 +43,8 @@ const industries = [
     overview: "Engineering billing and stock software with fast barcode scanning, multi-store stock checks in real time, and GST compliance.",
     problems: ["Slow barcode scan under load", "No offline billing fallback options", "Stock mismatch across warehouse branches"],
     solutions: ["Native barcode reader integrations", "SQLite offline sync layers", "Real-time stock search APIs"],
-    benefits: ["3x faster checkout process", "Offline billing continuity during network drops", "Unified multi-store inventory visibility"],
-    products: ["Retail Billing & Inventory Software", "iPhone Multi-Store Vault"],
+    benefits: ["Faster billing at the counter", "Billing that keeps working during network drops", "Inventory visibility across all branches"],
+    products: ["Billing & inventory software (built to order)", "Multi-store stock tracking (built to order)"],
     tech: ["Flutter Mobile", "Laravel Web Server", "SQLite cache", "MySQL"],
   },
   {
@@ -56,8 +56,8 @@ const industries = [
     overview: "Connecting tables, menus, kitchen display systems, and front-desk billing with real-time WebSocket communication pipelines.",
     problems: ["Paper-based kitchen order delays", "Incorrect item delivery updates", "Billing desk synchronization issues"],
     solutions: ["Kitchen Display Systems (KDS)", "QR table-ordering menus", "WebSocket ordering streams"],
-    benefits: ["40% faster order-to-kitchen time", "Zero order mismatches via real-time sync", "Table turnover improved by 25%"],
-    products: ["Restaurant QR Ordering & Kitchen Platform"],
+    benefits: ["Orders go straight from the table to the kitchen", "Fewer order mix-ups with real-time sync", "Faster table turnover"],
+    products: ["QR ordering & kitchen display (built to order)"],
     tech: ["Flutter client app", "Laravel server", "WebSockets"],
   },
   {
@@ -70,7 +70,7 @@ const industries = [
     problems: ["Lack of dispatcher location checks", "Disorganized shipping documents", "Warehouse intake errors"],
     solutions: ["Real-time transit monitors", "Centralized shipping data systems", "Inventory barcode intakes"],
     benefits: ["Real-time shipment visibility across branches", "Fewer intake errors with barcode scanning", "Centralized dispatch control dashboard"],
-    products: ["Custom logistics managers", "Multi-store stocks"],
+    products: ["Dispatch & fleet tracking (built to order)", "Warehouse stock systems (built to order)"],
     tech: ["Docker containers", "AWS deployment", "Laravel backend"],
   },
   {
@@ -82,8 +82,8 @@ const industries = [
     overview: "Architecting multi-tenant business automation software covering payroll runs, custom RBAC permissions, and lead pipelines.",
     problems: ["Paper-based department approvals", "Manual payroll calculation loops", "Fragmented lead pipeline records"],
     solutions: ["HumaNode RBAC permissions", "Queued background payroll compute", "Event-driven approval triggers"],
-    benefits: ["84% reduction in paper file reliance", "100% audit trace on every approval", "Instant automated payroll processing"],
-    products: ["HumaNode HRMS System", "YCDC Digital Transformation"],
+    benefits: ["Less paperwork with digital approvals", "An audit trail on every approval", "Automated payroll processing"],
+    products: ["HumaNode HRMS (our SaaS, demo available)", "YCDC workflow platform (in client testing)"],
     tech: ["React SPA", "Laravel Monolith", "PostgreSQL JSONB", "Redis"],
   },
 ];
@@ -238,7 +238,7 @@ export default function IndustryExplorer() {
 
                       {/* Products */}
                       <div className="space-y-2 text-left">
-                        <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest font-heading">Deliverables Built</span>
+                        <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest font-heading">What We Build</span>
                         <div className="space-y-1">
                           {selectedInd.products.map((p, idx) => (
                             <span key={idx} className="block text-xs font-bold text-white font-heading">{p}</span>

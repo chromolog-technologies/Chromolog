@@ -28,7 +28,7 @@ export default function CaseStudies({ setActivePage }) {
               Case Studies &amp; Proven Results
             </h1>
             <p className="text-sm sm:text-base text-slate-300 font-body leading-relaxed">
-              Explore how Chromolog helps companies in Kerala &amp; Dubai replace Excel spreadsheets, WhatsApp chaos, and legacy websites with custom digital systems.
+              Real, verifiable work delivered by Chromolog, with links you can check yourself.
             </p>
           </div>
 
@@ -135,6 +135,7 @@ export default function CaseStudies({ setActivePage }) {
           </Card>
 
           {/* List of All Case Studies to Switch */}
+          {caseStudiesData.length > 1 && (
           <div className="space-y-4">
             <h3 className="text-lg font-bold font-heading text-white">Explore More Proven Success Stories:</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -156,6 +157,7 @@ export default function CaseStudies({ setActivePage }) {
               ))}
             </div>
           </div>
+          )}
 
           {/* CTA Banner */}
           <div className="p-8 rounded-3xl bg-gradient-to-r from-blue-950/40 via-purple-950/30 to-indigo-950/40 border border-white/15 text-center space-y-4 shadow-2xl backdrop-blur-2xl">

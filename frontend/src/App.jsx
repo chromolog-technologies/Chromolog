@@ -37,7 +37,8 @@ const About = lazy(() => import("./components/About"));
 const AIShowcase = lazy(() => import("./components/AIShowcase"));
 const ProductMockup = lazy(() => import("./components/ProductMockup"));
 const Process = lazy(() => import("./components/Process"));
-const Testimonials = lazy(() => import("./components/Testimonials"));
+// Testimonials section is hidden until real, client-approved quotes are collected.
+// const Testimonials = lazy(() => import("./components/Testimonials"));
 const Contact = lazy(() => import("./components/Contact"));
 // Lazy-loaded pages (reduces main bundle chunk)
 const Blog = lazy(() => import("./pages/Blog"));
@@ -337,7 +338,6 @@ export default function App() {
                 <AIShowcase />
                 <ProductMockup navigateToSection={navigateToSection} />
                 <Process />
-                <Testimonials />
                 <Contact />
                 <Recommendations setActivePage={setActivePage} />
               </Suspense>

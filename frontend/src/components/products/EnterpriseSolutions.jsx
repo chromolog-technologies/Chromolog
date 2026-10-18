@@ -95,18 +95,20 @@ export default function EnterpriseSolutions() {
               </div>
             </div>
 
-            <div className="ent-case">
-              <TrendingUp className="h-5 w-5 shrink-0" style={{ color: industry.color }} />
-              <div>
-                <div className="ent-case-top">
-                  <strong>{industry.caseStudy.title}</strong>
-                  <span className="ent-case-metric" style={{ color: industry.color }}>
-                    {industry.caseStudy.metric}
-                  </span>
+            {industry.caseStudy && (
+              <div className="ent-case">
+                <TrendingUp className="h-5 w-5 shrink-0" style={{ color: industry.color }} />
+                <div>
+                  <div className="ent-case-top">
+                    <strong>{industry.caseStudy.title}</strong>
+                    <span className="ent-case-metric" style={{ color: industry.color }}>
+                      {industry.caseStudy.metric}
+                    </span>
+                  </div>
+                  <p>{industry.caseStudy.desc}</p>
                 </div>
-                <p>{industry.caseStudy.desc}</p>
               </div>
-            </div>
+            )}
           </motion.div>
         </AnimatePresence>
       </div>

@@ -222,8 +222,8 @@ export default function Process() {
 
               <div className="space-y-3 pt-2 text-sm text-muted-text">
                 {[
-                  "Average lighthouse page speed: 96+",
-                  "Security vulnerability checks: 100% Passed",
+                  "Target Lighthouse performance score: 90+",
+                  "Security checks before every release",
                   "Auto-scaling container responses: <120ms",
                 ].map((item, idx) => (
                   <motion.div
@@ -253,7 +253,7 @@ export default function Process() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
                   <div className="bg-white/[0.02] border border-white/[0.04] p-5 rounded-2xl flex flex-col items-center justify-between text-center min-h-[220px]">
-                    <span className="text-[10px] font-bold text-muted-text uppercase tracking-widest font-heading mb-3">Industries Served</span>
+                    <span className="text-[10px] font-bold text-muted-text uppercase tracking-widest font-heading mb-3">Sectors We Build For</span>
                     <Progress type="circle" value={6} max={8} size="lg" color="accent" showLabel={true} />
                     <div className="text-xs text-muted-text mt-4">
                       <strong>6 Core Sectors</strong> (Healthcare, EdTech, Retail, Enterprise CRM/ERP, HRMS, AI)
@@ -261,16 +261,21 @@ export default function Process() {
                   </div>
 
                   <div className="bg-white/[0.02] border border-white/[0.04] p-5 rounded-2xl flex flex-col justify-between min-h-[220px]">
-                    <span className="text-[10px] font-bold text-muted-text uppercase tracking-widest font-heading">Monthly Deployments</span>
-                    <div className="space-y-4 pt-4">
-                      <Progress value={99} max={100} showLabel={true} color="success" size="sm" />
-                      <div className="text-[10px] font-bold text-muted-text uppercase tracking-wider font-heading leading-none">
-                        Client Satisfaction
-                      </div>
-                      <Progress value={98} max={100} showLabel={true} color="primary" size="sm" />
-                      <div className="text-[10px] font-bold text-muted-text uppercase tracking-wider font-heading leading-none">
-                        SLA Milestone Speed
-                      </div>
+                    <span className="text-[10px] font-bold text-muted-text uppercase tracking-widest font-heading">Our Work So Far</span>
+                    <div className="space-y-3 pt-4 text-left">
+                      {[
+                        { value: "1", label: "Live hospital system", note: "GMC Chest Hospital, Thrissur" },
+                        { value: "1", label: "Enterprise project", note: "In testing with the client" },
+                        { value: "2", label: "Own SaaS products", note: "HumaNode HRMS · AlphaGrew" },
+                      ].map((row) => (
+                        <div key={row.label} className="flex items-center gap-3">
+                          <strong className="text-2xl font-heading font-extrabold text-white w-8 text-center">{row.value}</strong>
+                          <div>
+                            <div className="text-[10px] font-bold text-muted-text uppercase tracking-wider font-heading">{row.label}</div>
+                            <div className="text-xs text-muted-text/80">{row.note}</div>
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   </div>
 

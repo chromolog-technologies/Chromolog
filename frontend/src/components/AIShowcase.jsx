@@ -23,10 +23,10 @@ const aiCapabilities = [
     id: "agents",
     title: "Autonomous AI Agents",
     desc: "Self-executing digital workers that parse documents, email clients, and trigger database updates — with zero human intervention.",
-    longDesc: "Deploy digital workers that execute multi-step operational tasks. Our agents process incoming inquiries, classify documents based on semantic content, retrieve contextual files, and populate ERP databases or HR platforms automatically with 99% accuracy.",
+    longDesc: "Deploy digital workers that execute multi-step operational tasks. Our agents process incoming inquiries, classify documents based on semantic content, retrieve contextual files, and populate ERP databases or HR platforms automatically.",
     icon: Bot,
     glow: "primary",
-    features: ["Hands-Off Workflows", "99% Accuracy", "Granular Logging"],
+    features: ["Hands-Off Workflows", "Human Review Built In", "Granular Logging"],
     visual: "agents",
   },
   {
@@ -126,8 +126,8 @@ function CapabilityVisual({ id }) {
           <circle cx="290" cy="10" r="4" className="fill-secondary" />
         </svg>
         <div className="flex justify-between items-center text-xs">
-          <span className="text-muted-text">Accuracy score</span>
-          <span className="text-accent font-bold font-heading text-sm">98.4%</span>
+          <span className="text-muted-text">Accuracy</span>
+          <span className="text-accent font-bold font-heading text-sm">Monitored</span>
         </div>
       </div>
     );
