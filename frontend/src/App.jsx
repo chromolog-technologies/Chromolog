@@ -133,12 +133,24 @@ class ErrorBoundary extends Component {
   }
 }
 
+// Sections of the home page that also work as URLs (e.g. /projects)
+const HOME_SECTION_PATHS = ["projects", "about", "process"];
+
+function resolvePage(path) {
+  if (HOME_SECTION_PATHS.includes(path)) {
+    sessionStorage.setItem("scrollTarget", path);
+    window.history.replaceState({}, "", "/");
+    return "home";
+  }
+  return path || "home";
+}
+
 // ─── Main App ───────────────────────────────────────────────────────
 export default function App() {
   const [activePage, setActivePage] = useState(() => {
     if (typeof window === "undefined") return "home";
     const path = window.location.pathname.replace(/^\/+/, "");
-    return path || "home";
+    return resolvePage(path);
   });
   const [isAuditModalOpen, setIsAuditModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(() => {
@@ -155,6 +167,11 @@ export default function App() {
   useVisitorIntelligence(activePage);
   useDocumentSeo(activePage);
 
+  // Links that call setActivePage("projects") etc. land on the home section instead
+  useEffect(() => {
+    if (HOME_SECTION_PATHS.includes(activePage)) setActivePage(resolvePage(activePage));
+  }, [activePage]);
+
   // Track SPA page views
   useEffect(() => {
     const pagePath = activePage === "home" ? "/" : `/${activePage}`;
@@ -164,7 +181,7 @@ export default function App() {
   useEffect(() => {
     const handlePopState = () => {
       const path = window.location.pathname.replace(/^\/+/, "");
-      setActivePage(path || "home");
+      setActivePage(resolvePage(path));
     };
     window.addEventListener("popstate", handlePopState);
     return () => window.removeEventListener("popstate", handlePopState);
@@ -226,16 +243,24 @@ export default function App() {
     }
 
     // Scroll to saved section if returning to home
+    let scrollTimer;
     if (activePage === "home") {
       const target = sessionStorage.getItem("scrollTarget");
       if (target) {
-        sessionStorage.removeItem("scrollTarget");
-        setTimeout(() => {
+        // Sections are lazy-loaded, so retry briefly until the target exists, then
+        // scroll once more after layout settles. Clear the target only on success.
+        let tries = 0;
+        const tryScroll = () => {
           const el = document.getElementById(target);
           if (el) {
+            sessionStorage.removeItem("scrollTarget");
             lenis.scrollTo(el, { offset: -80, duration: 1.2 });
+            scrollTimer = setTimeout(() => lenis.scrollTo(el, { offset: -80, duration: 0.6 }), 1500);
+          } else if (tries++ < 40) {
+            scrollTimer = setTimeout(tryScroll, 150);
           }
-        }, 150);
+        };
+        scrollTimer = setTimeout(tryScroll, 150);
       }
     }
 
@@ -246,6 +271,7 @@ export default function App() {
     window.addEventListener("chromolog:scrollTo", handleScrollRequest);
 
     return () => {
+      clearTimeout(scrollTimer);
       lenis.destroy();
       gsap.ticker.remove(lenisTicker);
       ScrollTrigger.getAll().forEach((t) => t.kill());
