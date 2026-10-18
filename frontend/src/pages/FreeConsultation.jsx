@@ -5,6 +5,7 @@ import Card from "../components/ui/Card";
 import Button from "../components/ui/Button";
 import Badge from "../components/ui/Badge";
 import PageTransition from "../components/motion/PageTransition";
+import { submitLead } from "../utils/leads";
 import { CheckCircle2, ShieldCheck, PhoneCall, Clock, Sparkles, Building2 } from "lucide-react";
 
 export default function FreeConsultation({ setActivePage }) {
@@ -18,10 +19,28 @@ export default function FreeConsultation({ setActivePage }) {
     details: "",
   });
   const [submitted, setSubmitted] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [error, setError] = useState("");
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setSubmitted(true);
+    setSending(true);
+    setError("");
+    try {
+      await submitLead("free_consultation", {
+        full_name: formData.name,
+        phone: formData.phone,
+        email: formData.email,
+        company: formData.company,
+        service_interest: formData.serviceNeeded,
+        summary: `Current setup: ${formData.currentSetup}\n${formData.details}`.trim(),
+      });
+      setSubmitted(true);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setSending(false);
+    }
   };
 
   const handleChange = (e) => {
@@ -239,7 +258,8 @@ export default function FreeConsultation({ setActivePage }) {
                       </div>
                     </div>
 
-                    <Button variant="gradient" size="md" className="w-full mt-2" type="submit">
+                    {error && <p className="text-xs text-red-300" role="alert">{error}</p>}
+                    <Button variant="gradient" size="md" className="w-full mt-2" type="submit" loading={sending} disabled={sending}>
                       Schedule Free Technology Consultation
                     </Button>
                   </form>

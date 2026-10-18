@@ -4,6 +4,6 @@ Allow: /
 
 Sitemap: https://chromologtechnologies.com/sitemap.xml
 
-# Disallow non-content internal paths
-Disallow: /assets/
+# Disallow non-content internal paths (JS/CSS in /assets/ must stay crawlable)
 Disallow: /.vite/
+Disallow: /api/

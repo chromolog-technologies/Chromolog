@@ -5,6 +5,8 @@ import Badge from "../components/ui/Badge";
 import Button from "../components/ui/Button";
 import Card from "../components/ui/Card";
 
+const CAREERS_URL = import.meta.env.VITE_CAREERS_URL || "/api/ai/careers.php";
+
 const benefits = [
   "Work on real products",
   "AI-first development culture",
@@ -16,11 +18,30 @@ const benefits = [
 
 export default function Careers() {
   const [submitted, setSubmitted] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [error, setError] = useState("");
 
-  const handleSubmit = (event) => {
+  // Applications are emailed to the team with the resume attached (growth-api/careers.php)
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    setSubmitted(true);
-    event.currentTarget.reset();
+    const form = event.currentTarget;
+    setSending(true);
+    setError("");
+    try {
+      const res = await fetch(CAREERS_URL, { method: "POST", body: new FormData(form) });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || "Your application could not be sent.");
+      setSubmitted(true);
+      form.reset();
+    } catch (err) {
+      setError(
+        err instanceof TypeError
+          ? "Your application could not be sent. Please email it to info@chromologtechnologies.com."
+          : err.message
+      );
+    } finally {
+      setSending(false);
+    }
   };
 
   const scrollToForm = () => {
@@ -130,7 +151,9 @@ export default function Careers() {
                 <label htmlFor="career-message" className="block text-xs font-heading font-semibold text-white mb-1">Message</label>
                 <textarea id="career-message" name="message" rows="3" placeholder="Tell us about your experience, strengths, and what you'd like to build." className="w-full px-3.5 py-2.5 rounded-xl bg-[#050816] border border-white/15 text-xs text-white placeholder-slate-400 focus:outline-none focus:border-cyan-400 font-body resize-none shadow-sm" />
               </div>
-              <Button variant="gradient" size="md" type="submit" icon={Sparkles} iconPosition="right" className="w-full md:w-auto">
+              <input type="text" name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" className="hidden" />
+              {error && <p className="text-xs text-red-300" role="alert">{error}</p>}
+              <Button variant="gradient" size="md" type="submit" icon={Sparkles} iconPosition="right" className="w-full md:w-auto" loading={sending} disabled={sending}>
                 Apply Now
               </Button>
             </form>

@@ -165,7 +165,8 @@ foreach ($windows as $label => $w) {
     $metrics[$label] = [
         'Leads' => $count("SELECT COUNT(*) FROM leads WHERE created_at > datetime('now', '{$w}')"),
         '· from chat' => $count("SELECT COUNT(*) FROM leads WHERE source = 'website_chat' AND created_at > datetime('now', '{$w}')"),
-        '· from contact form' => $count("SELECT COUNT(*) FROM leads WHERE source IN ('contact_form','digital_audit') AND created_at > datetime('now', '{$w}')"),
+        '· from website forms' => $count("SELECT COUNT(*) FROM leads WHERE source IN ('contact_form','digital_audit','free_consultation','service_quote') AND created_at > datetime('now', '{$w}')"),
+        '· newsletter signups' => $count("SELECT COUNT(*) FROM leads WHERE source = 'newsletter' AND created_at > datetime('now', '{$w}')"),
         'Hot leads' => $count("SELECT COUNT(*) FROM leads WHERE score = 'hot' AND created_at > datetime('now', '{$w}')"),
         'Meetings+' => $count("SELECT COUNT(*) FROM leads WHERE status IN ('meeting','proposal','won') AND created_at > datetime('now', '{$w}')"),
         'Won' => $count("SELECT COUNT(*) FROM leads WHERE status = 'won' AND created_at > datetime('now', '{$w}')"),

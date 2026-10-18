@@ -10,7 +10,7 @@ require __DIR__ . '/src/leads.php';
  * post here, so every inquiry lands in the control panel.
  */
 
-const SOURCES = ['website_chat', 'contact_form', 'digital_audit'];
+const SOURCES = ['website_chat', 'contact_form', 'digital_audit', 'free_consultation', 'service_quote', 'newsletter'];
 const FIELD_LIMITS = [
     'full_name' => 120, 'email' => 160, 'phone' => 40, 'company' => 160, 'industry' => 80,
     'location' => 120, 'service_interest' => 200, 'budget_range' => 80, 'timeline' => 80, 'summary' => 2000,
@@ -38,6 +38,9 @@ foreach (FIELD_LIMITS as $name => $max) {
 }
 $fields['source'] = in_array($input['source'] ?? '', SOURCES, true) ? $input['source'] : 'website_chat';
 
+if (empty($fields['full_name']) && $fields['source'] === 'newsletter') {
+    $fields['full_name'] = 'Newsletter subscriber';
+}
 if (empty($fields['full_name'])) {
     json_response(['error' => 'Please enter your name.'], 422);
 }

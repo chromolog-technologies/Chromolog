@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { submitLead } from "../utils/leads";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, Search, Clock, User, Share2, CheckCircle, ChevronRight, BookOpen, Send } from "lucide-react";
 import Badge from "../components/ui/Badge";
@@ -215,6 +216,8 @@ export default function Blog() {
   const [activeCategory, setActiveCategory] = useState("All");
   const [email, setEmail] = useState("");
   const [subscribed, setSubscribed] = useState(false);
+  const [subscribing, setSubscribing] = useState(false);
+  const [subscribeError, setSubscribeError] = useState("");
 
   const filteredArticles = blogArticles.filter((art) => {
     const q = searchQuery.toLowerCase();
@@ -228,11 +231,20 @@ export default function Blog() {
     return matchesCategory && matchesSearch;
   });
 
-  const handleSubscribe = (e) => {
+  const handleSubscribe = async (e) => {
     e.preventDefault();
     if (!email) return;
-    setSubscribed(true);
-    setEmail("");
+    setSubscribing(true);
+    setSubscribeError("");
+    try {
+      await submitLead("newsletter", { email, summary: "Blog newsletter signup" });
+      setSubscribed(true);
+      setEmail("");
+    } catch (err) {
+      setSubscribeError(err.message);
+    } finally {
+      setSubscribing(false);
+    }
   };
 
   const handleOpenArticle = (art) => {
@@ -371,9 +383,10 @@ export default function Blog() {
                         className="w-full px-4 py-2.5 rounded-xl bg-[#050816] border border-white/15 text-white placeholder-slate-400 text-sm focus:outline-none focus:border-cyan-400 font-body"
                         required
                       />
-                      <Button variant="primary" type="submit" icon={Send} iconPosition="right">
+                      <Button variant="primary" type="submit" icon={Send} iconPosition="right" loading={subscribing} disabled={subscribing}>
                         Subscribe
                       </Button>
+                      {subscribeError && <p className="text-xs text-red-300 basis-full" role="alert">{subscribeError}</p>}
                     </motion.form>
                   ) : (
                     <motion.div

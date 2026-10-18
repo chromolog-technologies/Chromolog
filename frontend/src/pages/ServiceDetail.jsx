@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { servicesData } from "../data/servicesData";
 import { caseStudiesData } from "../data/caseStudiesData";
+import { submitLead } from "../utils/leads";
 import Button from "../components/ui/Button";
 import Card from "../components/ui/Card";
 import Badge from "../components/ui/Badge";
@@ -40,10 +41,27 @@ export default function ServiceDetail({ serviceSlug, setActivePage, navigateToSe
     message: "",
   });
   const [submitted, setSubmitted] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [error, setError] = useState("");
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setSubmitted(true);
+    setSending(true);
+    setError("");
+    try {
+      await submitLead("service_quote", {
+        full_name: formData.name,
+        phone: formData.phone,
+        email: formData.email,
+        service_interest: service.slug.replace(/-/g, " "),
+        summary: `Current setup: ${formData.currentSetup}\n${formData.message}`.trim(),
+      });
+      setSubmitted(true);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setSending(false);
+    }
   };
 
   const handleFormChange = (e) => {
@@ -427,7 +445,8 @@ export default function ServiceDetail({ serviceSlug, setActivePage, navigateToSe
                       />
                     </div>
 
-                    <Button variant="gradient" size="sm" className="w-full text-xs py-2.5" type="submit" icon={Send} iconPosition="right">
+                    {error && <p className="text-xs text-red-300" role="alert">{error}</p>}
+                    <Button variant="gradient" size="sm" className="w-full text-xs py-2.5" type="submit" icon={Send} iconPosition="right" loading={sending} disabled={sending}>
                       Submit Consultation Request
                     </Button>
                   </form>

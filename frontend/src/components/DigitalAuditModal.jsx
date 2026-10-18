@@ -1,6 +1,7 @@
 // ─── Digital Efficiency Audit Interactive Tool Modal ─────────────────────────
 
 import { useState } from "react";
+import { submitLead } from "../utils/leads";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, CheckCircle2, ChevronRight, ChevronLeft, PhoneCall } from "lucide-react";
 import Button from "./ui/Button";
@@ -23,6 +24,8 @@ export default function DigitalAuditModal({ isOpen, onClose }) {
     company: "",
   });
   const [submitted, setSubmitted] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [error, setError] = useState("");
 
   if (!isOpen) return null;
 
@@ -90,9 +93,26 @@ export default function DigitalAuditModal({ isOpen, onClose }) {
     setAnswers({ ...answers, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setSubmitted(true);
+    setSending(true);
+    setError("");
+    try {
+      await submitLead("digital_audit", {
+        full_name: answers.name,
+        phone: answers.phone,
+        email: answers.email,
+        company: answers.company,
+        industry: answers.businessType,
+        service_interest: answers.goal,
+        summary: questions.map((q) => `${q.title} ${answers[q.id] || "-"}`).join("\n"),
+      });
+      setSubmitted(true);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setSending(false);
+    }
   };
 
   const handleReset = () => {
@@ -256,7 +276,8 @@ export default function DigitalAuditModal({ isOpen, onClose }) {
                 >
                   Back to Questions
                 </button>
-                <Button variant="gradient" size="md" type="submit">
+                {error && <p className="text-xs text-red-300 basis-full" role="alert">{error}</p>}
+                <Button variant="gradient" size="md" type="submit" loading={sending} disabled={sending}>
                   Generate My Audit Report
                 </Button>
               </div>

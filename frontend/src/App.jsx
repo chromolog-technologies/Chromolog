@@ -19,12 +19,6 @@ import CookieConsent from "./components/CookieConsent";
 import PageLoader from "./components/PageLoader";
 import ScrollProgress from "./components/motion/ScrollProgress";
 import PageTransition from "./components/motion/PageTransition";
-import { AuthProvider, useAuth } from "./context/AuthContext";
-import AdminLayout from "./components/admin/AdminLayout";
-import AdminLogin from "./pages/admin/AdminLogin";
-import AdminDashboard from "./pages/admin/AdminDashboard";
-import LeadsManager from "./pages/admin/LeadsManager";
-import AnalyticsOverview from "./pages/admin/AnalyticsOverview";
 
 // Lazy-loaded below-the-fold home sections & pages
 const BusinessCore = lazy(() => import("./components/BusinessCore"));
@@ -55,7 +49,6 @@ const ServicesIndex = lazy(() => import("./pages/ServicesIndex"));
 const ServiceDetail = lazy(() => import("./pages/ServiceDetail"));
 const CaseStudies = lazy(() => import("./pages/CaseStudies"));
 const FreeConsultation = lazy(() => import("./pages/FreeConsultation"));
-const AdminPortal = lazy(() => import("./pages/admin/AdminPortal"));
 const LocationPage = lazy(() => import("./pages/LocationPage"));
 const IndustryPage = lazy(() => import("./pages/IndustryPage"));
 // Lazy-loaded heavy components
@@ -300,10 +293,7 @@ export default function App() {
   const isIndustryPage = activePage.startsWith("industries/");
   const industrySlug = isIndustryPage ? activePage.replace("industries/", "") : null;
 
-  const isAdminPage = activePage.startsWith("admin") || (typeof window !== "undefined" && window.location.pathname.includes("admin"));
-
   return (
-    <AuthProvider>
     <div className="relative min-h-screen bg-bg-dark text-white-text overflow-hidden font-body selection:bg-primary/30 selection:text-white">
       {/* Scroll Progress Bar */}
       {activePage === "home" && <ScrollProgress />}
@@ -330,18 +320,16 @@ export default function App() {
       {/* Custom Cursor Blur Glow Trail */}
       <CursorFollower />
 
-      {/* Sticky Header Navigation (Hidden on Admin Dashboard) */}
-      {!isAdminPage && (
-        <Header
-          activePage={activePage}
-          setActivePage={setActivePage}
-          navigateToSection={navigateToSection}
-        />
-      )}
+      {/* Sticky Header Navigation */}
+      <Header
+        activePage={activePage}
+        setActivePage={setActivePage}
+        navigateToSection={navigateToSection}
+      />
 
       {/* Main Content Area */}
       <ErrorBoundary>
-        <main id="main-content" className={`relative z-10 ${isAdminPage ? "" : "pt-20"}`}>
+        <main id="main-content" className="relative z-10 pt-20">
           <AnimatePresence mode="wait">
           <PageTransition key={activePage}>
           {activePage === "home" && (
@@ -451,14 +439,9 @@ export default function App() {
               <Maintenance />
             </Suspense>
           )}
-          {isAdminPage && (
-            <Suspense fallback={<SectionSkeleton />}>
-              <AdminPortal />
-            </Suspense>
-          )}
 
-          {!["home", "services", "case-studies", "free-consultation", "contact", "privacy", "terms", "blog", "careers", "products", "admin", "500", "offline", "maintenance"].includes(activePage) &&
-            !isAdminPage && !isServiceDetail && !isLocationPage && !isIndustryPage && (
+          {!["home", "services", "case-studies", "free-consultation", "contact", "privacy", "terms", "blog", "careers", "products", "500", "offline", "maintenance"].includes(activePage) &&
+            !isServiceDetail && !isLocationPage && !isIndustryPage && (
             <Suspense fallback={<SectionSkeleton />}>
               <NotFound setActivePage={setActivePage} />
             </Suspense>
@@ -468,36 +451,32 @@ export default function App() {
         </main>
       </ErrorBoundary>
 
-      {/* Enterprise Footer (Hidden on Admin Dashboard) */}
-      {!isAdminPage && (
-        <>
-          <Footer
-            setActivePage={setActivePage}
-            navigateToSection={navigateToSection}
-          />
+      {/* Enterprise Footer */}
+      <Footer
+        setActivePage={setActivePage}
+        navigateToSection={navigateToSection}
+      />
 
-          {/* AI Chat Assistant */}
-          <AIChat setActivePage={setActivePage} />
+      {/* AI Chat Assistant */}
+      <AIChat setActivePage={setActivePage} />
 
-          {/* WhatsApp Floating FAB (Desktop only) */}
-          <a
-            className="whatsapp-fab group hidden md:flex"
-            href={WHATSAPP_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={trackWhatsApp}
-            aria-label="Chat with us on WhatsApp"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" aria-hidden="true">
-              <path d="M16 0C7.164 0 0 7.164 0 16c0 2.82.736 5.46 2.02 7.748L0 32l8.494-2.224A15.93 15.93 0 0016 32c8.836 0 16-7.164 16-16S24.836 0 16 0zm0 29.333a13.267 13.267 0 01-6.77-1.854l-.486-.29-5.04 1.32 1.344-4.904-.318-.504A13.267 13.267 0 012.667 16C2.667 8.636 8.636 2.667 16 2.667S29.333 8.636 29.333 16 23.364 29.333 16 29.333zm7.27-9.94c-.398-.2-2.356-1.162-2.72-1.294-.366-.133-.632-.2-.898.2-.266.398-1.03 1.294-1.264 1.56-.232.266-.465.3-.863.1-.398-.2-1.68-.62-3.2-1.977-1.183-1.056-1.98-2.36-2.213-2.758-.232-.398-.024-.613.175-.812.18-.178.398-.465.598-.697.2-.232.266-.398.398-.664.133-.266.067-.498-.033-.697-.1-.2-.898-2.164-1.23-2.96-.323-.777-.65-.672-.898-.684l-.764-.013c-.266 0-.697.1-1.063.498-.365.398-1.394 1.362-1.394 3.323s1.427 3.854 1.627 4.12c.2.266 2.81 4.29 6.808 6.016.951.41 1.693.655 2.272.838.954.303 1.823.26 2.51.158.766-.114 2.356-.963 2.688-1.894.332-.93.332-1.727.232-1.894-.1-.166-.366-.266-.764-.465z" />
-            </svg>
-            <span className="hidden md:inline">Chat with us</span>
-          </a>
+      {/* WhatsApp Floating FAB (Desktop only) */}
+      <a
+        className="whatsapp-fab group hidden md:flex"
+        href={WHATSAPP_URL}
+        target="_blank"
+        rel="noopener noreferrer"
+        onClick={trackWhatsApp}
+        aria-label="Chat with us on WhatsApp"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" aria-hidden="true">
+          <path d="M16 0C7.164 0 0 7.164 0 16c0 2.82.736 5.46 2.02 7.748L0 32l8.494-2.224A15.93 15.93 0 0016 32c8.836 0 16-7.164 16-16S24.836 0 16 0zm0 29.333a13.267 13.267 0 01-6.77-1.854l-.486-.29-5.04 1.32 1.344-4.904-.318-.504A13.267 13.267 0 012.667 16C2.667 8.636 8.636 2.667 16 2.667S29.333 8.636 29.333 16 23.364 29.333 16 29.333zm7.27-9.94c-.398-.2-2.356-1.162-2.72-1.294-.366-.133-.632-.2-.898.2-.266.398-1.03 1.294-1.264 1.56-.232.266-.465.3-.863.1-.398-.2-1.68-.62-3.2-1.977-1.183-1.056-1.98-2.36-2.213-2.758-.232-.398-.024-.613.175-.812.18-.178.398-.465.598-.697.2-.232.266-.398.398-.664.133-.266.067-.498-.033-.697-.1-.2-.898-2.164-1.23-2.96-.323-.777-.65-.672-.898-.684l-.764-.013c-.266 0-.697.1-1.063.498-.365.398-1.394 1.362-1.394 3.323s1.427 3.854 1.627 4.12c.2.266 2.81 4.29 6.808 6.016.951.41 1.693.655 2.272.838.954.303 1.823.26 2.51.158.766-.114 2.356-.963 2.688-1.894.332-.93.332-1.727.232-1.894-.1-.166-.366-.266-.764-.465z" />
+        </svg>
+        <span className="hidden md:inline">Chat with us</span>
+      </a>
 
-          {/* Mobile Sticky Action Bar */}
-          <MobileStickyBar onOpenAudit={() => setIsAuditModalOpen(true)} />
-        </>
-      )}
+      {/* Mobile Sticky Action Bar */}
+      <MobileStickyBar onOpenAudit={() => setIsAuditModalOpen(true)} />
 
       {/* Cookie Consent Banner */}
       <CookieConsent />
@@ -505,6 +484,5 @@ export default function App() {
       {/* Digital Efficiency Audit Interactive Tool */}
       <DigitalAuditModal isOpen={isAuditModalOpen} onClose={() => setIsAuditModalOpen(false)} />
     </div>
-    </AuthProvider>
   );
 }
