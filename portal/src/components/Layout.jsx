@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { NavLink, Outlet } from "react-router-dom";
+import { Component, useState } from "react";
+import { NavLink, Outlet, useLocation } from "react-router-dom";
 import {
   LayoutDashboard, Users2, Building2, FileSignature, FileText, Receipt, Wallet, PiggyBank, BarChart3,
   HandCoins, FolderKanban, ClipboardCheck, NotebookPen, ListTodo, Timer, FileClock, IndianRupee,
@@ -66,9 +66,31 @@ function visible(user, item) {
   return can(user, ...item.roles);
 }
 
+/** Keeps the menu usable if a page fails unexpectedly, instead of a blank screen. */
+class PageErrorBoundary extends Component {
+  state = { error: null };
+  static getDerivedStateFromError(error) {
+    return { error };
+  }
+  componentDidUpdate(prev) {
+    if (prev.resetKey !== this.props.resetKey && this.state.error) this.setState({ error: null });
+  }
+  render() {
+    if (!this.state.error) return this.props.children;
+    return (
+      <div className="rounded-xl border border-red-200 bg-red-50 p-6 text-sm text-red-800">
+        <p className="font-semibold">This page hit an unexpected problem.</p>
+        <p className="mt-1">Your data is safe. Try reloading, or open another page from the menu.</p>
+        <button onClick={() => window.location.reload()} className="mt-4 rounded-lg bg-white px-3 py-1.5 text-sm font-medium ring-1 ring-red-200 hover:bg-red-100">Reload page</button>
+      </div>
+    );
+  }
+}
+
 export default function Layout() {
   const { user, settings, logout } = useAuth();
   const [open, setOpen] = useState(false);
+  const location = useLocation();
 
   const nav = (
     <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-5">
@@ -150,7 +172,9 @@ export default function Layout() {
           <span className="w-5" />
         </header>
         <main className="p-4 sm:p-6 lg:p-8 max-w-7xl">
-          <Outlet />
+          <PageErrorBoundary resetKey={location.pathname}>
+            <Outlet />
+          </PageErrorBoundary>
         </main>
       </div>
     </div>

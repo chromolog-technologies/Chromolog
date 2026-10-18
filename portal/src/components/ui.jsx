@@ -6,15 +6,20 @@ import { api } from "../lib/api";
 
 /** Load `path` from the API; returns { data, error, loading, reload }. Pass null to skip. */
 export function useApi(path) {
-  const [state, setState] = useState({ data: null, error: null, loading: !!path });
+  const [state, setState] = useState({ data: null, error: null, loading: !!path, path });
   const [tick, setTick] = useState(0);
+  // A new path must never show the previous path's data (e.g. quotation → invoice on the same screen).
+  if (state.path !== path) {
+    setState({ data: null, error: null, loading: !!path, path });
+  }
   useEffect(() => {
     if (!path) return;
     let alive = true;
+    // Same path (reload): keep showing the current data while refreshing.
     setState((s) => ({ ...s, loading: true, error: null }));
     api(path)
-      .then((data) => alive && setState({ data, error: null, loading: false }))
-      .catch((error) => alive && setState({ data: null, error, loading: false }));
+      .then((data) => alive && setState({ data, error: null, loading: false, path }))
+      .catch((error) => alive && setState({ data: null, error, loading: false, path }));
     return () => {
       alive = false;
     };
