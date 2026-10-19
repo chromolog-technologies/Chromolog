@@ -1,6 +1,7 @@
 # Only the entry points are reachable from the web.
 <IfModule mod_rewrite.c>
   RewriteEngine On
+  RewriteBase /api/ai/
   # Pass the Authorization header through to PHP (stripped by some shared hosts).
   RewriteCond %{HTTP:Authorization} .
   RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
