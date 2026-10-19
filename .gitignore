@@ -37,3 +37,10 @@ growth-api/config.php
 # Local Claude preview config
 .claude/
 portal/LOCAL-DEMO.md
+
+# Local experiments and assets (kept on disk, not deployed or published)
+scratch_gen/
+scratch_glb/
+/*.glb
+/chronolog_*demo.html
+/ChatGPT Image*.png

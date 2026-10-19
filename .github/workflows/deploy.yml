@@ -43,7 +43,7 @@ jobs:
         run: npm ci && npm run build
         working-directory: ./portal
 
-      - name: 🧹 Clean Old Frontend Assets
+      - name: 🧹 Prepare Server
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SFTP_SERVER }}
@@ -51,10 +51,17 @@ jobs:
           password: ${{ secrets.SFTP_PASSWORD }}
           port: ${{ secrets.SFTP_PORT }}
           script: |
-            rm -rf /home/u818464796/domains/chromologtechnologies.com/public_html/assets
-            rm -f /home/u818464796/domains/chromologtechnologies.com/public_html/index.html
-            rm -f /home/u818464796/domains/chromologtechnologies.com/public_html/favicon*
-            rm -f /home/u818464796/domains/chromologtechnologies.com/public_html/apple-touch*
+            set -e
+            cd /home/u818464796/domains/chromologtechnologies.com/public_html
+            # Keep previous builds' hashed files so pages cached by browsers/servers still load;
+            # only prune files older than 30 days.
+            find assets portal/assets -type f -mtime +30 -delete 2>/dev/null || true
+            rm -f favicon* apple-touch*
+            # Remove the raw repository copy left by Hostinger's old Git auto-deploy (not part of the site).
+            rm -rf .git .github frontend growth-api growth-os scratch_gen scratch_glb
+            rm -rf portal/src portal/public portal/node_modules
+            rm -f portal/package.json portal/package-lock.json portal/vite.config.js portal/README.md portal/.gitignore
+            rm -f README.md package-lock.json .gitignore *.glb chronolog_3d_demo.html chronolog_multiview_demo.html "ChatGPT Image Sep 21, 2026, 12_13_47 AM.png"
 
       - name: 🚀 SFTP Deploy Frontend
         uses: appleboy/scp-action@v0.1.7
@@ -88,3 +95,16 @@ jobs:
           source: "portal/dist/"
           target: "/home/u818464796/domains/chromologtechnologies.com/public_html/portal"
           strip_components: 2
+
+      - name: 🔄 Refresh Page Timestamps
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SFTP_SERVER }}
+          username: ${{ secrets.SFTP_USERNAME }}
+          password: ${{ secrets.SFTP_PASSWORD }}
+          port: ${{ secrets.SFTP_PORT }}
+          script: |
+            # New timestamps make LiteSpeed rebuild its compressed copies of the entry pages.
+            sleep 2
+            cd /home/u818464796/domains/chromologtechnologies.com/public_html
+            touch index.html sw.js portal/index.html
