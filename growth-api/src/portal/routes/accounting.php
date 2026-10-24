@@ -138,7 +138,7 @@ $router->add('GET', 'reports/pnl', [ROLE_ACCOUNTS], function () {
         'expenses' => ['total' => $expenses, 'by_category' => $expenseByCat],
         'net' => money($income - $expenses),
         'monthly' => array_map(fn ($m) => $m + ['net' => money((float) $m['income'] - (float) $m['expense'])], $monthly),
-        'receivables' => money((float) q("SELECT COALESCE(SUM(total - amount_paid),0) FROM invoices WHERE status IN ('sent','partially_paid')")->fetchColumn()),
+        'receivables' => money((float) q('SELECT COALESCE(SUM(' . BALANCE_SQL . '),0) FROM invoices WHERE ' . OPEN_INVOICE_SQL)->fetchColumn()),
     ];
 });
 

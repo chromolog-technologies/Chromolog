@@ -147,7 +147,7 @@ const BADGE_TONES = {
 const STATUS_TONES = {
   new: "blue", contacted: "brand", meeting: "brand", proposal: "amber", won: "green", lost: "slate", spam: "slate",
   hot: "red", warm: "amber", cold: "blue",
-  draft: "slate", sent: "blue", accepted: "green", rejected: "red", invoiced: "brand",
+  draft: "slate", sent: "blue", issued: "blue", accepted: "green", rejected: "red", invoiced: "brand",
   partially_paid: "amber", paid: "green", cancelled: "slate", overdue: "red",
   active: "green", expired: "red", planning: "blue", on_hold: "amber", completed: "brand",
   todo: "slate", in_progress: "blue", review: "amber", done: "green",
@@ -365,7 +365,7 @@ export function Modal({ open, onClose, title, children, footer, wide = false }) 
   );
 }
 
-export function Confirm({ open, onClose, onConfirm, title = "Are you sure?", message, confirmLabel = "Delete", busy }) {
+export function Confirm({ open, onClose, onConfirm, title = "Are you sure?", message, confirmLabel = "Delete", busy, variant = "danger" }) {
   return (
     <Modal
       open={open}
@@ -376,7 +376,7 @@ export function Confirm({ open, onClose, onConfirm, title = "Are you sure?", mes
           <Button variant="secondary" onClick={onClose}>
             Cancel
           </Button>
-          <Button variant="danger" onClick={onConfirm} busy={busy}>
+          <Button variant={variant} onClick={onConfirm} busy={busy}>
             {confirmLabel}
           </Button>
         </>

@@ -13,11 +13,24 @@ and freelancer payouts. Lives at **https://chromologtechnologies.com/portal/** o
 |---|---|
 | Admin | Everything, plus Users & roles and Company settings. Creates projects. |
 | Marketing | Leads (pipeline, notes, follow-ups, convert to client), clients, contracts, quotations |
-| Accounts | Invoices & payments, quotations → invoices, expenses & bills, other income, payouts, profit & loss, ledger CSV |
+| Accounts | Invoices, credit/debit notes & payments, quotations → invoices, expenses & bills, other income, payouts, profit & loss, sales & GST reports, ledger CSV |
 | Project team | All projects, tasks & assignments, timesheet approvals, daily reports (incl. who hasn't submitted) |
 | Employee | Own tasks, timesheet, daily report, earnings; projects they're a member of |
 
 Everyone can log time, submit a daily report and see their own earnings.
+
+**Invoices** follow Indian GST rules once GST is switched on in Company settings: CGST + SGST for the
+company's own state, IGST for other states and exports, exempt / non-GST supplies, per-line GST rates,
+HSN/SAC codes, place of supply and reverse charge.
+- Drafts can be edited or deleted. **Issuing** gives the next number (e.g. `INV/26-27/0001`, restarting each
+  financial year), fixes the company and customer details on the invoice, and stores a PDF copy.
+- After issuing, an invoice is never deleted. Changes need an admin and a reason; cancelling needs a reason.
+  Use credit/debit notes for corrections. Every event (old/new values, who, when, why) is in the invoice's
+  **History**, which the database itself refuses to change or delete.
+- Changing company details in settings only affects new invoices unless the admin applies them to all
+  invoices or to a date range.
+- PDF download/print, email with the PDF attached, WhatsApp share, duplicate, CSV/Excel export, and a
+  **Service list** (admin-maintained rates, HSN/SAC and GST) that fills invoice lines.
 
 **Freelancer pay** = approved timesheet hours × rate (the project rate if set, otherwise the
 person's default hourly rate) + fixed amounts on tasks they completed. Accounts creates a payout
@@ -28,7 +41,7 @@ for a period; marking it paid records a "Freelancer Payouts" expense automatical
 Once a day the server runs three jobs (`growth-api/cron.php`, or **Admin → Automation & backups → Run today's jobs**):
 
 1. **Recurring invoices** — creates each due invoice from its schedule (monthly, quarterly, half-yearly,
-   yearly) on the same day of the month, as a draft or marked sent. Missed periods are caught up.
+   yearly) on the same day of the month, as a draft or issued straight away. Missed periods are caught up.
 2. **Backup** — a zip with a consistent copy of the database and every uploaded bill/contract, kept in
    `chromolog-private/backups` (newest 14). Admins can download them from the portal.
 3. **Daily digest** — one email per person with only what applies to them: lead follow-ups (marketing),

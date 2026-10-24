@@ -12,6 +12,7 @@ require __DIR__ . '/src/bootstrap.php';
 require __DIR__ . '/src/mailer.php';
 require __DIR__ . '/src/portal/core.php';
 require __DIR__ . '/src/portal/security.php';
+require __DIR__ . '/src/portal/invoicing.php';
 
 header('X-Content-Type-Options: nosniff');
 header('Referrer-Policy: no-referrer');
@@ -25,7 +26,7 @@ if (is_https()) {
 require __DIR__ . '/src/portal/jobs.php';
 
 $router = new Router();
-foreach (['people', 'crm', 'sales', 'accounting', 'projects', 'recurring', 'tickets', 'system'] as $module) {
+foreach (['people', 'crm', 'sales', 'invoices', 'accounting', 'projects', 'recurring', 'tickets', 'system'] as $module) {
     require __DIR__ . "/src/portal/routes/{$module}.php";
 }
 
@@ -45,6 +46,10 @@ try {
     // Turn database constraint errors into clear messages instead of a generic 500.
     if (str_contains($e->getMessage(), 'FOREIGN KEY constraint failed')) {
         json_response(['error' => 'One of the selected records (person, client, project…) does not exist any more. Refresh and try again.'], 422);
+    }
+    // Protected records (issued invoices, invoice history): the database refuses the change.
+    if (preg_match('/LOCKED: ([^\n]+)/', $e->getMessage(), $m)) {
+        json_response(['error' => trim($m[1])], 422);
     }
     if (str_contains($e->getMessage(), 'UNIQUE constraint failed')) {
         json_response(['error' => 'That already exists. Please refresh and try again.'], 409);

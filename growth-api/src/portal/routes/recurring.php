@@ -14,16 +14,17 @@ function recurring_with_items(int $id): array
     if (!$r) {
         throw new ApiError('Recurring invoice not found.', 404);
     }
-    $r['items'] = q('SELECT description, quantity, unit_price, amount FROM recurring_items WHERE recurring_id = ? ORDER BY position', [$id])->fetchAll();
+    $r['items'] = document_items('recurring_items', 'recurring_id', $id);
     $r['invoices'] = q('SELECT id, number, status, total, issue_date FROM invoices WHERE recurring_id = ? ORDER BY id DESC LIMIT 24', [$id])->fetchAll();
     return $r;
 }
 
 function recurring_save(array $b, ?int $id): int
 {
-    $lines = document_lines($b);
     $clientId = (int) ($b['client_id'] ?? 0);
-    find_or_404('clients', $clientId, 'Client');
+    $client = find_or_404('clients', $clientId, 'Client');
+    // Tax is worked out again from the customer's state each time an invoice is created.
+    $lines = gst_lines($b, supply_in([], $client['state_code'] ?: null));
     $nextDate = date_in($b, 'next_date', true);
     $endDate = date_in($b, 'end_date');
     if ($endDate && $endDate < $nextDate) {
@@ -39,8 +40,8 @@ function recurring_save(array $b, ?int $id): int
         'end_date' => $endDate,
         'auto_send' => !empty($b['auto_send']) ? 1 : 0,
         'active' => array_key_exists('active', $b) ? (!empty($b['active']) ? 1 : 0) : 1,
-        'discount' => $lines['discount'],
-        'tax_rate' => $lines['tax_rate'],
+        'discount' => $lines['totals']['discount'],
+        'tax_rate' => 0,
         'notes' => str_in($b, 'notes', 4000),
     ];
     if ($id === null) {
@@ -56,7 +57,7 @@ function recurring_save(array $b, ?int $id): int
 
 $router->add('GET', 'recurring', $recurringRoles, fn () => ['items' => q("SELECT r.id, r.title, r.frequency, r.next_date, r.end_date, r.active, r.auto_send,
         COALESCE(c.company, c.name) AS client,
-        (SELECT ROUND(SUM(amount),2) FROM recurring_items ri WHERE ri.recurring_id = r.id) - r.discount AS amount,
+        (SELECT ROUND(SUM(COALESCE(line_total, amount)),2) FROM recurring_items ri WHERE ri.recurring_id = r.id) AS amount,
         (SELECT COUNT(*) FROM invoices i WHERE i.recurring_id = r.id) AS issued
     FROM recurring_invoices r JOIN clients c ON c.id = r.client_id ORDER BY r.active DESC, r.next_date")->fetchAll()]);
 

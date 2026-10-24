@@ -370,6 +370,8 @@ function portal_migrate(PDO $pdo): void
         $pdo->exec('ALTER TABLE invoices ADD COLUMN recurring_id INTEGER');
     }
 
+    invoicing_migrate($pdo);
+
     // CRM fields on the existing website leads table.
     $cols = array_column($pdo->query('PRAGMA table_info(leads)')->fetchAll(), 'name');
     foreach ([
@@ -382,4 +384,101 @@ function portal_migrate(PDO $pdo): void
             $pdo->exec("ALTER TABLE leads ADD COLUMN {$col} {$type}");
         }
     }
+}
+
+/**
+ * Invoicing: GST line fields, credit/debit notes, issued-invoice snapshots, numbering series,
+ * service master and the edit history. History rows and issued invoices are protected by
+ * triggers, so they can't be changed or deleted even by a bug or a direct query.
+ */
+function invoicing_migrate(PDO $pdo): void
+{
+    $pdo->exec(<<<SQL
+        CREATE TABLE IF NOT EXISTS services (
+            id          INTEGER PRIMARY KEY AUTOINCREMENT,
+            name        TEXT NOT NULL,
+            description TEXT,
+            unit        TEXT,
+            hsn_sac     TEXT,
+            rate        REAL NOT NULL DEFAULT 0,
+            gst_rate    REAL NOT NULL DEFAULT 18,
+            active      INTEGER NOT NULL DEFAULT 1,
+            created_at  TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            updated_at  TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+        );
+        CREATE TABLE IF NOT EXISTS doc_sequences (
+            series      TEXT PRIMARY KEY,
+            last_number INTEGER NOT NULL
+        );
+        CREATE TABLE IF NOT EXISTS invoice_history (
+            id         INTEGER PRIMARY KEY AUTOINCREMENT,
+            invoice_id INTEGER NOT NULL,
+            action     TEXT NOT NULL,
+            reason     TEXT,
+            changes    TEXT,
+            snapshot   TEXT,
+            pdf_path   TEXT,
+            user_id    INTEGER,
+            user_name  TEXT,
+            created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+        );
+        CREATE INDEX IF NOT EXISTS idx_invoice_history ON invoice_history(invoice_id);
+        CREATE TRIGGER IF NOT EXISTS invoice_history_locked_update BEFORE UPDATE ON invoice_history
+            BEGIN SELECT RAISE(ABORT, 'LOCKED: Invoice history cannot be changed.'); END;
+        CREATE TRIGGER IF NOT EXISTS invoice_history_locked_delete BEFORE DELETE ON invoice_history
+            BEGIN SELECT RAISE(ABORT, 'LOCKED: Invoice history cannot be deleted.'); END;
+    SQL);
+
+    $columns = fn (string $t) => array_column($pdo->query("PRAGMA table_info({$t})")->fetchAll(), 'name');
+    $add = function (string $table, array $cols) use ($pdo, $columns): array {
+        $existing = $columns($table);
+        $added = [];
+        foreach ($cols as $col => $type) {
+            if (!in_array($col, $existing, true)) {
+                $pdo->exec("ALTER TABLE {$table} ADD COLUMN {$col} {$type}");
+                $added[] = $col;
+            }
+        }
+        return $added;
+    };
+
+    $itemCols = [
+        'service_id' => 'INTEGER', 'hsn_sac' => 'TEXT', 'unit' => 'TEXT', 'discount' => 'REAL NOT NULL DEFAULT 0',
+        'gst_rate' => 'REAL NOT NULL DEFAULT 0', 'taxable_value' => 'REAL', 'cgst' => 'REAL NOT NULL DEFAULT 0',
+        'sgst' => 'REAL NOT NULL DEFAULT 0', 'igst' => 'REAL NOT NULL DEFAULT 0', 'line_total' => 'REAL',
+    ];
+    foreach (['invoice_items', 'quotation_items', 'recurring_items'] as $t) {
+        if ($add($t, $itemCols)) {
+            $pdo->exec("UPDATE {$t} SET taxable_value = amount, line_total = amount WHERE taxable_value IS NULL");
+        }
+    }
+    $taxCols = [
+        'place_of_supply' => 'TEXT', 'supply_type' => "TEXT NOT NULL DEFAULT 'non_gst'", 'reverse_charge' => 'INTEGER NOT NULL DEFAULT 0',
+        'taxable_value' => 'REAL NOT NULL DEFAULT 0', 'cgst' => 'REAL NOT NULL DEFAULT 0', 'sgst' => 'REAL NOT NULL DEFAULT 0',
+        'igst' => 'REAL NOT NULL DEFAULT 0', 'tax_total' => 'REAL NOT NULL DEFAULT 0',
+    ];
+    if ($add('quotations', $taxCols)) {
+        $pdo->exec('UPDATE quotations SET taxable_value = subtotal - discount, tax_total = total - (subtotal - discount)');
+    }
+    $added = $add('invoices', $taxCols + [
+        'doc_type' => "TEXT NOT NULL DEFAULT 'invoice'", 'original_invoice_id' => 'INTEGER', 'note_reason' => 'TEXT',
+        'po_number' => 'TEXT', 'adjustment' => 'REAL NOT NULL DEFAULT 0', 'issued_at' => 'TEXT', 'issued_by' => 'INTEGER',
+        'cancelled_at' => 'TEXT', 'cancelled_by' => 'INTEGER', 'cancel_reason' => 'TEXT',
+        'company_snapshot' => 'TEXT', 'client_snapshot' => 'TEXT', 'duplicated_from' => 'INTEGER',
+    ]);
+    if (in_array('doc_type', $added, true)) {
+        // Existing invoices: "sent" is now "issued"; anything not a draft counts as issued.
+        $pdo->exec("UPDATE invoices SET status = 'issued' WHERE status = 'sent'");
+        $pdo->exec("UPDATE invoices SET issued_at = created_at WHERE status != 'draft' AND issued_at IS NULL");
+        $pdo->exec('UPDATE invoices SET taxable_value = subtotal - discount, tax_total = total - (subtotal - discount)');
+    }
+    $add('clients', ['state_code' => 'TEXT']);
+
+    $pdo->exec(<<<SQL
+        CREATE INDEX IF NOT EXISTS idx_invoices_issue ON invoices(issue_date);
+        CREATE INDEX IF NOT EXISTS idx_invoices_original ON invoices(original_invoice_id);
+        CREATE TRIGGER IF NOT EXISTS invoices_locked_delete BEFORE DELETE ON invoices
+            WHEN OLD.issued_at IS NOT NULL OR OLD.status != 'draft'
+            BEGIN SELECT RAISE(ABORT, 'LOCKED: Issued invoices cannot be deleted. Cancel it instead.'); END;
+    SQL);
 }

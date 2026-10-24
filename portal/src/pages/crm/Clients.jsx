@@ -4,7 +4,7 @@ import { Plus } from "lucide-react";
 import { api } from "../../lib/api";
 import { useAuth, can } from "../../lib/auth";
 import { money } from "../../lib/format";
-import { useApi, useAction, useForm, Async, PageHeader, Card, Table, Button, Modal, Input, Textarea } from "../../components/ui";
+import { useApi, useAction, useForm, Async, PageHeader, Card, Table, Button, Modal, Input, Select, Textarea } from "../../components/ui";
 
 export default function Clients() {
   const nav = useNavigate();
@@ -64,8 +64,10 @@ export function ClientForm({ open, onClose, onSaved, client }) {
     phone: client?.phone || "",
     address: client?.address || "",
     tax_id: client?.tax_id || "",
+    state_code: client?.state_code || "",
     notes: client?.notes || "",
   });
+  const { settings } = useAuth();
   const [run, busy] = useAction();
   const save = () =>
     run(async () => {
@@ -90,7 +92,9 @@ export function ClientForm({ open, onClose, onSaved, client }) {
         <Input label="Company" value={f.company} onChange={set("company")} />
         <Input label="Email" type="email" value={f.email} onChange={set("email")} />
         <Input label="Phone" value={f.phone} onChange={set("phone")} />
-        <Input label="Tax ID (GSTIN / TRN)" value={f.tax_id} onChange={set("tax_id")} />
+        <Input label="GSTIN (or TRN outside India)" value={f.tax_id} onChange={set("tax_id")} hint="Leave empty for unregistered customers." />
+        <Select label="State" value={f.state_code} onChange={set("state_code")} placeholder="Choose state" options={(settings?.gst_states || []).map(([c, n]) => [c, n])}
+          hint="Decides CGST + SGST (same state) or IGST (other state / export)." />
       </div>
       <Textarea label="Billing address" value={f.address} onChange={set("address")} rows={2} />
       <Textarea label="Notes" value={f.notes} onChange={set("notes")} rows={2} />

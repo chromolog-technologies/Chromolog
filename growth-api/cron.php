@@ -18,11 +18,12 @@ require __DIR__ . '/src/bootstrap.php';
 require __DIR__ . '/src/mailer.php';
 require __DIR__ . '/src/portal/core.php';
 require __DIR__ . '/src/portal/security.php';
+require __DIR__ . '/src/portal/invoicing.php';
 require __DIR__ . '/src/portal/jobs.php';
 
 // Route files define helpers the jobs reuse (invoice lines, transactions).
 $router = new Router();
-foreach (['people', 'crm', 'sales', 'accounting', 'projects', 'recurring', 'tickets', 'system'] as $module) {
+foreach (['people', 'crm', 'sales', 'invoices', 'accounting', 'projects', 'recurring', 'tickets', 'system'] as $module) {
     require __DIR__ . "/src/portal/routes/{$module}.php";
 }
 

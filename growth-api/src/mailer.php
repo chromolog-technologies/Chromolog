@@ -19,7 +19,7 @@ use Symfony\Component\Mime\Email;
  * @param array{path: string, name: string, type: string}|null $attachment
  * @return bool true when the message was handed to the SMTP server (or logged)
  */
-function send_email(string $to, string $subject, string $body, ?string $replyTo = null, ?array $attachment = null): bool
+function send_email(string $to, string $subject, string $body, ?string $replyTo = null, ?array $attachment = null, ?string $fromName = null): bool
 {
     $cfg = config();
     if (!filter_var($to, FILTER_VALIDATE_EMAIL)) {
@@ -36,7 +36,7 @@ function send_email(string $to, string $subject, string $body, ?string $replyTo 
     }
 
     $email = (new Email())
-        ->from(new Address($cfg['smtp_user'], 'Chromolog Growth OS'))
+        ->from(new Address($cfg['smtp_user'], $fromName ?? 'Chromolog Growth OS'))
         ->to($to)
         ->subject($subject)
         ->text($body);

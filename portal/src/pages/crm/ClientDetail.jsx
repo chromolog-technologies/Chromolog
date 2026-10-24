@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, Pencil, FileText, Receipt, FileSignature } from "lucide-react";
 import { useAuth, can } from "../../lib/auth";
 import { money, date, label } from "../../lib/format";
+import { DOC_LABELS, stateName } from "../../lib/gst";
 import { useApi, Async, PageHeader, Card, Table, Badge, Button } from "../../components/ui";
 import { ClientForm } from "./Clients";
 import { ContractForm } from "./Contracts";
@@ -10,7 +11,7 @@ import { ContractForm } from "./Contracts";
 export default function ClientDetail() {
   const { id } = useParams();
   const nav = useNavigate();
-  const { user } = useAuth();
+  const { user, settings } = useAuth();
   const res = useApi(`clients/${id}`);
   const [editing, setEditing] = useState(false);
   const [contract, setContract] = useState(null);
@@ -40,7 +41,8 @@ export default function ClientDetail() {
             <Card title="Details">
               <dl className="space-y-2 text-sm">
                 <div><dt className="text-slate-500">Billing address</dt><dd className="whitespace-pre-line">{client.address || "—"}</dd></div>
-                <div><dt className="text-slate-500">Tax ID</dt><dd>{client.tax_id || "—"}</dd></div>
+                <div><dt className="text-slate-500">GSTIN</dt><dd>{client.tax_id || "—"}</dd></div>
+                <div><dt className="text-slate-500">State</dt><dd>{stateName(settings, client.state_code) || "—"}</dd></div>
                 {client.lead_id && can(user, "marketing") && <div><dt className="text-slate-500">Original lead</dt><dd><Link className="text-brand-600" to={`/leads/${client.lead_id}`}>View lead</Link></dd></div>}
                 {client.notes && <div><dt className="text-slate-500">Notes</dt><dd className="whitespace-pre-line">{client.notes}</dd></div>}
               </dl>
@@ -66,7 +68,7 @@ export default function ClientDetail() {
                   </Card>
                   <Card title="Invoices" padded={false}>
                     <Table rows={invoices} empty="No invoices." onRowClick={can(user, "accounts") ? (r) => nav(`/invoices/${r.id}`) : undefined} columns={[
-                      { key: "number", label: "Invoice" },
+                      { key: "number", label: "Invoice", render: (r) => (r.status === "draft" ? "Draft" : `${r.number}${r.doc_type && r.doc_type !== "invoice" ? ` (${DOC_LABELS[r.doc_type]})` : ""}`) },
                       { key: "status", label: "Status", render: (r) => <Badge status={r.status} /> },
                       { key: "issue_date", label: "Date", render: (r) => date(r.issue_date) },
                       { key: "total", label: "Total", align: "right", render: (r) => money(r.total) },

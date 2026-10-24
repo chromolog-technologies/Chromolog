@@ -3,7 +3,7 @@ import { NavLink, Outlet, useLocation } from "react-router-dom";
 import {
   LayoutDashboard, Users2, Building2, FileSignature, FileText, Receipt, Wallet, PiggyBank, BarChart3,
   HandCoins, FolderKanban, ClipboardCheck, NotebookPen, ListTodo, Timer, FileClock, IndianRupee,
-  UserCog, Settings, LogOut, Menu, X, UserCircle, Repeat, LifeBuoy, Workflow, ShieldCheck,
+  UserCog, Settings, LogOut, Menu, X, UserCircle, Repeat, LifeBuoy, Workflow, ShieldCheck, Tags, PieChart,
 } from "lucide-react";
 import { useAuth, can, ROLE_LABELS } from "../lib/auth";
 import { BrandMark } from "./Brand";
@@ -24,11 +24,13 @@ const NAV = [
     title: "Accounts",
     items: [
       { to: "/invoices", label: "Invoices", icon: Receipt, roles: ["accounts"] },
+      { to: "/services", label: "Service list", icon: Tags, roles: ["marketing", "accounts"] },
       { to: "/recurring", label: "Recurring invoices", icon: Repeat, roles: ["accounts"] },
       { to: "/expenses", label: "Expenses & bills", icon: Wallet, roles: ["accounts"] },
       { to: "/income", label: "Other income", icon: PiggyBank, roles: ["accounts"] },
       { to: "/payouts", label: "Freelancer payouts", icon: HandCoins, roles: ["accounts"] },
       { to: "/reports", label: "Profit & loss", icon: BarChart3, roles: ["accounts"] },
+      { to: "/sales-reports", label: "Sales & GST reports", icon: PieChart, roles: ["accounts"] },
     ],
   },
   {

@@ -176,6 +176,16 @@ function client_data(array $b): array
             $data[$f] = str_in($b, $f, $max, $f === 'name');
         }
     }
+    if (array_key_exists('tax_id', $data) && $data['tax_id'] !== null) {
+        $data['tax_id'] = strtoupper(str_replace(' ', '', $data['tax_id']));
+    }
+    if (array_key_exists('state_code', $b)) {
+        $state = str_in($b, 'state_code', 2);
+        if ($state !== null && !isset(GST_STATES[$state])) {
+            throw new ApiError('Choose a valid state.', 422);
+        }
+        $data['state_code'] = $state;
+    }
     return $data;
 }
 
@@ -187,8 +197,8 @@ $router->add('GET', 'clients', $clientReadRoles, function () {
         $args = ["%{$s}%", "%{$s}%", "%{$s}%"];
     }
     return ['items' => q("SELECT c.*,
-            (SELECT COALESCE(SUM(total),0) FROM invoices i WHERE i.client_id = c.id AND i.status != 'cancelled') AS invoiced,
-            (SELECT COALESCE(SUM(total - amount_paid),0) FROM invoices i WHERE i.client_id = c.id AND i.status IN ('sent','partially_paid')) AS outstanding,
+            (SELECT COALESCE(SUM(total),0) FROM invoices i WHERE i.client_id = c.id AND i.doc_type = 'invoice' AND i.status NOT IN ('draft','cancelled')) AS invoiced,
+            (SELECT COALESCE(SUM(total + adjustment - amount_paid),0) FROM invoices i WHERE i.client_id = c.id AND i.doc_type = 'invoice' AND i.status IN ('issued','partially_paid','overdue')) AS outstanding,
             (SELECT COUNT(*) FROM projects p WHERE p.client_id = c.id) AS projects
         FROM clients c WHERE {$where} ORDER BY c.name", $args)->fetchAll()];
 });
@@ -198,7 +208,7 @@ $router->add('GET', 'clients/{id}', $clientReadRoles, function ($p) {
     return [
         'client' => $c,
         'contracts' => q('SELECT * FROM contracts WHERE client_id = ? ORDER BY id DESC', [$c['id']])->fetchAll(),
-        'invoices' => has_role(ROLE_ACCOUNTS, ROLE_MARKETING) ? q('SELECT id, number, status, total, amount_paid, issue_date, due_date FROM invoices WHERE client_id = ? ORDER BY id DESC', [$c['id']])->fetchAll() : [],
+        'invoices' => has_role(ROLE_ACCOUNTS, ROLE_MARKETING) ? q('SELECT id, number, doc_type, status, total, amount_paid, adjustment, issue_date, due_date FROM invoices WHERE client_id = ? ORDER BY issue_date DESC, id DESC', [$c['id']])->fetchAll() : [],
         'quotations' => has_role(ROLE_ACCOUNTS, ROLE_MARKETING) ? q('SELECT id, number, status, total, issue_date FROM quotations WHERE client_id = ? ORDER BY id DESC', [$c['id']])->fetchAll() : [],
         'projects' => q('SELECT id, name, status, deadline FROM projects WHERE client_id = ? ORDER BY id DESC', [$c['id']])->fetchAll(),
     ];

@@ -16,6 +16,7 @@ function run_daily_jobs(bool $force = false): array
 {
     $results = [];
     $context = ['invoices_created' => []];
+    sync_overdue();
     foreach (DAILY_JOBS as $job) {
         $done = q("SELECT 1 FROM job_runs WHERE job = ? AND run_date = ? AND status = 'ok'", [$job, today()])->fetchColumn();
         if ($done && !$force) {
@@ -58,27 +59,24 @@ function add_months(string $date, int $months, ?int $anchorDay = null): string
     return sprintf('%04d-%02d-%02d', $y, $m, min($d, $last));
 }
 
-/** Create one invoice from a recurring template and advance its next date. Returns the invoice id. */
+/** Create one invoice from a recurring template (issued at once if auto-send is on) and advance its next date. */
 function issue_recurring_invoice(array $r): int
 {
-    $items = q('SELECT description, quantity, unit_price, amount, position FROM recurring_items WHERE recurring_id = ? ORDER BY position', [$r['id']])->fetchAll();
-    $subtotal = money(array_sum(array_column($items, 'amount')));
-    $discount = min((float) $r['discount'], $subtotal);
-    $taxRate = setting('tax_enabled') === '1' ? (float) $r['tax_rate'] : 0.0;
-    $invoiceId = insert('invoices', [
-        'number' => next_number('invoices', setting('invoice_prefix')),
+    $issue = $r['next_date'];
+    [$data, $items] = invoice_input([
         'client_id' => $r['client_id'],
-        'recurring_id' => $r['id'],
-        'issue_date' => $r['next_date'],
+        'items' => document_items('recurring_items', 'recurring_id', (int) $r['id']),
+        'issue_date' => $issue,
         // Payment terms count from when the client actually receives it (catch-up invoices are issued today).
-        'due_date' => date('Y-m-d', strtotime(max($r['next_date'], today()) . ' +' . (int) setting('payment_terms_days') . ' days')),
-        'status' => $r['auto_send'] ? 'sent' : 'draft',
-        'discount' => $discount, 'tax_rate' => $taxRate,
-        'subtotal' => $subtotal, 'total' => money(($subtotal - $discount) * (1 + $taxRate / 100)),
-        'notes' => $r['notes'], 'terms' => setting('invoice_terms'),
-        'created_by' => $r['created_by'],
-    ]);
-    save_lines('invoice_items', 'invoice_id', $invoiceId, $items);
+        'due_date' => date('Y-m-d', strtotime(max($issue, today()) . ' +' . (int) setting('payment_terms_days') . ' days')),
+        'notes' => $r['notes'],
+        'terms' => setting('invoice_terms'),
+    ], 'invoice');
+    $invoiceId = invoice_insert($data + ['doc_type' => 'invoice', 'status' => 'draft', 'recurring_id' => $r['id'], 'created_by' => $r['created_by']], $items);
+    invoice_log($invoiceId, 'created', "Recurring schedule: {$r['title']}");
+    if ($r['auto_send']) {
+        issue_invoice($invoiceId);
+    }
 
     $next = add_months($r['next_date'], RECURRING_FREQUENCIES[$r['frequency']] ?? 1, $r['anchor_day'] ? (int) $r['anchor_day'] : null);
     $active = $r['end_date'] && $next > $r['end_date'] ? 0 : 1;
@@ -174,8 +172,8 @@ function send_digests(array $context): array
     $portal = rtrim(setting('company_website'), '/') . '/portal';
 
     // Shared data, computed once.
-    $overdueInvoices = q("SELECT i.number, i.due_date, ROUND(i.total - i.amount_paid, 2) AS balance, COALESCE(c.company, c.name) AS client
-        FROM invoices i JOIN clients c ON c.id = i.client_id WHERE i.status IN ('sent','partially_paid') AND i.due_date < ? ORDER BY i.due_date", [$today])->fetchAll();
+    $overdueInvoices = q("SELECT i.number, i.due_date, ROUND(i.total + i.adjustment - i.amount_paid, 2) AS balance, COALESCE(c.company, c.name) AS client
+        FROM invoices i JOIN clients c ON c.id = i.client_id WHERE i.doc_type = 'invoice' AND i.status IN ('issued','partially_paid','overdue') AND i.due_date < ? ORDER BY i.due_date", [$today])->fetchAll();
     $renewals = array_values(array_filter(
         q("SELECT k.title, k.end_date, k.renewal_reminder_days, COALESCE(c.company, c.name) AS client FROM contracts k JOIN clients c ON c.id = k.client_id
             WHERE k.status = 'active' AND k.end_date IS NOT NULL")->fetchAll(),

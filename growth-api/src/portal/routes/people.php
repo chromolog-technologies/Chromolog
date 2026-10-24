@@ -243,6 +243,13 @@ function public_settings(): array
     $s['expense_categories'] = array_values(array_filter(array_map('trim', explode("\n", $s['expense_categories']))));
     $s['income_categories'] = array_values(array_filter(array_map('trim', explode("\n", $s['income_categories']))));
     $s['timezone'] = date_default_timezone_get();
+    $s['gst_states'] = array_map(fn ($code, $name) => [(string) $code, $name], array_keys(GST_STATES), GST_STATES);
+    // Image paths stay on the server; the portal only needs to know whether each image is set.
+    foreach (BRANDING_KINDS as $kind => $key) {
+        $s["has_{$kind}"] = $s[$key] !== '';
+        $s["{$kind}_version"] = $s[$key] !== '' ? substr(md5($s[$key]), 0, 8) : '';
+        unset($s[$key]);
+    }
     $s['today'] = today();
     return $s;
 }
@@ -251,12 +258,23 @@ $router->add('GET', 'settings', [], fn () => ['settings' => public_settings()]);
 
 $router->add('PUT', 'settings', [ROLE_ADMIN], function () {
     $b = body();
+    if (array_key_exists('company_state', $b) && !isset(GST_STATES[(string) $b['company_state']])) {
+        throw new ApiError('Choose a valid state.', 422);
+    }
+    foreach (['invoice_prefix', 'credit_note_prefix', 'debit_note_prefix'] as $k) {
+        if (array_key_exists($k, $b) && !preg_match('#^[A-Za-z0-9-]{1,6}$#', (string) $b[$k])) {
+            throw new ApiError('Number prefixes can use letters, digits and "-" (up to 6 characters).', 422);
+        }
+    }
     foreach (array_keys(SETTING_DEFAULTS) as $key) {
-        if (!array_key_exists($key, $b)) {
+        if (!array_key_exists($key, $b) || in_array($key, BRANDING_KINDS, true)) {
             continue;
         }
         $value = is_array($b[$key]) ? implode("\n", array_map('strval', $b[$key])) : (string) $b[$key];
         q('INSERT INTO settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value', [$key, mb_substr($value, 0, 4000)]);
+    }
+    if (array_key_exists('invoice_start_number', $b)) {
+        bump_invoice_sequence(max(1, (int) $b['invoice_start_number']));
     }
     audit('update', 'settings');
     return ['settings' => public_settings()];
@@ -281,6 +299,7 @@ $router->add('GET', 'dashboard', [], function () {
         ];
     }
     if (has_role(ROLE_ACCOUNTS)) {
+        sync_overdue();
         $income = (float) $one("SELECT COALESCE(SUM(amount),0) FROM payments WHERE date >= ?", [$monthStart])
             + (float) $one("SELECT COALESCE(SUM(amount),0) FROM other_income WHERE date >= ?", [$monthStart]);
         $expense = (float) $one("SELECT COALESCE(SUM(amount),0) FROM expenses WHERE date >= ?", [$monthStart]);
@@ -288,8 +307,8 @@ $router->add('GET', 'dashboard', [], function () {
             'income_this_month' => money($income),
             'expenses_this_month' => money($expense),
             'net_this_month' => money($income - $expense),
-            'outstanding' => money((float) $one("SELECT COALESCE(SUM(total - amount_paid),0) FROM invoices WHERE status IN ('sent','partially_paid')")),
-            'overdue_invoices' => (int) $one("SELECT COUNT(*) FROM invoices WHERE status IN ('sent','partially_paid') AND due_date < ?", [today()]),
+            'outstanding' => money((float) $one('SELECT COALESCE(SUM(' . BALANCE_SQL . '),0) FROM invoices WHERE ' . OPEN_INVOICE_SQL)),
+            'overdue_invoices' => (int) $one("SELECT COUNT(*) FROM invoices WHERE doc_type = 'invoice' AND status = 'overdue'"),
             'pending_payouts' => money((float) $one("SELECT COALESCE(SUM(total),0) FROM payouts WHERE status = 'pending'")),
             'recurring_due_7_days' => (int) $one("SELECT COUNT(*) FROM recurring_invoices WHERE active = 1 AND next_date <= date(?, '+7 days')", [today()]),
             'contracts_expiring' => (int) $one("SELECT COUNT(*) FROM contracts WHERE status = 'active' AND end_date IS NOT NULL AND end_date <= date('now', '+' || renewal_reminder_days || ' days')"),

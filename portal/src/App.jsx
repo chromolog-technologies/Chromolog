@@ -15,6 +15,8 @@ import DocEditor from "./pages/sales/DocEditor";
 import DocView from "./pages/sales/DocView";
 import Ledger from "./pages/accounts/Ledger";
 import Reports from "./pages/accounts/Reports";
+import SalesReports from "./pages/accounts/SalesReports";
+import Services from "./pages/accounts/Services";
 import Payouts from "./pages/accounts/Payouts";
 import Recurring from "./pages/accounts/Recurring";
 import Tickets from "./pages/tickets/Tickets";
@@ -90,6 +92,8 @@ export default function App() {
               <Route path="invoices/:id" element={<Only roles={["accounts"]}><DocView kind="invoice" /></Only>} />
               <Route path="invoices/:id/edit" element={<Only roles={["accounts"]}><DocEditor kind="invoice" /></Only>} />
 
+              <Route path="services" element={<Only roles={["marketing", "accounts"]}><Services /></Only>} />
+              <Route path="sales-reports" element={<Only roles={["accounts"]}><SalesReports /></Only>} />
               <Route path="expenses" element={<Only roles={["accounts"]}><Ledger kind="expenses" /></Only>} />
               <Route path="recurring" element={<Only roles={["accounts"]}><Recurring /></Only>} />
               <Route path="income" element={<Only roles={["accounts"]}><Ledger kind="income" /></Only>} />
