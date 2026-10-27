@@ -9,7 +9,19 @@ $router->add('GET', 'system/jobs', [ROLE_ADMIN], function () {
     foreach ($runs as &$r) {
         $r['detail'] = json_decode((string) $r['detail'], true);
     }
-    return ['runs' => $runs, 'backups' => list_backups(), 'today' => today()];
+    $meta = q('SELECT name, value FROM app_meta')->fetchAll(PDO::FETCH_KEY_PAIR);
+    $tables = ['users', 'leads', 'clients', 'quotations', 'invoices', 'payments', 'invoice_history', 'projects', 'tasks', 'timesheets', 'expenses', 'tickets'];
+    $counts = [];
+    foreach ($tables as $t) {
+        $counts[$t] = (int) q("SELECT COUNT(*) FROM {$t}")->fetchColumn();
+    }
+    return ['runs' => $runs, 'backups' => list_backups(), 'today' => today(), 'database' => [
+        'server' => q('SELECT VERSION()')->fetchColumn(),
+        'schema_version' => (int) ($meta['schema_version'] ?? 0),
+        'protected_by_triggers' => array_values(array_filter(explode(',', $meta['triggers'] ?? ''))),
+        'sqlite_import' => isset($meta['sqlite_import']) ? json_decode($meta['sqlite_import'], true) : null,
+        'rows' => $counts,
+    ]];
 });
 
 // Run today's jobs now (force=1 runs them again even if they already ran today).

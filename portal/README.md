@@ -4,7 +4,7 @@ Internal portal for CRM, quotations & invoices, accounting, projects, timesheets
 and freelancer payouts. Lives at **https://chromologtechnologies.com/portal/** once deployed.
 
 - **Frontend:** this folder (React + Vite + Tailwind), built into `portal/dist`.
-- **Backend:** `growth-api/v1.php` + `growth-api/src/portal/` (PHP + SQLite), served at
+- **Backend:** `growth-api/v1.php` + `growth-api/src/portal/` (PHP + MySQL/MariaDB), served at
   `/api/ai/v1/…`, sharing the database with the website's lead capture.
 
 ## Roles
@@ -42,7 +42,7 @@ Once a day the server runs three jobs (`growth-api/cron.php`, or **Admin → Aut
 
 1. **Recurring invoices** — creates each due invoice from its schedule (monthly, quarterly, half-yearly,
    yearly) on the same day of the month, as a draft or issued straight away. Missed periods are caught up.
-2. **Backup** — a zip with a consistent copy of the database and every uploaded bill/contract, kept in
+2. **Backup** — a zip with a consistent SQL dump of the database (`database.sql`) and every uploaded bill/contract, kept in
    `chromolog-private/backups` (newest 14). Admins can download them from the portal.
 3. **Daily digest** — one email per person with only what applies to them: lead follow-ups (marketing),
    overdue invoices, new recurring invoices, contract renewals, payouts to pay (accounts), missing daily
@@ -56,11 +56,16 @@ The assignee gets an email when a ticket is assigned to them.
 
 ## Run locally
 
+Needs a local MySQL or MariaDB (XAMPP's MariaDB works; run it on any free port).
+
 ```bash
-# 1. One-time: a private config for local testing (outside the repo)
+# 1. One-time: a database and a private config for local testing (outside the repo)
+mysql -u root -e "CREATE DATABASE chromolog_dev CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci"
 mkdir -p ~/chromolog-dev
 cp growth-api/config.example.php ~/chromolog-dev/config.php
-# edit ~/chromolog-dev/config.php: set admin_email, admin_password_hash, ip_salt, allowed_origins => ['http://localhost:5174']
+# edit ~/chromolog-dev/config.php: set 'db' (host, port, name, user, password), admin_email,
+# admin_password_hash, ip_salt, allowed_origins => ['http://localhost:5174'],
+# 'portal_url' => 'http://localhost:5174/portal' and 'mail_log' => __DIR__ . '/mail.log'
 
 # 2. API (terminal 1)
 cd growth-api && composer install
@@ -71,7 +76,7 @@ cd portal && npm install && npm run dev
 ```
 
 Open http://localhost:5174/portal/ and sign in with `admin_email` and the password you hashed.
-The first admin account is created automatically on first use.
+The tables and the first admin account are created automatically on first use.
 
 ## Daily report API (for other apps or scripts)
 
@@ -110,8 +115,19 @@ If a host strips the `Authorization` header, send `X-Auth-Token: <key>` instead.
    ```
    Check **Automation & backups** the next morning to confirm it ran.
 
+## Database
+
+MySQL/MariaDB, configured under `'db'` in `chromolog-private/config.php`. Tables are created on first
+use and versioned (`SCHEMA_VERSION` in `src/portal/schema.php`). If `'db_path'` points at the old SQLite
+file and the MySQL database is empty, the first request copies everything across once and records the
+row counts in the `app_meta` table (`sqlite_import`). The SQLite file is never changed.
+
+Triggers that stop anyone deleting issued invoices or editing invoice history are created when the
+database user is allowed to (shared hosting often isn't; the app enforces the same rules itself).
+
 ## Back-ups
 
-Everything is in the SQLite file (`db_path`) plus the `uploads` folder. The daily job zips both into
-`backups/` (newest 14 kept). Download one from **Automation & backups** every week or two and keep it
+Everything is in the MySQL database plus the `uploads` folder. The daily job zips a SQL dump and the
+uploads into `backups/` (newest 14 kept). To restore, import `database.sql` into an empty database in
+phpMyAdmin and copy the `uploads` folder back. Download one from **Automation & backups** every week or two and keep it
 off the server (e.g. Google Drive). Use **Profit & loss → Ledger CSV** for your accountant.

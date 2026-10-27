@@ -60,15 +60,15 @@ function notify_ticket_assignee(int $ticketId): void
 
 $ticketSelect = "SELECT t.*, COALESCE(c.company, c.name) AS client, u.name AS assignee_name, cb.name AS created_by_name,
         CASE WHEN t.status IN ('resolved','closed') THEN 0
-             WHEN (t.first_response_at IS NULL AND t.response_due_at < :now) OR t.resolve_due_at < :now THEN 1 ELSE 0 END AS breached
+             WHEN (t.first_response_at IS NULL AND t.response_due_at < :now1) OR t.resolve_due_at < :now2 THEN 1 ELSE 0 END AS breached
     FROM tickets t LEFT JOIN clients c ON c.id = t.client_id LEFT JOIN users u ON u.id = t.assignee_id LEFT JOIN users cb ON cb.id = t.created_by";
 
 $router->add('GET', 'tickets', [], function () use ($ticketSelect) {
     $where = ['1=1'];
-    $args = ['now' => now_utc()];
+    $args = ['now1' => now_utc(), 'now2' => now_utc()];
     if (!has_role(ROLE_PROJECT) || query('mine')) {
-        $where[] = '(t.assignee_id = :me OR t.created_by = :me)';
-        $args['me'] = current_user()['id'];
+        $where[] = '(t.assignee_id = :me1 OR t.created_by = :me2)';
+        $args['me1'] = $args['me2'] = current_user()['id'];
     }
     $status = query('status', 'active');
     if ($status === 'active') {
@@ -109,7 +109,7 @@ $router->add('GET', 'tickets/stats', [ROLE_PROJECT], function () {
 });
 
 $router->add('GET', 'tickets/{id}', [], function ($p) use ($ticketSelect) {
-    $t = q("{$ticketSelect} WHERE t.id = :id", ['now' => now_utc(), 'id' => id_param($p)])->fetch();
+    $t = q("{$ticketSelect} WHERE t.id = :id", ['now1' => now_utc(), 'now2' => now_utc(), 'id' => id_param($p)])->fetch();
     if (!$t) {
         throw new ApiError('Ticket not found.', 404);
     }

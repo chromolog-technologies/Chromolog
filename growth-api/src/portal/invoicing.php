@@ -168,7 +168,7 @@ function format_doc_number(string $prefix, bool $useFy, string $date, int $n): s
 }
 
 /**
- * Take the next number in the series. The caller holds a write transaction (BEGIN IMMEDIATE),
+ * Take the next number in the series. The caller holds the write lock (see transaction()),
  * so two people issuing at once can't get the same number, and the counter only moves forward:
  * numbers of issued or cancelled invoices are never reused.
  */
@@ -179,7 +179,7 @@ function allocate_doc_number(string $docType, string $date): string
     while (q('SELECT 1 FROM invoices WHERE number = ?', [format_doc_number($prefix, $useFy, $date, $n)])->fetchColumn()) {
         $n++;
     }
-    q('INSERT INTO doc_sequences (series, last_number) VALUES (?, ?) ON CONFLICT(series) DO UPDATE SET last_number = excluded.last_number', [$series, $n]);
+    q('INSERT INTO doc_sequences (series, last_number) VALUES (?, ?) ON DUPLICATE KEY UPDATE last_number = VALUES(last_number)', [$series, $n]);
     return format_doc_number($prefix, $useFy, $date, $n);
 }
 
@@ -195,7 +195,7 @@ function peek_doc_number(string $docType, string $date): string
 function bump_invoice_sequence(int $start): void
 {
     [$series] = number_series('invoice', today());
-    q('INSERT INTO doc_sequences (series, last_number) VALUES (?, ?) ON CONFLICT(series) DO UPDATE SET last_number = MAX(last_number, excluded.last_number)', [$series, max(0, $start - 1)]);
+    q('INSERT INTO doc_sequences (series, last_number) VALUES (?, ?) ON DUPLICATE KEY UPDATE last_number = GREATEST(last_number, VALUES(last_number))', [$series, max(0, $start - 1)]);
 }
 
 // ── Snapshots ───────────────────────────────────────────────────────────

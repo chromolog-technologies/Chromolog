@@ -105,21 +105,70 @@ function generate_recurring_invoices(): array
 
 function backup_dir(): string
 {
-    $dir = rtrim(config()['backup_path'] ?? (dirname(config()['db_path']) . '/backups'), '/');
+    $dir = rtrim(config()['backup_path'] ?? (private_dir() . '/backups'), '/');
     if (!is_dir($dir) && !mkdir($dir, 0750, true)) {
         throw new RuntimeException('Backup folder is not writable.');
     }
     return $dir;
 }
 
-/** Zip a consistent database snapshot plus all uploaded files; keep the newest N backups. */
+/**
+ * Write the whole database as SQL (tables, rows, triggers), read from one consistent snapshot
+ * so it is correct even while people are using the portal. Restore by importing the file in
+ * phpMyAdmin into an empty database.
+ */
+function dump_database(string $path): void
+{
+    $pdo = db();
+    $out = fopen($path, 'w');
+    if (!$out) {
+        throw new RuntimeException('Could not write the database dump.');
+    }
+    fwrite($out, "-- Chromolog portal database backup, " . gmdate('Y-m-d H:i:s') . " UTC\nSET NAMES utf8mb4;\nSET FOREIGN_KEY_CHECKS = 0;\nSET time_zone = '+00:00';\n\n");
+    $pdo->exec('SET TRANSACTION ISOLATION LEVEL REPEATABLE READ');
+    $pdo->exec('START TRANSACTION WITH CONSISTENT SNAPSHOT');
+    try {
+        $tables = $pdo->query("SHOW FULL TABLES WHERE Table_type = 'BASE TABLE'")->fetchAll(PDO::FETCH_COLUMN);
+        foreach ($tables as $table) {
+            $create = $pdo->query("SHOW CREATE TABLE `{$table}`")->fetch(PDO::FETCH_NUM)[1];
+            fwrite($out, "DROP TABLE IF EXISTS `{$table}`;\n{$create};\n");
+            $rows = $pdo->query("SELECT * FROM `{$table}`");
+            $batch = [];
+            $cols = null;
+            while ($row = $rows->fetch(PDO::FETCH_ASSOC)) {
+                $cols ??= implode(', ', array_map(fn ($c) => "`{$c}`", array_keys($row)));
+                $batch[] = '(' . implode(', ', array_map(fn ($v) => match (true) {
+                    $v === null => 'NULL',
+                    is_int($v), is_float($v) => (string) $v,
+                    default => $pdo->quote((string) $v),
+                }, $row)) . ')';
+                if (count($batch) === 100) {
+                    fwrite($out, "INSERT INTO `{$table}` ({$cols}) VALUES\n" . implode(",\n", $batch) . ";\n");
+                    $batch = [];
+                }
+            }
+            if ($batch) {
+                fwrite($out, "INSERT INTO `{$table}` ({$cols}) VALUES\n" . implode(",\n", $batch) . ";\n");
+            }
+            fwrite($out, "\n");
+        }
+        foreach ($pdo->query('SHOW TRIGGERS')->fetchAll() as $t) {
+            fwrite($out, "DROP TRIGGER IF EXISTS `{$t['Trigger']}`;\nDELIMITER ;;\nCREATE TRIGGER `{$t['Trigger']}` {$t['Timing']} {$t['Event']} ON `{$t['Table']}` FOR EACH ROW {$t['Statement']};;\nDELIMITER ;\n");
+        }
+        fwrite($out, "SET FOREIGN_KEY_CHECKS = 1;\n");
+    } finally {
+        $pdo->exec('COMMIT');
+        fclose($out);
+    }
+}
+
+/** Zip a consistent database dump plus all uploaded files; keep the newest N backups. */
 function run_backup(): array
 {
     $dir = backup_dir();
     $stamp = date('Y-m-d_His');
-    $snapshot = "{$dir}/db-{$stamp}.sqlite";
-    // VACUUM INTO writes a consistent copy even while the portal is in use.
-    db()->exec('VACUUM INTO ' . db()->quote($snapshot));
+    $snapshot = "{$dir}/db-{$stamp}.sql";
+    dump_database($snapshot);
 
     $zipPath = "{$dir}/chromolog-backup-{$stamp}.zip";
     $zip = new ZipArchive();
@@ -127,7 +176,7 @@ function run_backup(): array
         @unlink($snapshot);
         throw new RuntimeException('Could not create the backup archive.');
     }
-    $zip->addFile($snapshot, 'database.sqlite');
+    $zip->addFile($snapshot, 'database.sql');
     $files = 0;
     $uploads = upload_root();
     if (is_dir($uploads)) {

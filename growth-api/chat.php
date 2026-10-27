@@ -35,12 +35,14 @@ $pdo = db();
 $ipHash = client_ip_hash();
 
 // ── Guardrails: per-visitor rate limit and a global daily cap on AI calls ──
-$perIp = $pdo->prepare("SELECT COUNT(*) FROM requests WHERE ip_hash = ? AND created_at > datetime('now', '-1 hour')");
-$perIp->execute([$ipHash]);
+$perIp = $pdo->prepare('SELECT COUNT(*) FROM requests WHERE ip_hash = ? AND created_at > ?');
+$perIp->execute([$ipHash, utc_at('-1 hour')]);
 if ((int) $perIp->fetchColumn() >= $cfg['rate_limit_per_hour']) {
     json_response(['error' => 'Too many messages. Please try again later or WhatsApp us at +91 94002 30723.'], 429);
 }
-$daily = (int) $pdo->query("SELECT COUNT(*) FROM requests WHERE created_at > datetime('now', '-1 day')")->fetchColumn();
+$daily = $pdo->prepare('SELECT COUNT(*) FROM requests WHERE created_at > ?');
+$daily->execute([utc_at('-1 day')]);
+$daily = (int) $daily->fetchColumn();
 if ($daily >= $cfg['daily_message_cap']) {
     json_response(['error' => 'Our assistant is busy right now. Please WhatsApp us at +91 94002 30723.'], 503);
 }
