@@ -42,15 +42,7 @@ try {
     json_response($router->dispatch($method, $route));
 } catch (ApiError $e) {
     json_response(['error' => $e->getMessage()], $e->status);
-} catch (PDOException | RuntimeException $e) {
-    if ($problem = database_problem($e)) {
-        error_log('Chromolog portal API: ' . $e->getMessage());
-        json_response(['error' => "Service unavailable. {$problem}"], 503);
-    }
-    if (!$e instanceof PDOException) {
-        error_log('Chromolog portal API: ' . $e->getMessage() . ' @ ' . $e->getFile() . ':' . $e->getLine());
-        json_response(['error' => 'Something went wrong. Please try again.'], 500);
-    }
+} catch (PDOException $e) {
     // Turn database constraint errors into clear messages instead of a generic 500.
     if (str_contains($e->getMessage(), 'foreign key constraint fails')) {
         json_response(['error' => 'One of the selected records (person, client, project…) does not exist any more. Refresh and try again.'], 422);

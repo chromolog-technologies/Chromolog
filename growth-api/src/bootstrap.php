@@ -62,31 +62,6 @@ function private_dir(): string
     return dirname(getenv('CHROMOLOG_CONFIG') ?: dirname(__DIR__, 4) . '/chromolog-private/config.php');
 }
 
-/**
- * Plain-language cause for database start-up problems (wrong login, missing database, failed
- * copy from SQLite), safe to show: no passwords, hosts or data. Null for anything else.
- */
-function database_problem(Throwable $e): ?string
-{
-    $msg = $e->getMessage();
-    $code = $e instanceof PDOException ? (int) ($e->errorInfo[1] ?? 0) : 0;
-    if (!$code && preg_match('/SQLSTATE\[\w+\] \[(\d+)\]/', $msg, $m)) {
-        $code = (int) $m[1];
-    }
-    return match (true) {
-        str_contains($msg, 'MySQL database is not configured') => "Database not configured: config.php has no 'db' settings (or no database name).",
-        str_contains($msg, 'could not find driver') => 'The PHP MySQL extension (pdo_mysql) is not enabled on the server.',
-        $code === 1045 => 'The database refused the login. Check the db user and password in config.php.',
-        $code === 1044 => 'The database user has no access to this database. Add the user to the database in hPanel.',
-        $code === 1049 => 'Database name not found. Check the db name in config.php.',
-        in_array($code, [2002, 2005, 2006], true) => "Cannot reach the database server. On Hostinger the host should be 'localhost'.",
-        str_starts_with($msg, 'Database move from SQLite failed') => 'Copying data from the old SQLite file failed'
-            . (preg_match('/failed: (\w+):/', $msg, $m) ? " at table {$m[1]}" : '')
-            . ($e->getPrevious() instanceof PDOException ? ' (MySQL error ' . ($e->getPrevious()->errorInfo[1] ?? '?') . ')' : '') . '. Nothing was kept; it retries on the next request.',
-        default => null,
-    };
-}
-
 /** UTC timestamp relative to now, e.g. utc_at('-15 minutes'), for comparing with DATETIME columns. */
 function utc_at(string $modifier = 'now'): string
 {
