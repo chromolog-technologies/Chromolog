@@ -4,7 +4,6 @@ import { AuthProvider, useAuth, can } from "./lib/auth";
 import { ToastProvider, Loading } from "./components/ui";
 import Layout from "./components/Layout";
 import Login from "./pages/Login";
-import Activate from "./pages/Activate";
 import Dashboard from "./pages/Dashboard";
 import Leads from "./pages/crm/Leads";
 import LeadDetail from "./pages/crm/LeadDetail";
@@ -69,7 +68,6 @@ export default function App() {
         <BrowserRouter basename="/portal">
           <Routes>
             <Route path="/login" element={<Login />} />
-            <Route path="/activate" element={<Activate />} />
             <Route
               element={
                 <RequireAuth>

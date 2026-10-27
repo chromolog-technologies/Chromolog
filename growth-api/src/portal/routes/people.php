@@ -17,7 +17,7 @@ $router->add('POST', 'auth/login', null, function () {
 
     // Per-IP limit: 10 failed attempts per 15 minutes, whatever the email.
     $ipKey = 'login:' . client_ip_hash();
-    $ipFails = (int) q('SELECT COUNT(*) FROM requests WHERE ip_hash = ? AND created_at > ?', [$ipKey, utc_at('-15 minutes')])->fetchColumn();
+    $ipFails = (int) q("SELECT COUNT(*) FROM requests WHERE ip_hash = ? AND created_at > datetime('now', '-15 minutes')", [$ipKey])->fetchColumn();
     if ($ipFails >= 10) {
         throw new ApiError('Too many sign-in attempts from this network. Please wait 15 minutes.', 429);
     }
@@ -35,7 +35,7 @@ $router->add('POST', 'auth/login', null, function () {
         if ($user) {
             $fails = (int) $user['failed_logins'] + 1;
             if ($fails >= LOCKOUT_ATTEMPTS) {
-                q('UPDATE users SET failed_logins = 0, locked_until = ? WHERE id = ?', [utc_at('+' . LOCKOUT_MINUTES . ' minutes'), $user['id']]);
+                q("UPDATE users SET failed_logins = 0, locked_until = datetime('now', ?) WHERE id = ?", ['+' . LOCKOUT_MINUTES . ' minutes', $user['id']]);
                 security_event('account_locked', (int) $user['id'], LOCKOUT_ATTEMPTS . ' wrong passwords');
             } else {
                 q('UPDATE users SET failed_logins = ? WHERE id = ?', [$fails, $user['id']]);
@@ -101,7 +101,7 @@ $router->add('GET', 'me/api-keys', [], fn () => ['items' => q(
 
 $router->add('POST', 'me/api-keys', [], function () {
     $label = str_in(body(), 'label', 60) ?? 'API key';
-    $count = (int) q("SELECT COUNT(*) FROM api_tokens WHERE user_id = ? AND kind = 'api_key' AND expires_at > UTC_TIMESTAMP()", [current_user()['id']])->fetchColumn();
+    $count = (int) q("SELECT COUNT(*) FROM api_tokens WHERE user_id = ? AND kind = 'api_key' AND expires_at > datetime('now')", [current_user()['id']])->fetchColumn();
     if ($count >= 5) {
         throw new ApiError('You already have 5 API keys. Revoke one first.', 422);
     }
@@ -137,124 +137,26 @@ function assert_unique_email(string $email, ?int $exceptId = null): void
     }
 }
 
-// ── Activation and password-reset links ─────────────────────────────────
-
-const LINK_HOURS = ['invite' => 7 * 24, 'reset' => 24];
-
-function portal_url(): string
-{
-    return rtrim(config()['portal_url'] ?? (rtrim(setting('company_website'), '/') . '/portal'), '/');
-}
-
-/**
- * Email a one-time link: 'invite' activates a new account, 'reset' sets a new password.
- * Earlier unused links for the person stop working. Sent from the company mailbox (info@).
- */
-function send_user_link(array $user, string $kind): bool
-{
-    q('UPDATE user_links SET used_at = CURRENT_TIMESTAMP WHERE user_id = ? AND used_at IS NULL', [$user['id']]);
-    $token = bin2hex(random_bytes(32));
-    q('INSERT INTO user_links (user_id, kind, token_hash, expires_at, created_by) VALUES (?, ?, ?, ?, ?)',
-        [$user['id'], $kind, hash('sha256', $token), utc_at('+' . LINK_HOURS[$kind] . ' hours'), current_user()['id'] ?? null]);
-    $company = setting('company_name') ?: 'Chromolog Technologies';
-    $link = portal_url() . '/activate?token=' . $token;
-    $roles = ['admin' => 'Admin', 'marketing' => 'Marketing', 'accounts' => 'Accounts', 'project' => 'Project team', 'employee' => 'Employee'];
-    if ($kind === 'invite') {
-        $subject = "Activate your {$company} portal account";
-        $body = "Hello {$user['name']},\n\n"
-            . "An account has been created for you on the {$company} company portal (role: {$roles[$user['role']]}).\n\n"
-            . "Set your password to activate it:\n{$link}\n\n"
-            . "Your sign-in email is {$user['email']}. The link works once and expires in 7 days.\n\n"
-            . "If you weren't expecting this, you can ignore this email.\n\n{$company}\n" . setting('company_email');
-    } else {
-        $subject = "Reset your {$company} portal password";
-        $body = "Hello {$user['name']},\n\n"
-            . "Use this link to set a new password for your {$company} portal account:\n{$link}\n\n"
-            . "The link works once and expires in 24 hours. Until you use it, your current password keeps working.\n\n"
-            . "If you didn't ask for this, you can ignore this email.\n\n{$company}\n" . setting('company_email');
-    }
-    $sent = send_email($user['email'], $subject, $body, setting('company_email') ?: null, null, $company);
-    security_event($kind === 'invite' ? 'invite_sent' : 'reset_link_sent', (int) $user['id'], ($sent ? '' : 'email failed; ') . 'by ' . (current_user()['name'] ?? 'system'));
-    return $sent;
-}
-
-/** The unused, unexpired link for a token, with its user. Repeated bad tokens from one network are slowed down. */
-function find_user_link(string $token): array
-{
-    $ipKey = 'link:' . client_ip_hash();
-    if ((int) q('SELECT COUNT(*) FROM requests WHERE ip_hash = ? AND created_at > ?', [$ipKey, utc_at('-15 minutes')])->fetchColumn() >= 20) {
-        throw new ApiError('Too many attempts from this network. Please wait 15 minutes.', 429);
-    }
-    $link = preg_match('/^[a-f0-9]{64}$/', $token) ? q("SELECT l.*, u.name, u.email, u.role, u.active FROM user_links l JOIN users u ON u.id = l.user_id
-        WHERE l.token_hash = ?", [hash('sha256', $token)])->fetch() : false;
-    if (!$link) {
-        q('INSERT INTO requests (ip_hash) VALUES (?)', [$ipKey]);
-        throw new ApiError('This link is not valid. Ask an admin to send a new one.', 404);
-    }
-    if ($link['used_at'] || strtotime($link['expires_at'] . ' UTC') < time() || !$link['active']) {
-        throw new ApiError('This link has expired or was already used. Ask an admin to send a new one.', 410);
-    }
-    return $link;
-}
-
-$router->add('GET', 'auth/link', null, function () {
-    $l = find_user_link((string) query('token', ''));
-    return ['kind' => $l['kind'], 'name' => $l['name'], 'email' => $l['email']];
-});
-
-// Set the password from an invite/reset link, then sign in.
-$router->add('POST', 'auth/link', null, function () {
-    $b = body();
-    $l = find_user_link((string) ($b['token'] ?? ''));
-    $password = (string) ($b['password'] ?? '');
-    assert_strong_password($password, ['email' => $l['email'], 'name' => $l['name']]);
-    transaction(function () use ($l, $password) {
-        q('UPDATE user_links SET used_at = CURRENT_TIMESTAMP WHERE id = ?', [$l['id']]);
-        q('UPDATE users SET password_hash = ?, must_change_password = 0, failed_logins = 0, locked_until = NULL,
-            password_changed_at = CURRENT_TIMESTAMP, activated_at = COALESCE(activated_at, CURRENT_TIMESTAMP) WHERE id = ?',
-            [hash_password($password), $l['user_id']]);
-        // Any other sign-ins end (API keys stay).
-        q("DELETE FROM api_tokens WHERE user_id = ? AND kind != 'api_key'", [$l['user_id']]);
-    });
-    security_event($l['kind'] === 'invite' ? 'account_activated' : 'password_reset_by_link', (int) $l['user_id']);
-    q('UPDATE users SET last_login_at = ? WHERE id = ?', [now_utc(), $l['user_id']]);
-    set_session_cookie(start_session((int) $l['user_id'], false), false);
-    return ['user' => public_user(find_or_404('users', (int) $l['user_id'], 'User'))];
-});
-
-// The person sets their own password from the emailed link; the admin never chooses or sees it.
 $router->add('POST', 'users', [ROLE_ADMIN], function () {
     $b = body();
     $email = str_in($b, 'email', 160, true);
     assert_unique_email($email);
     $name = str_in($b, 'name', 120, true);
+    $password = (string) ($b['password'] ?? '');
+    assert_strong_password($password, ['email' => $email, 'name' => $name]);
     $id = insert('users', [
         'name' => $name,
         'email' => $email,
-        // Random, unknown password until activation.
-        'password_hash' => hash_password(bin2hex(random_bytes(32))),
+        'password_hash' => hash_password($password),
         'role' => enum_in($b, 'role', ALL_ROLES, ROLE_EMPLOYEE),
         'phone' => str_in($b, 'phone', 40),
         'hourly_rate' => num_in($b, 'hourly_rate', 0, 0),
-        'activated_at' => null,
+        // The admin chose this password, so the person sets their own at first sign-in.
+        'must_change_password' => 1,
     ]);
     audit('create', 'user', $id);
     security_event('user_created', $id, 'by ' . current_user()['name']);
-    $user = find_or_404('users', $id, 'User');
-    return ['user' => public_user($user), 'email_sent' => send_user_link($user, 'invite')];
-});
-
-// Resend the activation link (not yet activated) or email a password reset link (active account).
-$router->add('POST', 'users/{id}/send-link', [ROLE_ADMIN], function ($p) {
-    $user = find_or_404('users', id_param($p), 'User');
-    if (!$user['active']) {
-        throw new ApiError('This user is disabled. Enable them first.', 422);
-    }
-    $kind = $user['activated_at'] === null ? 'invite' : 'reset';
-    if (!send_user_link($user, $kind)) {
-        throw new ApiError('The email could not be sent. Please try again later.', 502);
-    }
-    return ['kind' => $kind];
+    return ['user' => public_user(find_or_404('users', $id, 'User'))];
 });
 
 $router->add('PUT', 'users/{id}', [ROLE_ADMIN], function ($p) {
@@ -369,7 +271,7 @@ $router->add('PUT', 'settings', [ROLE_ADMIN], function () {
             continue;
         }
         $value = is_array($b[$key]) ? implode("\n", array_map('strval', $b[$key])) : (string) $b[$key];
-        set_setting($key, mb_substr($value, 0, 4000));
+        q('INSERT INTO settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value', [$key, mb_substr($value, 0, 4000)]);
     }
     if (array_key_exists('invoice_start_number', $b)) {
         bump_invoice_sequence(max(1, (int) $b['invoice_start_number']));
@@ -408,8 +310,8 @@ $router->add('GET', 'dashboard', [], function () {
             'outstanding' => money((float) $one('SELECT COALESCE(SUM(' . BALANCE_SQL . '),0) FROM invoices WHERE ' . OPEN_INVOICE_SQL)),
             'overdue_invoices' => (int) $one("SELECT COUNT(*) FROM invoices WHERE doc_type = 'invoice' AND status = 'overdue'"),
             'pending_payouts' => money((float) $one("SELECT COALESCE(SUM(total),0) FROM payouts WHERE status = 'pending'")),
-            'recurring_due_7_days' => (int) $one('SELECT COUNT(*) FROM recurring_invoices WHERE active = 1 AND next_date <= ?', [date('Y-m-d', strtotime(today() . ' +7 days'))]),
-            'contracts_expiring' => (int) $one("SELECT COUNT(*) FROM contracts WHERE status = 'active' AND end_date IS NOT NULL AND end_date <= DATE_ADD(?, INTERVAL renewal_reminder_days DAY)", [today()]),
+            'recurring_due_7_days' => (int) $one("SELECT COUNT(*) FROM recurring_invoices WHERE active = 1 AND next_date <= date(?, '+7 days')", [today()]),
+            'contracts_expiring' => (int) $one("SELECT COUNT(*) FROM contracts WHERE status = 'active' AND end_date IS NOT NULL AND end_date <= date('now', '+' || renewal_reminder_days || ' days')"),
         ];
     }
     if (has_role(ROLE_PROJECT)) {

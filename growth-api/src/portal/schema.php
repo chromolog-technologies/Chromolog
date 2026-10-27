@@ -3,571 +3,482 @@
 declare(strict_types=1);
 
 /**
- * Database schema (MySQL / MariaDB). Money is DOUBLE rounded to 2 decimals in the company
- * currency (settings.currency); timestamps are DATETIME in UTC; business dates are DATE.
- *
- * The schema is created once and versioned in app_meta: bump SCHEMA_VERSION and add a step
- * to schema_upgrades() for later changes.
+ * Company portal tables (CRM, sales, accounting, projects, people).
+ * Money is stored as REAL rounded to 2 decimals in the company currency (settings.currency).
+ * Runs on every connection; every statement is idempotent.
  */
-
-const SCHEMA_VERSION = 1;
-
-const TABLE_OPTIONS = 'ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci';
-
-/** Every table, in a valid creation order. */
-function schema_tables(): array
+function portal_migrate(PDO $pdo): void
 {
-    $line = 'id INT AUTO_INCREMENT PRIMARY KEY';
-    $now = 'DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP';
-    $itemColumns = "
-        description   TEXT NOT NULL,
-        quantity      DOUBLE NOT NULL DEFAULT 1,
-        unit_price    DOUBLE NOT NULL DEFAULT 0,
-        amount        DOUBLE NOT NULL DEFAULT 0,
-        position      INT NOT NULL DEFAULT 0,
-        service_id    INT NULL,
-        hsn_sac       VARCHAR(20) NULL,
-        unit          VARCHAR(20) NULL,
-        discount      DOUBLE NOT NULL DEFAULT 0,
-        gst_rate      DOUBLE NOT NULL DEFAULT 0,
-        taxable_value DOUBLE NULL,
-        cgst          DOUBLE NOT NULL DEFAULT 0,
-        sgst          DOUBLE NOT NULL DEFAULT 0,
-        igst          DOUBLE NOT NULL DEFAULT 0,
-        line_total    DOUBLE NULL";
-    $taxColumns = "
-        place_of_supply VARCHAR(2) NULL,
-        supply_type     VARCHAR(10) NOT NULL DEFAULT 'non_gst',
-        reverse_charge  TINYINT NOT NULL DEFAULT 0,
-        taxable_value   DOUBLE NOT NULL DEFAULT 0,
-        cgst            DOUBLE NOT NULL DEFAULT 0,
-        sgst            DOUBLE NOT NULL DEFAULT 0,
-        igst            DOUBLE NOT NULL DEFAULT 0,
-        tax_total       DOUBLE NOT NULL DEFAULT 0";
+    $pdo->exec(<<<SQL
+        CREATE TABLE IF NOT EXISTS users (
+            id            INTEGER PRIMARY KEY AUTOINCREMENT,
+            name          TEXT NOT NULL,
+            email         TEXT NOT NULL UNIQUE COLLATE NOCASE,
+            password_hash TEXT NOT NULL,
+            role          TEXT NOT NULL CHECK (role IN ('admin','marketing','accounts','project','employee')),
+            phone         TEXT,
+            hourly_rate   REAL NOT NULL DEFAULT 0,
+            active        INTEGER NOT NULL DEFAULT 1,
+            created_at    TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+        );
+        CREATE TABLE IF NOT EXISTS api_tokens (
+            id           INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id      INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+            token_hash   TEXT NOT NULL UNIQUE,
+            label        TEXT,
+            created_at   TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            expires_at   TEXT NOT NULL,
+            last_used_at TEXT
+        );
+        CREATE TABLE IF NOT EXISTS settings (
+            key   TEXT PRIMARY KEY,
+            value TEXT
+        );
+        CREATE TABLE IF NOT EXISTS audit_log (
+            id         INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id    INTEGER,
+            action     TEXT NOT NULL,
+            entity     TEXT NOT NULL,
+            entity_id  INTEGER,
+            created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+        );
 
-    return [
-        // Website chat and lead capture.
-        'conversations' => "
-            session_id VARCHAR(100) PRIMARY KEY,
-            ip_hash    VARCHAR(100) NOT NULL,
-            page       VARCHAR(255) NULL,
-            turns      INT NOT NULL DEFAULT 0,
-            created_at {$now},
-            updated_at {$now}",
-        'messages' => "
-            {$line},
-            session_id    VARCHAR(100) NOT NULL,
-            role          VARCHAR(20) NOT NULL,
-            text          MEDIUMTEXT NOT NULL,
-            input_tokens  INT NULL,
-            output_tokens INT NULL,
-            created_at    {$now},
-            INDEX idx_messages_session (session_id, id)",
-        'requests' => "
-            id         BIGINT AUTO_INCREMENT PRIMARY KEY,
-            ip_hash    VARCHAR(100) NOT NULL,
-            created_at {$now},
-            INDEX idx_requests (ip_hash, created_at),
-            INDEX idx_requests_time (created_at)",
-        'leads' => "
-            {$line},
-            session_id       VARCHAR(100) NULL UNIQUE,
-            source           VARCHAR(40) NOT NULL DEFAULT 'website_chat',
-            full_name        VARCHAR(160) NULL,
-            email            VARCHAR(190) NULL,
-            phone            VARCHAR(40) NULL,
-            company          VARCHAR(190) NULL,
-            industry         VARCHAR(160) NULL,
-            location         VARCHAR(255) NULL,
-            service_interest TEXT NULL,
-            budget_range     VARCHAR(120) NULL,
-            timeline         VARCHAR(120) NULL,
-            role             VARCHAR(120) NULL,
-            summary          TEXT NULL,
-            score            VARCHAR(20) NULL,
-            status           VARCHAR(20) NOT NULL DEFAULT 'new',
-            notes            TEXT NULL,
-            created_at       {$now},
-            updated_at       {$now},
-            assigned_to      INT NULL,
-            next_follow_up   DATE NULL,
-            estimated_value  DOUBLE NULL,
-            client_id        INT NULL,
-            INDEX idx_leads_status (status)",
-
-        // People, sign-in and settings.
-        'users' => "
-            {$line},
-            name                 VARCHAR(120) NOT NULL,
-            email                VARCHAR(190) NOT NULL UNIQUE,
-            password_hash        VARCHAR(255) NOT NULL,
-            role                 VARCHAR(20) NOT NULL,
-            phone                VARCHAR(40) NULL,
-            hourly_rate          DOUBLE NOT NULL DEFAULT 0,
-            active               TINYINT NOT NULL DEFAULT 1,
-            created_at           {$now},
-            failed_logins        INT NOT NULL DEFAULT 0,
-            locked_until         DATETIME NULL,
-            last_login_at        DATETIME NULL,
-            must_change_password TINYINT NOT NULL DEFAULT 0,
-            password_changed_at  DATETIME NULL,
-            activated_at         DATETIME NULL,
-            CONSTRAINT chk_users_role CHECK (role IN ('admin','marketing','accounts','project','employee'))",
-        'api_tokens' => "
-            {$line},
-            user_id      INT NOT NULL,
-            token_hash   CHAR(64) NOT NULL UNIQUE,
-            label        VARCHAR(120) NULL,
-            kind         VARCHAR(20) NOT NULL DEFAULT 'api_key',
-            created_at   {$now},
-            expires_at   DATETIME NOT NULL,
-            last_used_at DATETIME NULL,
-            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE",
-        'user_links' => "
-            {$line},
-            user_id    INT NOT NULL,
-            kind       VARCHAR(20) NOT NULL,
-            token_hash CHAR(64) NOT NULL UNIQUE,
-            expires_at DATETIME NOT NULL,
-            used_at    DATETIME NULL,
-            created_by INT NULL,
-            created_at {$now},
-            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE",
-        'settings' => "
-            `key` VARCHAR(100) PRIMARY KEY,
-            value TEXT NULL",
-        'audit_log' => "
-            {$line},
-            user_id    INT NULL,
-            action     VARCHAR(60) NOT NULL,
-            entity     VARCHAR(60) NOT NULL,
-            entity_id  INT NULL,
-            detail     TEXT NULL,
-            ip_hash    VARCHAR(64) NULL,
-            created_at {$now},
-            INDEX idx_audit_entity (entity, id)",
-
-        // CRM.
-        'lead_notes' => "
-            {$line},
-            lead_id    INT NOT NULL,
-            user_id    INT NULL,
-            type       VARCHAR(20) NOT NULL DEFAULT 'note',
+        CREATE TABLE IF NOT EXISTS lead_notes (
+            id         INTEGER PRIMARY KEY AUTOINCREMENT,
+            lead_id    INTEGER NOT NULL REFERENCES leads(id) ON DELETE CASCADE,
+            user_id    INTEGER REFERENCES users(id),
+            type       TEXT NOT NULL DEFAULT 'note',
             body       TEXT NOT NULL,
-            created_at {$now},
-            FOREIGN KEY (lead_id) REFERENCES leads(id) ON DELETE CASCADE,
-            FOREIGN KEY (user_id) REFERENCES users(id)",
-        'clients' => "
-            {$line},
-            name       VARCHAR(160) NOT NULL,
-            company    VARCHAR(190) NULL,
-            email      VARCHAR(190) NULL,
-            phone      VARCHAR(40) NULL,
-            address    TEXT NULL,
-            tax_id     VARCHAR(40) NULL,
-            state_code VARCHAR(2) NULL,
-            notes      TEXT NULL,
-            lead_id    INT NULL,
-            created_at {$now},
-            FOREIGN KEY (lead_id) REFERENCES leads(id)",
-        'contracts' => "
-            {$line},
-            client_id             INT NOT NULL,
-            title                 VARCHAR(200) NOT NULL,
-            type                  VARCHAR(30) NOT NULL DEFAULT 'project',
-            start_date            DATE NULL,
-            end_date              DATE NULL,
-            value                 DOUBLE NOT NULL DEFAULT 0,
-            status                VARCHAR(20) NOT NULL DEFAULT 'active',
-            renewal_reminder_days INT NOT NULL DEFAULT 30,
-            file_path             VARCHAR(255) NULL,
-            file_name             VARCHAR(160) NULL,
-            notes                 TEXT NULL,
-            created_at            {$now},
-            FOREIGN KEY (client_id) REFERENCES clients(id)",
+            created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+        );
+        CREATE TABLE IF NOT EXISTS clients (
+            id         INTEGER PRIMARY KEY AUTOINCREMENT,
+            name       TEXT NOT NULL,
+            company    TEXT,
+            email      TEXT,
+            phone      TEXT,
+            address    TEXT,
+            tax_id     TEXT,
+            notes      TEXT,
+            lead_id    INTEGER REFERENCES leads(id),
+            created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+        );
+        CREATE TABLE IF NOT EXISTS contracts (
+            id                    INTEGER PRIMARY KEY AUTOINCREMENT,
+            client_id             INTEGER NOT NULL REFERENCES clients(id),
+            title                 TEXT NOT NULL,
+            type                  TEXT NOT NULL DEFAULT 'project',
+            start_date            TEXT,
+            end_date              TEXT,
+            value                 REAL NOT NULL DEFAULT 0,
+            status                TEXT NOT NULL DEFAULT 'active',
+            renewal_reminder_days INTEGER NOT NULL DEFAULT 30,
+            file_path             TEXT,
+            file_name             TEXT,
+            notes                 TEXT,
+            created_at            TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+        );
 
-        // Projects and people's work.
-        'projects' => "
-            {$line},
-            name        VARCHAR(200) NOT NULL,
-            client_id   INT NULL,
-            description TEXT NULL,
-            status      VARCHAR(20) NOT NULL DEFAULT 'active',
-            start_date  DATE NULL,
-            deadline    DATE NULL,
-            budget      DOUBLE NOT NULL DEFAULT 0,
-            created_by  INT NULL,
-            created_at  {$now},
-            FOREIGN KEY (client_id) REFERENCES clients(id),
-            FOREIGN KEY (created_by) REFERENCES users(id)",
-        'project_members' => "
-            project_id INT NOT NULL,
-            user_id    INT NOT NULL,
-            rate       DOUBLE NULL,
-            PRIMARY KEY (project_id, user_id),
-            FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE,
-            FOREIGN KEY (user_id) REFERENCES users(id)",
-        'tasks' => "
-            {$line},
-            project_id      INT NOT NULL,
-            title           VARCHAR(255) NOT NULL,
-            description     TEXT NULL,
-            assignee_id     INT NULL,
-            status          VARCHAR(20) NOT NULL DEFAULT 'todo',
-            priority        VARCHAR(20) NOT NULL DEFAULT 'medium',
-            due_date        DATE NULL,
-            estimated_hours DOUBLE NULL,
-            fixed_amount    DOUBLE NOT NULL DEFAULT 0,
-            payout_id       INT NULL,
-            created_by      INT NULL,
-            created_at      {$now},
-            updated_at      {$now},
-            completed_at    DATETIME NULL,
-            INDEX idx_tasks_assignee (assignee_id),
-            FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE,
-            FOREIGN KEY (assignee_id) REFERENCES users(id),
-            FOREIGN KEY (created_by) REFERENCES users(id)",
-        'timesheets' => "
-            {$line},
-            user_id     INT NOT NULL,
-            project_id  INT NOT NULL,
-            task_id     INT NULL,
-            date        DATE NOT NULL,
-            hours       DOUBLE NOT NULL,
-            description TEXT NULL,
-            status      VARCHAR(20) NOT NULL DEFAULT 'pending',
-            reviewed_by INT NULL,
-            reviewed_at DATETIME NULL,
-            payout_id   INT NULL,
-            created_at  {$now},
-            INDEX idx_timesheets_user (user_id, date),
-            FOREIGN KEY (user_id) REFERENCES users(id),
-            FOREIGN KEY (project_id) REFERENCES projects(id),
-            FOREIGN KEY (task_id) REFERENCES tasks(id),
-            FOREIGN KEY (reviewed_by) REFERENCES users(id)",
-        'daily_reports' => "
-            {$line},
-            user_id         INT NOT NULL,
-            date            DATE NOT NULL,
+        CREATE TABLE IF NOT EXISTS quotations (
+            id          INTEGER PRIMARY KEY AUTOINCREMENT,
+            number      TEXT NOT NULL UNIQUE,
+            client_id   INTEGER REFERENCES clients(id),
+            lead_id     INTEGER REFERENCES leads(id),
+            title       TEXT,
+            issue_date  TEXT NOT NULL,
+            valid_until TEXT,
+            status      TEXT NOT NULL DEFAULT 'draft',
+            discount    REAL NOT NULL DEFAULT 0,
+            tax_rate    REAL NOT NULL DEFAULT 0,
+            subtotal    REAL NOT NULL DEFAULT 0,
+            total       REAL NOT NULL DEFAULT 0,
+            notes       TEXT,
+            terms       TEXT,
+            created_by  INTEGER REFERENCES users(id),
+            created_at  TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            updated_at  TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+        );
+        CREATE TABLE IF NOT EXISTS quotation_items (
+            id           INTEGER PRIMARY KEY AUTOINCREMENT,
+            quotation_id INTEGER NOT NULL REFERENCES quotations(id) ON DELETE CASCADE,
+            description  TEXT NOT NULL,
+            quantity     REAL NOT NULL DEFAULT 1,
+            unit_price   REAL NOT NULL DEFAULT 0,
+            amount       REAL NOT NULL DEFAULT 0,
+            position     INTEGER NOT NULL DEFAULT 0
+        );
+        CREATE TABLE IF NOT EXISTS invoices (
+            id           INTEGER PRIMARY KEY AUTOINCREMENT,
+            number       TEXT NOT NULL UNIQUE,
+            client_id    INTEGER NOT NULL REFERENCES clients(id),
+            quotation_id INTEGER REFERENCES quotations(id),
+            project_id   INTEGER REFERENCES projects(id),
+            issue_date   TEXT NOT NULL,
+            due_date     TEXT,
+            status       TEXT NOT NULL DEFAULT 'draft',
+            discount     REAL NOT NULL DEFAULT 0,
+            tax_rate     REAL NOT NULL DEFAULT 0,
+            subtotal     REAL NOT NULL DEFAULT 0,
+            total        REAL NOT NULL DEFAULT 0,
+            amount_paid  REAL NOT NULL DEFAULT 0,
+            notes        TEXT,
+            terms        TEXT,
+            created_by   INTEGER REFERENCES users(id),
+            created_at   TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            updated_at   TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+        );
+        CREATE TABLE IF NOT EXISTS invoice_items (
+            id          INTEGER PRIMARY KEY AUTOINCREMENT,
+            invoice_id  INTEGER NOT NULL REFERENCES invoices(id) ON DELETE CASCADE,
+            description TEXT NOT NULL,
+            quantity    REAL NOT NULL DEFAULT 1,
+            unit_price  REAL NOT NULL DEFAULT 0,
+            amount      REAL NOT NULL DEFAULT 0,
+            position    INTEGER NOT NULL DEFAULT 0
+        );
+        CREATE TABLE IF NOT EXISTS payments (
+            id         INTEGER PRIMARY KEY AUTOINCREMENT,
+            invoice_id INTEGER NOT NULL REFERENCES invoices(id) ON DELETE CASCADE,
+            amount     REAL NOT NULL,
+            date       TEXT NOT NULL,
+            method     TEXT,
+            reference  TEXT,
+            notes      TEXT,
+            created_by INTEGER REFERENCES users(id),
+            created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+        );
+
+        CREATE TABLE IF NOT EXISTS expenses (
+            id             INTEGER PRIMARY KEY AUTOINCREMENT,
+            date           TEXT NOT NULL,
+            category       TEXT NOT NULL,
+            vendor         TEXT,
+            description    TEXT,
+            amount         REAL NOT NULL,
+            payment_method TEXT,
+            reference      TEXT,
+            project_id     INTEGER REFERENCES projects(id),
+            payout_id      INTEGER,
+            file_path      TEXT,
+            file_name      TEXT,
+            created_by     INTEGER REFERENCES users(id),
+            created_at     TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+        );
+        CREATE TABLE IF NOT EXISTS other_income (
+            id             INTEGER PRIMARY KEY AUTOINCREMENT,
+            date           TEXT NOT NULL,
+            category       TEXT NOT NULL,
+            source         TEXT,
+            description    TEXT,
+            amount         REAL NOT NULL,
+            payment_method TEXT,
+            reference      TEXT,
+            file_path      TEXT,
+            file_name      TEXT,
+            created_by     INTEGER REFERENCES users(id),
+            created_at     TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+        );
+
+        CREATE TABLE IF NOT EXISTS projects (
+            id          INTEGER PRIMARY KEY AUTOINCREMENT,
+            name        TEXT NOT NULL,
+            client_id   INTEGER REFERENCES clients(id),
+            description TEXT,
+            status      TEXT NOT NULL DEFAULT 'active',
+            start_date  TEXT,
+            deadline    TEXT,
+            budget      REAL NOT NULL DEFAULT 0,
+            created_by  INTEGER REFERENCES users(id),
+            created_at  TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+        );
+        CREATE TABLE IF NOT EXISTS project_members (
+            project_id INTEGER NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+            user_id    INTEGER NOT NULL REFERENCES users(id),
+            rate       REAL,
+            PRIMARY KEY (project_id, user_id)
+        );
+        CREATE TABLE IF NOT EXISTS tasks (
+            id              INTEGER PRIMARY KEY AUTOINCREMENT,
+            project_id      INTEGER NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+            title           TEXT NOT NULL,
+            description     TEXT,
+            assignee_id     INTEGER REFERENCES users(id),
+            status          TEXT NOT NULL DEFAULT 'todo',
+            priority        TEXT NOT NULL DEFAULT 'medium',
+            due_date        TEXT,
+            estimated_hours REAL,
+            fixed_amount    REAL NOT NULL DEFAULT 0,
+            payout_id       INTEGER,
+            created_by      INTEGER REFERENCES users(id),
+            created_at      TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            updated_at      TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            completed_at    TEXT
+        );
+        CREATE TABLE IF NOT EXISTS timesheets (
+            id          INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id     INTEGER NOT NULL REFERENCES users(id),
+            project_id  INTEGER NOT NULL REFERENCES projects(id),
+            task_id     INTEGER REFERENCES tasks(id),
+            date        TEXT NOT NULL,
+            hours       REAL NOT NULL,
+            description TEXT,
+            status      TEXT NOT NULL DEFAULT 'pending',
+            reviewed_by INTEGER REFERENCES users(id),
+            reviewed_at TEXT,
+            payout_id   INTEGER,
+            created_at  TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+        );
+        CREATE TABLE IF NOT EXISTS daily_reports (
+            id              INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id         INTEGER NOT NULL REFERENCES users(id),
+            date            TEXT NOT NULL,
             summary         TEXT NOT NULL,
-            tasks_completed TEXT NULL,
-            blockers        TEXT NULL,
-            plan_tomorrow   TEXT NULL,
-            hours           DOUBLE NULL,
-            created_at      {$now},
-            updated_at      {$now},
-            UNIQUE KEY uq_report_day (user_id, date),
-            INDEX idx_reports_date (date),
-            FOREIGN KEY (user_id) REFERENCES users(id)",
-        'payouts' => "
-            {$line},
-            user_id        INT NOT NULL,
-            period_start   DATE NOT NULL,
-            period_end     DATE NOT NULL,
-            hours          DOUBLE NOT NULL DEFAULT 0,
-            hours_amount   DOUBLE NOT NULL DEFAULT 0,
-            task_amount    DOUBLE NOT NULL DEFAULT 0,
-            adjustments    DOUBLE NOT NULL DEFAULT 0,
-            total          DOUBLE NOT NULL DEFAULT 0,
-            status         VARCHAR(20) NOT NULL DEFAULT 'pending',
-            paid_date      DATE NULL,
-            payment_method VARCHAR(30) NULL,
-            reference      VARCHAR(120) NULL,
-            expense_id     INT NULL,
-            notes          TEXT NULL,
-            created_by     INT NULL,
-            created_at     {$now},
-            FOREIGN KEY (user_id) REFERENCES users(id),
-            FOREIGN KEY (created_by) REFERENCES users(id)",
+            tasks_completed TEXT,
+            blockers        TEXT,
+            plan_tomorrow   TEXT,
+            hours           REAL,
+            created_at      TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            updated_at      TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE (user_id, date)
+        );
+        CREATE TABLE IF NOT EXISTS payouts (
+            id             INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id        INTEGER NOT NULL REFERENCES users(id),
+            period_start   TEXT NOT NULL,
+            period_end     TEXT NOT NULL,
+            hours          REAL NOT NULL DEFAULT 0,
+            hours_amount   REAL NOT NULL DEFAULT 0,
+            task_amount    REAL NOT NULL DEFAULT 0,
+            adjustments    REAL NOT NULL DEFAULT 0,
+            total          REAL NOT NULL DEFAULT 0,
+            status         TEXT NOT NULL DEFAULT 'pending',
+            paid_date      TEXT,
+            payment_method TEXT,
+            reference      TEXT,
+            expense_id     INTEGER,
+            notes          TEXT,
+            created_by     INTEGER REFERENCES users(id),
+            created_at     TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+        );
 
-        // Sales and accounting.
-        'services' => "
-            {$line},
-            name        VARCHAR(160) NOT NULL,
-            description TEXT NULL,
-            unit        VARCHAR(20) NULL,
-            hsn_sac     VARCHAR(20) NULL,
-            rate        DOUBLE NOT NULL DEFAULT 0,
-            gst_rate    DOUBLE NOT NULL DEFAULT 18,
-            active      TINYINT NOT NULL DEFAULT 1,
-            created_at  {$now},
-            updated_at  {$now}",
-        'quotations' => "
-            {$line},
-            number      VARCHAR(40) NOT NULL UNIQUE,
-            client_id   INT NULL,
-            lead_id     INT NULL,
-            title       VARCHAR(200) NULL,
-            issue_date  DATE NOT NULL,
-            valid_until DATE NULL,
-            status      VARCHAR(20) NOT NULL DEFAULT 'draft',
-            discount    DOUBLE NOT NULL DEFAULT 0,
-            tax_rate    DOUBLE NOT NULL DEFAULT 0,
-            subtotal    DOUBLE NOT NULL DEFAULT 0,
-            total       DOUBLE NOT NULL DEFAULT 0,
-            {$taxColumns},
-            notes       TEXT NULL,
-            terms       TEXT NULL,
-            created_by  INT NULL,
-            created_at  {$now},
-            updated_at  {$now},
-            FOREIGN KEY (client_id) REFERENCES clients(id),
-            FOREIGN KEY (lead_id) REFERENCES leads(id),
-            FOREIGN KEY (created_by) REFERENCES users(id)",
-        'quotation_items' => "
-            {$line},
-            quotation_id INT NOT NULL,
-            {$itemColumns},
-            FOREIGN KEY (quotation_id) REFERENCES quotations(id) ON DELETE CASCADE",
-        'recurring_invoices' => "
-            {$line},
-            client_id       INT NOT NULL,
-            contract_id     INT NULL,
-            title           VARCHAR(200) NOT NULL,
-            frequency       VARCHAR(20) NOT NULL DEFAULT 'monthly',
-            next_date       DATE NOT NULL,
-            anchor_day      INT NULL,
-            end_date        DATE NULL,
-            auto_send       TINYINT NOT NULL DEFAULT 0,
-            active          TINYINT NOT NULL DEFAULT 1,
-            discount        DOUBLE NOT NULL DEFAULT 0,
-            tax_rate        DOUBLE NOT NULL DEFAULT 0,
-            notes           TEXT NULL,
-            last_invoice_id INT NULL,
-            created_by      INT NULL,
-            created_at      {$now},
-            FOREIGN KEY (client_id) REFERENCES clients(id),
-            FOREIGN KEY (contract_id) REFERENCES contracts(id)",
-        'recurring_items' => "
-            {$line},
-            recurring_id INT NOT NULL,
-            {$itemColumns},
-            FOREIGN KEY (recurring_id) REFERENCES recurring_invoices(id) ON DELETE CASCADE",
-        'invoices' => "
-            {$line},
-            number              VARCHAR(40) NOT NULL UNIQUE,
-            doc_type            VARCHAR(20) NOT NULL DEFAULT 'invoice',
-            client_id           INT NOT NULL,
-            quotation_id        INT NULL,
-            project_id          INT NULL,
-            recurring_id        INT NULL,
-            original_invoice_id INT NULL,
-            duplicated_from     INT NULL,
-            issue_date          DATE NOT NULL,
-            due_date            DATE NULL,
-            po_number           VARCHAR(60) NULL,
-            status              VARCHAR(20) NOT NULL DEFAULT 'draft',
-            discount            DOUBLE NOT NULL DEFAULT 0,
-            tax_rate            DOUBLE NOT NULL DEFAULT 0,
-            subtotal            DOUBLE NOT NULL DEFAULT 0,
-            total               DOUBLE NOT NULL DEFAULT 0,
-            {$taxColumns},
-            amount_paid         DOUBLE NOT NULL DEFAULT 0,
-            adjustment          DOUBLE NOT NULL DEFAULT 0,
-            note_reason         TEXT NULL,
-            notes               TEXT NULL,
-            terms               TEXT NULL,
-            company_snapshot    MEDIUMTEXT NULL,
-            client_snapshot     TEXT NULL,
-            issued_at           DATETIME NULL,
-            issued_by           INT NULL,
-            cancelled_at        DATETIME NULL,
-            cancelled_by        INT NULL,
-            cancel_reason       TEXT NULL,
-            created_by          INT NULL,
-            created_at          {$now},
-            updated_at          {$now},
-            INDEX idx_invoices_issue (issue_date),
-            INDEX idx_invoices_status (doc_type, status),
-            INDEX idx_invoices_original (original_invoice_id),
-            FOREIGN KEY (client_id) REFERENCES clients(id),
-            FOREIGN KEY (quotation_id) REFERENCES quotations(id),
-            FOREIGN KEY (project_id) REFERENCES projects(id),
-            FOREIGN KEY (created_by) REFERENCES users(id)",
-        'invoice_items' => "
-            {$line},
-            invoice_id INT NOT NULL,
-            {$itemColumns},
-            FOREIGN KEY (invoice_id) REFERENCES invoices(id) ON DELETE CASCADE",
-        'payments' => "
-            {$line},
-            invoice_id INT NOT NULL,
-            amount     DOUBLE NOT NULL,
-            date       DATE NOT NULL,
-            method     VARCHAR(30) NULL,
-            reference  VARCHAR(120) NULL,
-            notes      TEXT NULL,
-            created_by INT NULL,
-            created_at {$now},
-            INDEX idx_payments_date (date),
-            FOREIGN KEY (invoice_id) REFERENCES invoices(id) ON DELETE CASCADE,
-            FOREIGN KEY (created_by) REFERENCES users(id)",
-        'invoice_history' => "
-            {$line},
-            invoice_id INT NOT NULL,
-            action     VARCHAR(40) NOT NULL,
-            reason     TEXT NULL,
-            changes    MEDIUMTEXT NULL,
-            snapshot   MEDIUMTEXT NULL,
-            pdf_path   VARCHAR(255) NULL,
-            user_id    INT NULL,
-            user_name  VARCHAR(120) NULL,
-            created_at {$now},
-            INDEX idx_invoice_history (invoice_id)",
-        'doc_sequences' => "
-            series      VARCHAR(100) PRIMARY KEY,
-            last_number INT NOT NULL",
-        'expenses' => "
-            {$line},
-            date           DATE NOT NULL,
-            category       VARCHAR(80) NOT NULL,
-            vendor         VARCHAR(160) NULL,
-            description    TEXT NULL,
-            amount         DOUBLE NOT NULL,
-            payment_method VARCHAR(30) NULL,
-            reference      VARCHAR(120) NULL,
-            project_id     INT NULL,
-            payout_id      INT NULL,
-            file_path      VARCHAR(255) NULL,
-            file_name      VARCHAR(160) NULL,
-            created_by     INT NULL,
-            created_at     {$now},
-            INDEX idx_expenses_date (date),
-            FOREIGN KEY (project_id) REFERENCES projects(id),
-            FOREIGN KEY (created_by) REFERENCES users(id)",
-        'other_income' => "
-            {$line},
-            date           DATE NOT NULL,
-            category       VARCHAR(80) NOT NULL,
-            source         VARCHAR(160) NULL,
-            description    TEXT NULL,
-            amount         DOUBLE NOT NULL,
-            payment_method VARCHAR(30) NULL,
-            reference      VARCHAR(120) NULL,
-            file_path      VARCHAR(255) NULL,
-            file_name      VARCHAR(160) NULL,
-            created_by     INT NULL,
-            created_at     {$now},
-            INDEX idx_income_date (date),
-            FOREIGN KEY (created_by) REFERENCES users(id)",
+        CREATE TABLE IF NOT EXISTS recurring_invoices (
+            id          INTEGER PRIMARY KEY AUTOINCREMENT,
+            client_id   INTEGER NOT NULL REFERENCES clients(id),
+            contract_id INTEGER REFERENCES contracts(id),
+            title       TEXT NOT NULL,
+            frequency   TEXT NOT NULL DEFAULT 'monthly',
+            next_date   TEXT NOT NULL,
+            end_date    TEXT,
+            auto_send   INTEGER NOT NULL DEFAULT 0,
+            active      INTEGER NOT NULL DEFAULT 1,
+            discount    REAL NOT NULL DEFAULT 0,
+            tax_rate    REAL NOT NULL DEFAULT 0,
+            notes       TEXT,
+            last_invoice_id INTEGER,
+            created_by  INTEGER REFERENCES users(id),
+            created_at  TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+        );
+        CREATE TABLE IF NOT EXISTS recurring_items (
+            id           INTEGER PRIMARY KEY AUTOINCREMENT,
+            recurring_id INTEGER NOT NULL REFERENCES recurring_invoices(id) ON DELETE CASCADE,
+            description  TEXT NOT NULL,
+            quantity     REAL NOT NULL DEFAULT 1,
+            unit_price   REAL NOT NULL DEFAULT 0,
+            amount       REAL NOT NULL DEFAULT 0,
+            position     INTEGER NOT NULL DEFAULT 0
+        );
 
-        // Support and automation.
-        'tickets' => "
-            {$line},
-            number            VARCHAR(40) NOT NULL UNIQUE,
-            client_id         INT NULL,
-            contract_id       INT NULL,
-            project_id        INT NULL,
-            subject           VARCHAR(255) NOT NULL,
-            description       TEXT NULL,
-            channel           VARCHAR(20) NOT NULL DEFAULT 'phone',
-            priority          VARCHAR(20) NOT NULL DEFAULT 'medium',
-            status            VARCHAR(20) NOT NULL DEFAULT 'open',
-            assignee_id       INT NULL,
-            response_due_at   DATETIME NOT NULL,
-            resolve_due_at    DATETIME NOT NULL,
-            first_response_at DATETIME NULL,
-            resolved_at       DATETIME NULL,
-            created_by        INT NULL,
-            created_at        {$now},
-            updated_at        {$now},
-            INDEX idx_tickets_status (status),
-            FOREIGN KEY (client_id) REFERENCES clients(id),
-            FOREIGN KEY (contract_id) REFERENCES contracts(id),
-            FOREIGN KEY (project_id) REFERENCES projects(id),
-            FOREIGN KEY (assignee_id) REFERENCES users(id),
-            FOREIGN KEY (created_by) REFERENCES users(id)",
-        'ticket_comments' => "
-            {$line},
-            ticket_id  INT NOT NULL,
-            user_id    INT NULL,
+        CREATE TABLE IF NOT EXISTS tickets (
+            id                INTEGER PRIMARY KEY AUTOINCREMENT,
+            number            TEXT NOT NULL UNIQUE,
+            client_id         INTEGER REFERENCES clients(id),
+            contract_id       INTEGER REFERENCES contracts(id),
+            project_id        INTEGER REFERENCES projects(id),
+            subject           TEXT NOT NULL,
+            description       TEXT,
+            channel           TEXT NOT NULL DEFAULT 'phone',
+            priority          TEXT NOT NULL DEFAULT 'medium',
+            status            TEXT NOT NULL DEFAULT 'open',
+            assignee_id       INTEGER REFERENCES users(id),
+            response_due_at   TEXT NOT NULL,
+            resolve_due_at    TEXT NOT NULL,
+            first_response_at TEXT,
+            resolved_at       TEXT,
+            created_by        INTEGER REFERENCES users(id),
+            created_at        TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            updated_at        TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+        );
+        CREATE TABLE IF NOT EXISTS ticket_comments (
+            id         INTEGER PRIMARY KEY AUTOINCREMENT,
+            ticket_id  INTEGER NOT NULL REFERENCES tickets(id) ON DELETE CASCADE,
+            user_id    INTEGER REFERENCES users(id),
             body       TEXT NOT NULL,
-            internal   TINYINT NOT NULL DEFAULT 0,
-            created_at {$now},
-            FOREIGN KEY (ticket_id) REFERENCES tickets(id) ON DELETE CASCADE,
-            FOREIGN KEY (user_id) REFERENCES users(id)",
-        'job_runs' => "
-            {$line},
-            job        VARCHAR(40) NOT NULL,
-            run_date   DATE NOT NULL,
-            status     VARCHAR(20) NOT NULL,
-            detail     MEDIUMTEXT NULL,
-            created_at {$now},
-            INDEX idx_job_runs (job, run_date)",
+            internal   INTEGER NOT NULL DEFAULT 0,
+            created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+        );
+
+        CREATE TABLE IF NOT EXISTS job_runs (
+            id          INTEGER PRIMARY KEY AUTOINCREMENT,
+            job         TEXT NOT NULL,
+            run_date    TEXT NOT NULL,
+            status      TEXT NOT NULL,
+            detail      TEXT,
+            created_at  TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+        );
+
+        CREATE INDEX IF NOT EXISTS idx_tickets_status ON tickets(status);
+        CREATE INDEX IF NOT EXISTS idx_job_runs ON job_runs(job, run_date);
+        CREATE INDEX IF NOT EXISTS idx_tasks_project ON tasks(project_id);
+        CREATE INDEX IF NOT EXISTS idx_tasks_assignee ON tasks(assignee_id);
+        CREATE INDEX IF NOT EXISTS idx_timesheets_user ON timesheets(user_id, date);
+        CREATE INDEX IF NOT EXISTS idx_reports_date ON daily_reports(date);
+        CREATE INDEX IF NOT EXISTS idx_expenses_date ON expenses(date);
+        CREATE INDEX IF NOT EXISTS idx_payments_date ON payments(date);
+    SQL);
+
+    // Security columns.
+    $addColumns = [
+        'users' => [
+            'failed_logins' => 'INTEGER NOT NULL DEFAULT 0',
+            'locked_until' => 'TEXT',
+            'last_login_at' => 'TEXT',
+            'must_change_password' => 'INTEGER NOT NULL DEFAULT 0',
+            'password_changed_at' => 'TEXT',
+        ],
+        'api_tokens' => ['kind' => "TEXT NOT NULL DEFAULT 'api_key'"],
+        'audit_log' => ['detail' => 'TEXT', 'ip_hash' => 'TEXT'],
     ];
+    foreach ($addColumns as $table => $columns) {
+        $existing = array_column($pdo->query("PRAGMA table_info({$table})")->fetchAll(), 'name');
+        foreach ($columns as $col => $type) {
+            if (!in_array($col, $existing, true)) {
+                $pdo->exec("ALTER TABLE {$table} ADD COLUMN {$col} {$type}");
+                if ($table === 'api_tokens') {
+                    $pdo->exec("UPDATE api_tokens SET kind = 'session' WHERE label = 'login'");
+                }
+            }
+        }
+    }
+
+    $recCols = array_column($pdo->query('PRAGMA table_info(recurring_invoices)')->fetchAll(), 'name');
+    if (!in_array('anchor_day', $recCols, true)) {
+        // Day of month the schedule bills on, so 31 Aug → 30 Sep → 31 Oct (no drift).
+        $pdo->exec('ALTER TABLE recurring_invoices ADD COLUMN anchor_day INTEGER');
+    }
+    $invCols = array_column($pdo->query('PRAGMA table_info(invoices)')->fetchAll(), 'name');
+    if (!in_array('recurring_id', $invCols, true)) {
+        $pdo->exec('ALTER TABLE invoices ADD COLUMN recurring_id INTEGER');
+    }
+
+    invoicing_migrate($pdo);
+
+    // CRM fields on the existing website leads table.
+    $cols = array_column($pdo->query('PRAGMA table_info(leads)')->fetchAll(), 'name');
+    foreach ([
+        'assigned_to' => 'INTEGER',
+        'next_follow_up' => 'TEXT',
+        'estimated_value' => 'REAL',
+        'client_id' => 'INTEGER',
+    ] as $col => $type) {
+        if (!in_array($col, $cols, true)) {
+            $pdo->exec("ALTER TABLE leads ADD COLUMN {$col} {$type}");
+        }
+    }
 }
 
 /**
- * Protection that holds even outside the app (phpMyAdmin, a bug): invoice history can't be
- * changed or deleted, and issued invoices can't be deleted. Shared hosts sometimes don't let
- * the database user create triggers; the app enforces the same rules itself either way.
+ * Invoicing: GST line fields, credit/debit notes, issued-invoice snapshots, numbering series,
+ * service master and the edit history. History rows and issued invoices are protected by
+ * triggers, so they can't be changed or deleted even by a bug or a direct query.
  */
-const SCHEMA_TRIGGERS = [
-    'invoice_history_locked_update' => "BEFORE UPDATE ON invoice_history FOR EACH ROW
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'LOCKED: Invoice history cannot be changed.'",
-    'invoice_history_locked_delete' => "BEFORE DELETE ON invoice_history FOR EACH ROW
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'LOCKED: Invoice history cannot be deleted.'",
-    'invoices_locked_delete' => "BEFORE DELETE ON invoices FOR EACH ROW BEGIN
-        IF OLD.issued_at IS NOT NULL OR OLD.status <> 'draft' THEN
-            SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'LOCKED: Issued invoices cannot be deleted. Cancel it instead.';
-        END IF;
-    END",
-];
-
-/** Later schema changes: version => list of SQL statements. */
-function schema_upgrades(): array
+function invoicing_migrate(PDO $pdo): void
 {
-    return [];
-}
+    $pdo->exec(<<<SQL
+        CREATE TABLE IF NOT EXISTS services (
+            id          INTEGER PRIMARY KEY AUTOINCREMENT,
+            name        TEXT NOT NULL,
+            description TEXT,
+            unit        TEXT,
+            hsn_sac     TEXT,
+            rate        REAL NOT NULL DEFAULT 0,
+            gst_rate    REAL NOT NULL DEFAULT 18,
+            active      INTEGER NOT NULL DEFAULT 1,
+            created_at  TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            updated_at  TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+        );
+        CREATE TABLE IF NOT EXISTS doc_sequences (
+            series      TEXT PRIMARY KEY,
+            last_number INTEGER NOT NULL
+        );
+        CREATE TABLE IF NOT EXISTS invoice_history (
+            id         INTEGER PRIMARY KEY AUTOINCREMENT,
+            invoice_id INTEGER NOT NULL,
+            action     TEXT NOT NULL,
+            reason     TEXT,
+            changes    TEXT,
+            snapshot   TEXT,
+            pdf_path   TEXT,
+            user_id    INTEGER,
+            user_name  TEXT,
+            created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+        );
+        CREATE INDEX IF NOT EXISTS idx_invoice_history ON invoice_history(invoice_id);
+        CREATE TRIGGER IF NOT EXISTS invoice_history_locked_update BEFORE UPDATE ON invoice_history
+            BEGIN SELECT RAISE(ABORT, 'LOCKED: Invoice history cannot be changed.'); END;
+        CREATE TRIGGER IF NOT EXISTS invoice_history_locked_delete BEFORE DELETE ON invoice_history
+            BEGIN SELECT RAISE(ABORT, 'LOCKED: Invoice history cannot be deleted.'); END;
+    SQL);
 
-/** Create or upgrade the schema when app_meta says it is behind. Cheap when up to date. */
-function ensure_schema(PDO $pdo): void
-{
-    $pdo->exec('CREATE TABLE IF NOT EXISTS app_meta (name VARCHAR(100) PRIMARY KEY, value TEXT NULL) ' . TABLE_OPTIONS);
-    $version = (int) $pdo->query("SELECT value FROM app_meta WHERE name = 'schema_version'")->fetchColumn();
-    if ($version >= SCHEMA_VERSION) {
-        return;
-    }
-    // One request does the work; others wait for it.
-    $pdo->query("SELECT GET_LOCK('chromolog_schema', 60)");
-    try {
-        $version = (int) $pdo->query("SELECT value FROM app_meta WHERE name = 'schema_version'")->fetchColumn();
-        if ($version < 1) {
-            $pdo->exec('SET FOREIGN_KEY_CHECKS = 0');
-            foreach (schema_tables() as $table => $columns) {
-                $pdo->exec("CREATE TABLE IF NOT EXISTS {$table} ({$columns}) " . TABLE_OPTIONS);
+    $columns = fn (string $t) => array_column($pdo->query("PRAGMA table_info({$t})")->fetchAll(), 'name');
+    $add = function (string $table, array $cols) use ($pdo, $columns): array {
+        $existing = $columns($table);
+        $added = [];
+        foreach ($cols as $col => $type) {
+            if (!in_array($col, $existing, true)) {
+                $pdo->exec("ALTER TABLE {$table} ADD COLUMN {$col} {$type}");
+                $added[] = $col;
             }
-            $pdo->exec('SET FOREIGN_KEY_CHECKS = 1');
-            create_schema_triggers($pdo);
-            $version = 1;
         }
-        foreach (schema_upgrades() as $v => $statements) {
-            if ($v > $version) {
-                foreach ($statements as $sql) {
-                    $pdo->exec($sql);
-                }
-                $version = $v;
-            }
-        }
-        $pdo->prepare("INSERT INTO app_meta (name, value) VALUES ('schema_version', ?) ON DUPLICATE KEY UPDATE value = VALUES(value)")
-            ->execute([(string) $version]);
-    } finally {
-        $pdo->query("SELECT RELEASE_LOCK('chromolog_schema')");
-    }
-}
+        return $added;
+    };
 
-function create_schema_triggers(PDO $pdo): void
-{
-    $created = [];
-    foreach (SCHEMA_TRIGGERS as $name => $body) {
-        try {
-            $pdo->exec("DROP TRIGGER IF EXISTS {$name}");
-            $pdo->exec("CREATE TRIGGER {$name} {$body}");
-            $created[] = $name;
-        } catch (PDOException $e) {
-            error_log("Chromolog: trigger {$name} not created (database permissions): " . $e->getMessage());
+    $itemCols = [
+        'service_id' => 'INTEGER', 'hsn_sac' => 'TEXT', 'unit' => 'TEXT', 'discount' => 'REAL NOT NULL DEFAULT 0',
+        'gst_rate' => 'REAL NOT NULL DEFAULT 0', 'taxable_value' => 'REAL', 'cgst' => 'REAL NOT NULL DEFAULT 0',
+        'sgst' => 'REAL NOT NULL DEFAULT 0', 'igst' => 'REAL NOT NULL DEFAULT 0', 'line_total' => 'REAL',
+    ];
+    foreach (['invoice_items', 'quotation_items', 'recurring_items'] as $t) {
+        if ($add($t, $itemCols)) {
+            $pdo->exec("UPDATE {$t} SET taxable_value = amount, line_total = amount WHERE taxable_value IS NULL");
         }
     }
-    $pdo->prepare("INSERT INTO app_meta (name, value) VALUES ('triggers', ?) ON DUPLICATE KEY UPDATE value = VALUES(value)")
-        ->execute([implode(',', $created)]);
+    $taxCols = [
+        'place_of_supply' => 'TEXT', 'supply_type' => "TEXT NOT NULL DEFAULT 'non_gst'", 'reverse_charge' => 'INTEGER NOT NULL DEFAULT 0',
+        'taxable_value' => 'REAL NOT NULL DEFAULT 0', 'cgst' => 'REAL NOT NULL DEFAULT 0', 'sgst' => 'REAL NOT NULL DEFAULT 0',
+        'igst' => 'REAL NOT NULL DEFAULT 0', 'tax_total' => 'REAL NOT NULL DEFAULT 0',
+    ];
+    if ($add('quotations', $taxCols)) {
+        $pdo->exec('UPDATE quotations SET taxable_value = subtotal - discount, tax_total = total - (subtotal - discount)');
+    }
+    $added = $add('invoices', $taxCols + [
+        'doc_type' => "TEXT NOT NULL DEFAULT 'invoice'", 'original_invoice_id' => 'INTEGER', 'note_reason' => 'TEXT',
+        'po_number' => 'TEXT', 'adjustment' => 'REAL NOT NULL DEFAULT 0', 'issued_at' => 'TEXT', 'issued_by' => 'INTEGER',
+        'cancelled_at' => 'TEXT', 'cancelled_by' => 'INTEGER', 'cancel_reason' => 'TEXT',
+        'company_snapshot' => 'TEXT', 'client_snapshot' => 'TEXT', 'duplicated_from' => 'INTEGER',
+    ]);
+    if (in_array('doc_type', $added, true)) {
+        // Existing invoices: "sent" is now "issued"; anything not a draft counts as issued.
+        $pdo->exec("UPDATE invoices SET status = 'issued' WHERE status = 'sent'");
+        $pdo->exec("UPDATE invoices SET issued_at = created_at WHERE status != 'draft' AND issued_at IS NULL");
+        $pdo->exec('UPDATE invoices SET taxable_value = subtotal - discount, tax_total = total - (subtotal - discount)');
+    }
+    $add('clients', ['state_code' => 'TEXT']);
+
+    $pdo->exec(<<<SQL
+        CREATE INDEX IF NOT EXISTS idx_invoices_issue ON invoices(issue_date);
+        CREATE INDEX IF NOT EXISTS idx_invoices_original ON invoices(original_invoice_id);
+        CREATE TRIGGER IF NOT EXISTS invoices_locked_delete BEFORE DELETE ON invoices
+            WHEN OLD.issued_at IS NOT NULL OR OLD.status != 'draft'
+            BEGIN SELECT RAISE(ABORT, 'LOCKED: Issued invoices cannot be deleted. Cancel it instead.'); END;
+    SQL);
 }

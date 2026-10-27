@@ -10,16 +10,7 @@ return [
     'anthropic_api_key' => 'sk-ant-...',
     'model' => 'claude-opus-5-5',
 
-    // MySQL database (hPanel → Databases → MySQL Databases). On Hostinger the host is 'localhost'.
-    'db' => [
-        'host' => 'localhost',
-        'port' => 3306,
-        'name' => 'u818464796_chromolog',
-        'user' => 'u818464796_...',
-        'password' => '',
-    ],
-    // The old SQLite file. If it exists and the MySQL database is empty, its data is copied into
-    // MySQL once, automatically. The file itself is left as it is.
+    // SQLite database file, also kept in the private folder.
     'db_path' => __DIR__ . '/growth.sqlite',
 
     // First portal admin login (created automatically on first use): admin_email + this password.

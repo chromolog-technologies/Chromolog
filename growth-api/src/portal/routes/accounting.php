@@ -127,10 +127,10 @@ $router->add('GET', 'reports/pnl', [ROLE_ACCOUNTS], function () {
     $expenses = money(array_sum(array_column($expenseByCat, 'amount')));
 
     $monthly = q("SELECT month, ROUND(SUM(income),2) AS income, ROUND(SUM(expense),2) AS expense FROM (
-            SELECT DATE_FORMAT(date, '%Y-%m') AS month, amount AS income, 0 AS expense FROM payments WHERE date BETWEEN ? AND ?
-            UNION ALL SELECT DATE_FORMAT(date, '%Y-%m'), amount, 0 FROM other_income WHERE date BETWEEN ? AND ?
-            UNION ALL SELECT DATE_FORMAT(date, '%Y-%m'), 0, amount FROM expenses WHERE date BETWEEN ? AND ?
-        ) AS t GROUP BY month ORDER BY month", [...$args, ...$args, ...$args])->fetchAll();
+            SELECT substr(date,1,7) AS month, amount AS income, 0 AS expense FROM payments WHERE date BETWEEN ? AND ?
+            UNION ALL SELECT substr(date,1,7), amount, 0 FROM other_income WHERE date BETWEEN ? AND ?
+            UNION ALL SELECT substr(date,1,7), 0, amount FROM expenses WHERE date BETWEEN ? AND ?
+        ) GROUP BY month ORDER BY month", [...$args, ...$args, ...$args])->fetchAll();
 
     return [
         'from' => $from, 'to' => $to,
@@ -148,11 +148,11 @@ $router->add('GET', 'reports/ledger.csv', [ROLE_ACCOUNTS], function () {
     $to = query('to') ?? today();
     $rows = q("SELECT * FROM (
             SELECT p.date, 'Income' AS type, 'Invoice payment' AS category, COALESCE(c.company, c.name) AS party,
-                   CONCAT('Invoice ', i.number) AS description, p.amount, p.method AS payment_method, p.reference
+                   'Invoice ' || i.number AS description, p.amount, p.method AS payment_method, p.reference
             FROM payments p JOIN invoices i ON i.id = p.invoice_id JOIN clients c ON c.id = i.client_id WHERE p.date BETWEEN ? AND ?
             UNION ALL SELECT date, 'Income', category, source, description, amount, payment_method, reference FROM other_income WHERE date BETWEEN ? AND ?
             UNION ALL SELECT date, 'Expense', category, vendor, description, -amount, payment_method, reference FROM expenses WHERE date BETWEEN ? AND ?
-        ) AS t ORDER BY date", [$from, $to, $from, $to, $from, $to])->fetchAll();
+        ) ORDER BY date", [$from, $to, $from, $to, $from, $to])->fetchAll();
     header('Content-Type: text/csv; charset=utf-8');
     header("Content-Disposition: attachment; filename=\"ledger_{$from}_{$to}.csv\"");
     $out = fopen('php://output', 'w');

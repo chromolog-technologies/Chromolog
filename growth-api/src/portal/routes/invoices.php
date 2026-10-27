@@ -147,8 +147,8 @@ function invoice_filters(): array
     return [implode(' AND ', $w), $a];
 }
 
-const CUSTOMER_SQL = "COALESCE(NULLIF(JSON_VALUE(i.client_snapshot, '$.company'), ''), JSON_VALUE(i.client_snapshot, '$.name'), NULLIF(c.company, ''), c.name)";
-const CUSTOMER_GSTIN_SQL = "COALESCE(JSON_VALUE(i.client_snapshot, '$.tax_id'), c.tax_id)";
+const CUSTOMER_SQL = "COALESCE(NULLIF(json_extract(i.client_snapshot, '$.company'), ''), json_extract(i.client_snapshot, '$.name'), NULLIF(c.company, ''), c.name)";
+const CUSTOMER_GSTIN_SQL = "COALESCE(json_extract(i.client_snapshot, '$.tax_id'), c.tax_id)";
 
 function invoice_rows(): array
 {
@@ -553,11 +553,11 @@ $router->add('GET', 'reports/sales', $invoiceRoles, function () {
     $to = query('to') ?? today();
     $group = query('group', 'month');
     $period = match ($group) {
-        'day' => "DATE_FORMAT(i.issue_date, '%Y-%m-%d')",
-        'fy' => "CASE WHEN MONTH(i.issue_date) >= 4
-                 THEN CONCAT(YEAR(i.issue_date), '-', LPAD(MOD(YEAR(i.issue_date) + 1, 100), 2, '0'))
-                 ELSE CONCAT(YEAR(i.issue_date) - 1, '-', LPAD(MOD(YEAR(i.issue_date), 100), 2, '0')) END",
-        default => "DATE_FORMAT(i.issue_date, '%Y-%m')",
+        'day' => 'i.issue_date',
+        'fy' => "CASE WHEN CAST(substr(i.issue_date,6,2) AS INTEGER) >= 4
+                 THEN substr(i.issue_date,1,4) || '-' || substr(CAST(substr(i.issue_date,1,4) AS INTEGER) + 1, 3, 2)
+                 ELSE (CAST(substr(i.issue_date,1,4) AS INTEGER) - 1) || '-' || substr(i.issue_date,3,2) END",
+        default => 'substr(i.issue_date,1,7)',
     };
     $where = "i.status NOT IN ('draft','cancelled') AND i.issue_date BETWEEN ? AND ?";
     $args = [$from, $to];
@@ -567,7 +567,7 @@ $router->add('GET', 'reports/sales', $invoiceRoles, function () {
     }
     $sign = "CASE i.doc_type WHEN 'credit_note' THEN -1 ELSE 1 END";
     $rows = q("SELECT {$period} AS period,
-            COUNT(CASE WHEN i.doc_type = 'invoice' THEN 1 END) AS invoices,
+            SUM(i.doc_type = 'invoice') AS invoices,
             ROUND(SUM(CASE i.doc_type WHEN 'invoice' THEN i.total ELSE 0 END), 2) AS invoiced,
             ROUND(SUM(CASE i.doc_type WHEN 'credit_note' THEN i.total ELSE 0 END), 2) AS credit_notes,
             ROUND(SUM(CASE i.doc_type WHEN 'debit_note' THEN i.total ELSE 0 END), 2) AS debit_notes,
@@ -660,14 +660,14 @@ $router->add('POST', 'settings/branding/{kind}', [ROLE_ADMIN], function ($p) {
     if (!move_uploaded_file($f['tmp_name'], "{$dir}/{$name}")) {
         throw new ApiError('Could not save the image.', 500);
     }
-    set_setting($key, substr("{$dir}/{$name}", strlen(upload_root()) + 1));
+    q('INSERT INTO settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value', [$key, substr("{$dir}/{$name}", strlen(upload_root()) + 1)]);
     audit('update', 'branding');
     return ['settings' => public_settings()];
 });
 
 $router->add('DELETE', 'settings/branding/{kind}', [ROLE_ADMIN], function ($p) {
     $key = BRANDING_KINDS[$p['kind'] ?? ''] ?? throw new ApiError('Unknown image.', 404);
-    set_setting($key, '');
+    q('INSERT INTO settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value', [$key, '']);
     audit('update', 'branding');
     return ['settings' => public_settings()];
 });

@@ -136,7 +136,7 @@ function start_session(int $userId, bool $remember): string
 {
     $token = bin2hex(random_bytes(32));
     $expires = $remember ? '+' . SESSION_REMEMBER_DAYS . ' days' : '+' . SESSION_HOURS . ' hours';
-    q('INSERT INTO api_tokens (user_id, token_hash, label, kind, expires_at, last_used_at) VALUES (?, ?, ?, ?, ?, UTC_TIMESTAMP())',
-        [$userId, hash('sha256', $token), 'Portal sign-in', $remember ? 'session_remember' : 'session', utc_at($expires)]);
+    q("INSERT INTO api_tokens (user_id, token_hash, label, kind, expires_at, last_used_at) VALUES (?, ?, ?, ?, datetime('now', ?), CURRENT_TIMESTAMP)",
+        [$userId, hash('sha256', $token), 'Portal sign-in', $remember ? 'session_remember' : 'session', $expires]);
     return $token;
 }
