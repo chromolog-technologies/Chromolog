@@ -22,6 +22,10 @@ function config(): array
             error_log("Chromolog growth-api: config not found at {$path}");
             exit(json_encode(['error' => 'Service not configured']));
         }
+        // Shared hosts cache compiled PHP; pick up an edited config.php straight away.
+        if (function_exists('opcache_invalidate')) {
+            @opcache_invalidate($path, false);
+        }
         $config = require $path;
         date_default_timezone_set($config['timezone'] ?? 'Asia/Kolkata');
     }
@@ -74,7 +78,9 @@ function database_problem(Throwable $e): ?string
         $code = (int) $m[1];
     }
     return match (true) {
-        str_contains($msg, 'MySQL database is not configured') => "Database not configured: config.php has no 'db' settings (or no database name).",
+        str_contains($msg, 'MySQL database is not configured') => "Database not configured: config.php has no 'db' settings (or no database name). "
+            . 'Settings found: ' . implode(', ', array_keys(config()))
+            . (is_array(config()['db'] ?? null) ? '; db has: ' . implode(', ', array_keys(array_filter(config()['db'], fn ($v) => $v !== '' && $v !== null))) : '') . '.',
         str_contains($msg, 'could not find driver') => 'The PHP MySQL extension (pdo_mysql) is not enabled on the server.',
         $code === 1045 => 'The database refused the login. Check the db user and password in config.php.',
         $code === 1044 => 'The database user has no access to this database. Add the user to the database in hPanel.',
