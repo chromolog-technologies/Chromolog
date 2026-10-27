@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 require __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/portal/schema.php';
+require_once __DIR__ . '/portal/sqlite_import.php';
 
 /**
  * Secrets and data live OUTSIDE public_html. On Hostinger the API is deployed to
@@ -31,64 +32,40 @@ function db(): PDO
 {
     static $pdo = null;
     if ($pdo === null) {
-        $pdo = new PDO('sqlite:' . config()['db_path']);
-        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
-        $pdo->exec('PRAGMA journal_mode = WAL; PRAGMA busy_timeout = 5000; PRAGMA foreign_keys = ON;');
-        migrate($pdo);
-        portal_migrate($pdo);
+        $c = config()['db'] ?? null;
+        if (!is_array($c) || empty($c['name'])) {
+            throw new RuntimeException('MySQL database is not configured (config "db").');
+        }
+        $pdo = new PDO(
+            sprintf('mysql:host=%s;port=%d;dbname=%s;charset=utf8mb4', $c['host'] ?? 'localhost', (int) ($c['port'] ?? 3306), $c['name']),
+            $c['user'] ?? '',
+            $c['password'] ?? '',
+            [
+                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+                // Real prepared statements, so numbers come back as numbers (not strings).
+                PDO::ATTR_EMULATE_PREPARES => false,
+                PDO::ATTR_STRINGIFY_FETCHES => false,
+            ]
+        );
+        // Timestamps are stored in UTC (CURRENT_TIMESTAMP, UTC_TIMESTAMP()); business dates come from PHP.
+        $pdo->exec("SET time_zone = '+00:00', sql_mode = 'STRICT_TRANS_TABLES,NO_ZERO_DATE,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION'");
+        ensure_schema($pdo);
+        import_sqlite_once($pdo);
     }
     return $pdo;
 }
 
-function migrate(PDO $pdo): void
+/** The private folder outside public_html that holds config.php, uploads and backups. */
+function private_dir(): string
 {
-    $pdo->exec(<<<SQL
-        CREATE TABLE IF NOT EXISTS conversations (
-            session_id   TEXT PRIMARY KEY,
-            ip_hash      TEXT NOT NULL,
-            page         TEXT,
-            turns        INTEGER NOT NULL DEFAULT 0,
-            created_at   TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-            updated_at   TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
-        );
-        CREATE TABLE IF NOT EXISTS messages (
-            id            INTEGER PRIMARY KEY AUTOINCREMENT,
-            session_id    TEXT NOT NULL,
-            role          TEXT NOT NULL,
-            text          TEXT NOT NULL,
-            input_tokens  INTEGER,
-            output_tokens INTEGER,
-            created_at    TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
-        );
-        CREATE INDEX IF NOT EXISTS idx_messages_session ON messages(session_id, id);
-        CREATE TABLE IF NOT EXISTS leads (
-            id               INTEGER PRIMARY KEY AUTOINCREMENT,
-            session_id       TEXT UNIQUE,
-            source           TEXT NOT NULL DEFAULT 'website_chat',
-            full_name        TEXT,
-            email            TEXT,
-            phone            TEXT,
-            company          TEXT,
-            industry         TEXT,
-            location         TEXT,
-            service_interest TEXT,
-            budget_range     TEXT,
-            timeline         TEXT,
-            role             TEXT,
-            summary          TEXT,
-            score            TEXT,
-            status           TEXT NOT NULL DEFAULT 'new',
-            notes            TEXT,
-            created_at       TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-            updated_at       TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
-        );
-        CREATE TABLE IF NOT EXISTS requests (
-            ip_hash    TEXT NOT NULL,
-            created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
-        );
-        CREATE INDEX IF NOT EXISTS idx_requests ON requests(ip_hash, created_at);
-    SQL);
+    return dirname(getenv('CHROMOLOG_CONFIG') ?: dirname(__DIR__, 4) . '/chromolog-private/config.php');
+}
+
+/** UTC timestamp relative to now, e.g. utc_at('-15 minutes'), for comparing with DATETIME columns. */
+function utc_at(string $modifier = 'now'): string
+{
+    return gmdate('Y-m-d H:i:s', strtotime($modifier));
 }
 
 function client_ip_hash(): string

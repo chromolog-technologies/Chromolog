@@ -55,6 +55,26 @@ export default function Automation() {
                 ]}
               />
             </Card>
+            {d.database && (
+              <Card title="Database">
+                <dl className="grid sm:grid-cols-3 gap-3 text-sm">
+                  <div><dt className="text-slate-500">Server</dt><dd>MySQL / MariaDB {d.database.server}</dd></div>
+                  <div><dt className="text-slate-500">Moved from the old SQLite file</dt><dd>
+                    {d.database.sqlite_import?.at ? `Yes, ${dateTime(d.database.sqlite_import.at)}` : d.database.sqlite_import?.skipped || "Not needed"}
+                  </dd></div>
+                  <div><dt className="text-slate-500">Database-level protection</dt><dd>
+                    {d.database.protected_by_triggers.length ? "On (history and issued invoices locked)" : "Enforced by the portal (host doesn't allow triggers)"}
+                  </dd></div>
+                </dl>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {Object.entries(d.database.rows).map(([t, n]) => (
+                    <span key={t} className="rounded-full bg-slate-100 px-2.5 py-1 text-xs text-slate-600">
+                      {label(t)}: <b>{n}</b>{d.database.sqlite_import?.rows?.[t] !== undefined && d.database.sqlite_import.rows[t] !== n ? ` (copied ${d.database.sqlite_import.rows[t]})` : ""}
+                    </span>
+                  ))}
+                </div>
+              </Card>
+            )}
             <Card title="Backups (newest first)" padded={false}>
               <Table
                 rows={d.backups.map((b) => ({ ...b, id: b.file }))}

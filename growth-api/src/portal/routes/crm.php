@@ -281,8 +281,8 @@ function contract_data(array $b): array
 
 $router->add('GET', 'contracts', $contractRoles, function () {
     $rows = q("SELECT k.*, c.name AS client_name, c.company AS client_company,
-            CASE WHEN k.status = 'active' AND k.end_date IS NOT NULL AND k.end_date <= date('now', '+' || k.renewal_reminder_days || ' days') THEN 1 ELSE 0 END AS renewal_due
-        FROM contracts k JOIN clients c ON c.id = k.client_id ORDER BY renewal_due DESC, k.end_date IS NULL, k.end_date")->fetchAll();
+            CASE WHEN k.status = 'active' AND k.end_date IS NOT NULL AND k.end_date <= DATE_ADD(?, INTERVAL k.renewal_reminder_days DAY) THEN 1 ELSE 0 END AS renewal_due
+        FROM contracts k JOIN clients c ON c.id = k.client_id ORDER BY renewal_due DESC, k.end_date IS NULL, k.end_date", [today()])->fetchAll();
     return ['items' => $rows];
 });
 

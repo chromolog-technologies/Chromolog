@@ -138,7 +138,7 @@ $router->add('POST', 'projects', [ROLE_ADMIN], function () {
         foreach ((array) ($b['members'] ?? []) as $m) {
             $uid = (int) (is_array($m) ? ($m['user_id'] ?? 0) : $m);
             if ($uid) {
-                q('INSERT OR IGNORE INTO project_members (project_id, user_id, rate) VALUES (?, ?, ?)', [$id, $uid, is_array($m) ? num_in($m, 'rate', null, 0) : null]);
+                q('INSERT IGNORE INTO project_members (project_id, user_id, rate) VALUES (?, ?, ?)', [$id, $uid, is_array($m) ? num_in($m, 'rate', null, 0) : null]);
             }
         }
         return $id;
@@ -176,7 +176,7 @@ $router->add('PUT', 'projects/{id}/members', [ROLE_PROJECT], function ($p) {
         foreach ((array) (body()['members'] ?? []) as $m) {
             $uid = (int) ($m['user_id'] ?? 0);
             if ($uid) {
-                q('INSERT OR IGNORE INTO project_members (project_id, user_id, rate) VALUES (?, ?, ?)', [$id, $uid, num_in((array) $m, 'rate', null, 0)]);
+                q('INSERT IGNORE INTO project_members (project_id, user_id, rate) VALUES (?, ?, ?)', [$id, $uid, num_in((array) $m, 'rate', null, 0)]);
             }
         }
     });
@@ -244,7 +244,7 @@ $router->add('POST', 'tasks', [ROLE_PROJECT], function () {
     $d = task_data($b, true) + ['project_id' => $projectId, 'created_by' => current_user()['id']];
     if (!empty($d['assignee_id'])) {
         // Assigning someone makes them a project member.
-        q('INSERT OR IGNORE INTO project_members (project_id, user_id) VALUES (?, ?)', [$projectId, $d['assignee_id']]);
+        q('INSERT IGNORE INTO project_members (project_id, user_id) VALUES (?, ?)', [$projectId, $d['assignee_id']]);
     }
     if ($d['status'] === 'done') {
         $d['completed_at'] = now_utc();
@@ -272,7 +272,7 @@ $router->add('PUT', 'tasks/{id}', [], function ($p) {
         $d['completed_at'] = $d['status'] === 'done' ? ($task['completed_at'] ?: now_utc()) : null;
     }
     if (!empty($d['assignee_id'])) {
-        q('INSERT OR IGNORE INTO project_members (project_id, user_id) VALUES (?, ?)', [$task['project_id'], $d['assignee_id']]);
+        q('INSERT IGNORE INTO project_members (project_id, user_id) VALUES (?, ?)', [$task['project_id'], $d['assignee_id']]);
     }
     $d['updated_at'] = now_utc();
     update('tasks', $id, $d);

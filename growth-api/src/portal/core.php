@@ -156,7 +156,7 @@ function today(): string
     return date('Y-m-d');
 }
 
-/** Timestamps are stored in UTC, matching SQLite's CURRENT_TIMESTAMP. */
+/** Timestamps are stored in UTC (the database session runs in UTC too). */
 function now_utc(): string
 {
     return gmdate('Y-m-d H:i:s');
@@ -204,16 +204,21 @@ function transaction(callable $fn): mixed
     if ($pdo->inTransaction()) {
         return $fn();
     }
-    // IMMEDIATE takes the write lock up front, so two people saving at once can't
-    // both read the same "next invoice number".
-    $pdo->exec('BEGIN IMMEDIATE');
+    // One writer at a time (a named lock), so two people saving at once can't both read
+    // the same "next invoice number".
+    if ((int) $pdo->query("SELECT GET_LOCK('chromolog_write', 15)")->fetchColumn() !== 1) {
+        throw new ApiError('The system is busy. Please try again.', 503);
+    }
+    $pdo->beginTransaction();
     try {
         $result = $fn();
-        $pdo->exec('COMMIT');
+        $pdo->commit();
         return $result;
     } catch (Throwable $e) {
-        $pdo->exec('ROLLBACK');
+        $pdo->rollBack();
         throw $e;
+    } finally {
+        $pdo->query("SELECT RELEASE_LOCK('chromolog_write')");
     }
 }
 
@@ -250,7 +255,7 @@ function current_user(): ?array
             $row = q(
                 "SELECT u.*, t.id AS token_id, t.kind AS token_kind, t.last_used_at AS token_last_used FROM api_tokens t
                  JOIN users u ON u.id = t.user_id
-                 WHERE t.token_hash = ? AND t.expires_at > datetime('now') AND u.active = 1",
+                 WHERE t.token_hash = ? AND t.expires_at > UTC_TIMESTAMP() AND u.active = 1",
                 [hash('sha256', $token)]
             )->fetch();
             // Normal sign-ins end after a period without activity.
@@ -265,7 +270,7 @@ function current_user(): ?array
                 if ($fromCookie && !in_array($method, ['GET', 'HEAD', 'OPTIONS'], true) && ($_SERVER['HTTP_X_PORTAL_REQUEST'] ?? '') !== '1') {
                     throw new ApiError('Request blocked for security reasons. Please refresh the page.', 403);
                 }
-                q('UPDATE api_tokens SET last_used_at = CURRENT_TIMESTAMP WHERE id = ?', [$row['token_id']]);
+                q('UPDATE api_tokens SET last_used_at = UTC_TIMESTAMP() WHERE id = ?', [$row['token_id']]);
                 unset($row['password_hash']);
                 $user = $row;
             }
@@ -302,8 +307,8 @@ function has_role(string ...$roles): bool
 function issue_token(int $userId, string $label, int $days): string
 {
     $token = bin2hex(random_bytes(32));
-    q("INSERT INTO api_tokens (user_id, token_hash, label, kind, expires_at) VALUES (?, ?, ?, 'api_key', datetime('now', ?))",
-        [$userId, hash('sha256', $token), $label, "+{$days} days"]);
+    q("INSERT INTO api_tokens (user_id, token_hash, label, kind, expires_at) VALUES (?, ?, ?, 'api_key', ?)",
+        [$userId, hash('sha256', $token), $label, utc_at("+{$days} days")]);
     return $token;
 }
 
@@ -316,6 +321,7 @@ function public_user(array $u): array
         'last_login_at' => $u['last_login_at'] ?? null,
         'locked' => !empty($u['locked_until']) && strtotime($u['locked_until'] . ' UTC') > time(),
         'must_change_password' => (bool) ($u['must_change_password'] ?? 0),
+        'invite_pending' => array_key_exists('activated_at', $u) && $u['activated_at'] === null,
     ];
 }
 
@@ -334,6 +340,7 @@ function ensure_admin_user(): void
         'email' => $cfg['admin_email'] ?? 'info@chromologtechnologies.com',
         'password_hash' => $cfg['admin_password_hash'],
         'role' => ROLE_ADMIN,
+        'activated_at' => now_utc(),
     ]);
 }
 
@@ -396,8 +403,13 @@ const SETTING_DEFAULTS = [
 
 function settings_all(): array
 {
-    $rows = q('SELECT key, value FROM settings')->fetchAll(PDO::FETCH_KEY_PAIR);
+    $rows = q('SELECT `key`, value FROM settings')->fetchAll(PDO::FETCH_KEY_PAIR);
     return array_merge(SETTING_DEFAULTS, $rows);
+}
+
+function set_setting(string $key, string $value): void
+{
+    q('INSERT INTO settings (`key`, value) VALUES (?, ?) ON DUPLICATE KEY UPDATE value = VALUES(value)', [$key, $value]);
 }
 
 function setting(string $key): string
@@ -455,7 +467,7 @@ function store_upload(string $field, string $folder): ?array
 
 function upload_root(): string
 {
-    return rtrim(config()['uploads_path'] ?? (dirname(config()['db_path']) . '/uploads'), '/');
+    return rtrim(config()['uploads_path'] ?? (private_dir() . '/uploads'), '/');
 }
 
 function send_file(?string $relPath, ?string $name): never

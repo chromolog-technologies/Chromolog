@@ -44,14 +44,14 @@ try {
     json_response(['error' => $e->getMessage()], $e->status);
 } catch (PDOException $e) {
     // Turn database constraint errors into clear messages instead of a generic 500.
-    if (str_contains($e->getMessage(), 'FOREIGN KEY constraint failed')) {
+    if (str_contains($e->getMessage(), 'foreign key constraint fails')) {
         json_response(['error' => 'One of the selected records (person, client, project…) does not exist any more. Refresh and try again.'], 422);
     }
     // Protected records (issued invoices, invoice history): the database refuses the change.
     if (preg_match('/LOCKED: ([^\n]+)/', $e->getMessage(), $m)) {
         json_response(['error' => trim($m[1])], 422);
     }
-    if (str_contains($e->getMessage(), 'UNIQUE constraint failed')) {
+    if (str_contains($e->getMessage(), 'Duplicate entry')) {
         json_response(['error' => 'That already exists. Please refresh and try again.'], 409);
     }
     error_log('Chromolog portal API: ' . $e->getMessage() . ' @ ' . $e->getFile() . ':' . $e->getLine());

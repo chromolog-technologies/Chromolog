@@ -56,8 +56,8 @@ if ($upload && ($upload['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) 
 
 $pdo = db();
 $ipHash = client_ip_hash();
-$recent = $pdo->prepare("SELECT COUNT(*) FROM requests WHERE ip_hash = ? AND created_at > datetime('now', '-1 hour')");
-$recent->execute([$ipHash]);
+$recent = $pdo->prepare('SELECT COUNT(*) FROM requests WHERE ip_hash = ? AND created_at > ?');
+$recent->execute([$ipHash, utc_at('-1 hour')]);
 if ((int) $recent->fetchColumn() >= config()['rate_limit_per_hour']) {
     json_response(['error' => 'Too many submissions. Please email info@chromologtechnologies.com instead.'], 429);
 }

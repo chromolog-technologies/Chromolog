@@ -22,10 +22,11 @@ gets an email.
 1. **API key (AI mode only, skip for free mode)**: create a key at https://console.anthropic.com, add billing, and set a monthly
    spend limit (Settings → Limits).
 2. **Hostinger PHP**: in hPanel → Advanced → PHP Configuration, choose PHP 8.2 or newer and make
-   sure `pdo_sqlite` and `curl` are enabled.
+   sure `pdo_mysql` and `curl` are enabled (`pdo_sqlite` too, only for the one-time move from the old SQLite file).
 3. **Private config**: in hPanel File Manager, create the folder
    `domains/chromologtechnologies.com/chromolog-private/` (next to `public_html`, **not** inside it).
    Upload `config.example.php` there as `config.php` and fill in:
+   - `db`: the MySQL database, user and password from hPanel → Databases → MySQL Databases (host `localhost`)
    - `anthropic_api_key` (leave as is in free mode)
    - `admin_password_hash`: run `php -r "echo password_hash('YOUR-PASSWORD', PASSWORD_DEFAULT), PHP_EOL;"`
    - `ip_salt`: run `php -r "echo bin2hex(random_bytes(16)), PHP_EOL;"`

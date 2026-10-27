@@ -53,8 +53,8 @@ if (!empty($fields['email']) && !filter_var($fields['email'], FILTER_VALIDATE_EM
 
 $pdo = db();
 $ipHash = client_ip_hash();
-$recent = $pdo->prepare("SELECT COUNT(*) FROM requests WHERE ip_hash = ? AND created_at > datetime('now', '-1 hour')");
-$recent->execute([$ipHash]);
+$recent = $pdo->prepare('SELECT COUNT(*) FROM requests WHERE ip_hash = ? AND created_at > ?');
+$recent->execute([$ipHash, utc_at('-1 hour')]);
 if ((int) $recent->fetchColumn() >= config()['rate_limit_per_hour']) {
     json_response(['error' => 'Too many submissions. Please WhatsApp us at +91 94002 30723.'], 429);
 }
