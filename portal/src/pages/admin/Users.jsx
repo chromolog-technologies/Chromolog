@@ -12,7 +12,7 @@ const ROLE_HELP = {
   marketing: "Leads, CRM, clients, contracts and quotations.",
   accounts: "Invoices, payments, expenses, income, payouts and reports.",
   project: "All projects, tasks, timesheet approvals and daily reports.",
-  employee: "Own tasks, timesheet, daily report and earnings.",
+  employee: "Own tasks, timesheet and daily report.",
 };
 
 export default function Users() {
@@ -53,7 +53,7 @@ export default function Users() {
             <div key={k}><dt className="font-medium">{ROLE_LABELS[k]}</dt><dd className="text-slate-500">{v}</dd></div>
           ))}
         </dl>
-        <p className="text-xs text-slate-400 mt-3">Everyone can also log time, submit daily reports and see their own earnings.</p>
+        <p className="text-xs text-slate-400 mt-3">Everyone can also log time and submit daily reports. Earnings and project shares are visible to admins only.</p>
       </Card>
       {editing && <UserForm user={editing} onClose={() => setEditing(null)} onSaved={res.reload} />}
     </>

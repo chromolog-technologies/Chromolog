@@ -10,7 +10,7 @@ declare(strict_types=1);
  * to schema_upgrades() for later changes.
  */
 
-const SCHEMA_VERSION = 1;
+const SCHEMA_VERSION = 2;
 
 const TABLE_OPTIONS = 'ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci';
 
@@ -486,6 +486,17 @@ function schema_tables(): array
             created_at {$now},
             FOREIGN KEY (ticket_id) REFERENCES tickets(id) ON DELETE CASCADE,
             FOREIGN KEY (user_id) REFERENCES users(id)",
+        // Admin-only: each member's percentage of a project. Kept apart from project_members so
+        // team screens (and editing the team) never touch it.
+        'project_shares' => "
+            project_id INT NOT NULL,
+            user_id    INT NOT NULL,
+            percent    DOUBLE NOT NULL,
+            updated_by INT NULL,
+            updated_at {$now},
+            PRIMARY KEY (project_id, user_id),
+            FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE,
+            FOREIGN KEY (user_id) REFERENCES users(id)",
         'job_runs' => "
             {$line},
             job        VARCHAR(40) NOT NULL,
@@ -517,7 +528,9 @@ const SCHEMA_TRIGGERS = [
 /** Later schema changes: version => list of SQL statements. */
 function schema_upgrades(): array
 {
-    return [];
+    return [
+        2 => ['CREATE TABLE IF NOT EXISTS project_shares (' . schema_tables()['project_shares'] . ') ' . TABLE_OPTIONS],
+    ];
 }
 
 /** Create or upgrade the schema when app_meta says it is behind. Cheap when up to date. */

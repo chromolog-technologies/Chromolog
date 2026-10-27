@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, Pencil, Plus, Users, Trash2, Timer, Receipt } from "lucide-react";
+import { ArrowLeft, Pencil, Plus, Users, Trash2, Timer, Receipt, Lock } from "lucide-react";
 import { api } from "../../lib/api";
 import { useAuth, can } from "../../lib/auth";
 import { money, date, hours, label, today } from "../../lib/format";
@@ -78,7 +78,7 @@ export default function ProjectDetail() {
           </div>
           {project.description && <Card className="mb-6"><p className="text-sm text-slate-600 whitespace-pre-line">{project.description}</p></Card>}
 
-          <Tabs value={tab} onChange={setTab} tabs={[["board", "Task board"], ["list", "Task list"], ["time", "Timesheets"], ["team", "Team"]]} />
+          <Tabs value={tab} onChange={setTab} tabs={[["board", "Task board"], ["list", "Task list"], ["time", "Timesheets"], ["team", "Team"], ...(user.role === "admin" ? [["shares", "Shares (admin only)"]] : [])]} />
 
           {tab === "board" && (
             <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-4">
@@ -163,6 +163,8 @@ export default function ProjectDetail() {
             </Card>
           )}
 
+          {tab === "shares" && user.role === "admin" && <SharesCard projectId={project.id} />}
+
           {editing && <ProjectForm project={project} onClose={() => setEditing(false)} onSaved={() => res.reload()} />}
           {task && <TaskForm task={task} team={team} onClose={() => setTask(null)} onSaved={res.reload} />}
           {members && <MembersModal projectId={project.id} team={team} onClose={() => setMembers(false)} onSaved={res.reload} />}
@@ -170,6 +172,60 @@ export default function ProjectDetail() {
           <Confirm open={deleting} onClose={() => setDeleting(false)} onConfirm={remove} busy={busy} message="Delete this project with its tasks and unpaid timesheets?" />
         </>
       )}
+    </Async>
+  );
+}
+
+/** Admin only: a fixed percentage of the project for each member. No one else can see this. */
+function SharesCard({ projectId }) {
+  const res = useApi(`projects/${projectId}/shares`);
+  const [edits, setEdits] = useState({});
+  const [run, busy] = useAction();
+  return (
+    <Async result={res}>
+      {(d) => {
+        const pct = (m) => (edits[m.user_id] ?? String(m.percent || ""));
+        const total = d.members.reduce((s, m) => s + (Number(pct(m)) || 0), 0);
+        const save = () => run(async () => {
+          await api(`projects/${projectId}/shares`, { method: "PUT", body: { shares: d.members.map((m) => ({ user_id: m.user_id, percent: Number(pct(m)) || 0 })) } });
+          setEdits({});
+          res.reload();
+        }, "Shares saved");
+        return (
+          <Card
+            title={<span className="inline-flex items-center gap-1.5"><Lock className="h-4 w-4" /> Project shares</span>}
+            actions={<Button size="sm" onClick={save} busy={busy} disabled={!Object.keys(edits).length || total > 100}>Save</Button>}
+            padded={false}
+          >
+            <p className="px-5 pt-4 text-sm text-slate-500">
+              A fixed percentage of this project for each member. Only admins can see or change this; it isn't shown to the person, the project team or accounts, and isn't added to payouts.
+            </p>
+            <Table
+              rows={d.members.map((m) => ({ ...m, id: m.user_id }))}
+              empty="Add members to the project first (Team & rates)."
+              columns={[
+                { key: "name", label: "Member", render: (m) => <><span className="font-medium text-slate-900">{m.name}</span> <span className="text-slate-400">· {label(m.role)}</span></> },
+                { key: "percent", label: "Share %", align: "right", render: (m) => (
+                  <input type="number" min="0" max="100" step="any" value={pct(m)} placeholder="0" aria-label={`Share for ${m.name}`}
+                    onChange={(e) => setEdits({ ...edits, [m.user_id]: e.target.value })}
+                    className="w-24 text-right rounded-md border-0 ring-1 ring-slate-200 text-sm py-1 px-2" />
+                ) },
+                { key: "on_budget", label: `On budget (${money(d.budget)})`, align: "right", render: (m) => money((d.budget * (Number(pct(m)) || 0)) / 100) },
+                { key: "on_received", label: `On payments received (${money(d.received)})`, align: "right", render: (m) => money((d.received * (Number(pct(m)) || 0)) / 100) },
+              ]}
+              footer={
+                <tr>
+                  <td className="px-4 py-2.5 text-xs font-semibold text-slate-500">Total</td>
+                  <td className={`px-4 py-2.5 text-right font-semibold tabular-nums ${total > 100 ? "text-red-600" : ""}`}>{Math.round(total * 100) / 100}%</td>
+                  <td className="px-4 py-2.5 text-right tabular-nums">{money((d.budget * total) / 100)}</td>
+                  <td className="px-4 py-2.5 text-right tabular-nums">{money((d.received * total) / 100)}</td>
+                </tr>
+              }
+            />
+            {total > 100 && <p className="px-5 py-2 text-sm text-red-600">Shares add up to more than 100%.</p>}
+          </Card>
+        );
+      }}
     </Async>
   );
 }

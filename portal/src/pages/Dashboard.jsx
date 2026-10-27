@@ -73,7 +73,7 @@ export default function Dashboard() {
                   tone={d.me.report_submitted_today ? "green" : "amber"}
                   onClick={() => nav("/my/report")}
                 />
-                <Stat label="Unpaid earnings" value={money(d.me.unpaid_earnings)} onClick={() => nav("/my/earnings")} />
+                {d.me.unpaid_earnings !== null && d.me.unpaid_earnings !== undefined && <Stat label="Unpaid earnings" value={money(d.me.unpaid_earnings)} onClick={() => nav("/my/earnings")} />}
                 {d.me.open_tickets > 0 && <Stat label="My open tickets" value={d.me.open_tickets} tone="amber" onClick={() => nav("/tickets")} />}
               </div>
             </section>

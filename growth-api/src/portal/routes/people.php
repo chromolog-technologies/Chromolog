@@ -428,7 +428,8 @@ $router->add('GET', 'dashboard', [], function () {
         'open_tasks' => (int) $one("SELECT COUNT(*) FROM tasks WHERE assignee_id = ? AND status != 'done'", [$uid]),
         'hours_this_month' => (float) $one("SELECT COALESCE(SUM(hours),0) FROM timesheets WHERE user_id = ? AND date >= ?", [$uid, $monthStart]),
         'report_submitted_today' => (bool) $one("SELECT 1 FROM daily_reports WHERE user_id = ? AND date = ?", [$uid, today()]),
-        'unpaid_earnings' => money(unpaid_earnings($uid)),
+        // Earnings are admin-only for now.
+        'unpaid_earnings' => $u['role'] === ROLE_ADMIN ? money(unpaid_earnings($uid)) : null,
         'open_tickets' => (int) $one("SELECT COUNT(*) FROM tickets WHERE assignee_id = ? AND status NOT IN ('resolved','closed')", [$uid]),
     ];
     return $out;

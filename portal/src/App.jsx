@@ -113,7 +113,7 @@ export default function App() {
               <Route path="my/tasks" element={<MyTasks />} />
               <Route path="my/timesheet" element={<MyTimesheet />} />
               <Route path="my/report" element={<MyReport />} />
-              <Route path="my/earnings" element={<MyEarnings />} />
+              <Route path="my/earnings" element={<Only roles="admin"><MyEarnings /></Only>} />
 
               <Route path="users" element={<Only roles="admin"><Users /></Only>} />
               <Route path="settings" element={<Only roles="admin"><CompanySettings /></Only>} />

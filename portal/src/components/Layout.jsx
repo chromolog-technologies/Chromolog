@@ -48,7 +48,7 @@ const NAV = [
       { to: "/my/tasks", label: "My tasks", icon: ListTodo, roles: [] },
       { to: "/my/timesheet", label: "My timesheet", icon: Timer, roles: [] },
       { to: "/my/report", label: "Daily report", icon: FileClock, roles: [] },
-      { to: "/my/earnings", label: "My earnings", icon: IndianRupee, roles: [] },
+      { to: "/my/earnings", label: "My earnings", icon: IndianRupee, roles: ["__admin"] },
     ],
   },
   {

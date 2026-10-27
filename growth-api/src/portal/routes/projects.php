@@ -100,18 +100,13 @@ $router->add('GET', 'projects/{id}', [], function ($p) use ($projectSummary) {
     $tasks = q('SELECT t.*, u.name AS assignee_name FROM tasks t LEFT JOIN users u ON u.id = t.assignee_id
         WHERE t.project_id = ? ORDER BY CASE t.status WHEN \'in_progress\' THEN 0 WHEN \'review\' THEN 1 WHEN \'todo\' THEN 2 ELSE 3 END, t.due_date IS NULL, t.due_date', [$id])->fetchAll();
     if (!is_manager()) {
-        // People only see their own rate and their own fixed task pay.
-        $me = (int) current_user()['id'];
+        // Pay is admin/manager information: members see no rates or fixed task pay (their own included).
         foreach ($members as &$m) {
-            if ((int) $m['id'] !== $me) {
-                unset($m['rate'], $m['hourly_rate'], $m['effective_rate']);
-            }
+            unset($m['rate'], $m['hourly_rate'], $m['effective_rate']);
         }
         unset($m);
         foreach ($tasks as &$t) {
-            if ((int) $t['assignee_id'] !== $me) {
-                unset($t['fixed_amount']);
-            }
+            unset($t['fixed_amount']);
         }
         unset($t);
         unset($project['budget']);
@@ -125,7 +120,7 @@ $router->add('GET', 'projects/{id}', [], function ($p) use ($projectSummary) {
                 WHERE t.project_id = ? AND t.status = \'approved\'', [$id])->fetchColumn()),
             'fixed_tasks' => money((float) q("SELECT COALESCE(SUM(fixed_amount),0) FROM tasks WHERE project_id = ? AND status = 'done'", [$id])->fetchColumn()),
             'expenses' => money((float) q('SELECT COALESCE(SUM(amount),0) FROM expenses WHERE project_id = ? AND payout_id IS NULL', [$id])->fetchColumn()),
-            'invoiced' => money((float) q("SELECT COALESCE(SUM(total),0) FROM invoices WHERE project_id = ? AND status != 'cancelled'", [$id])->fetchColumn()),
+            'invoiced' => money((float) q("SELECT COALESCE(SUM(total),0) FROM invoices WHERE project_id = ? AND doc_type = 'invoice' AND status NOT IN ('draft','cancelled')", [$id])->fetchColumn()),
         ];
     }
     return $out;
@@ -201,11 +196,21 @@ $router->add('GET', 'tasks', [], function () {
     if (query('open')) {
         $where[] = "t.status != 'done'";
     }
-    return ['items' => q('SELECT t.*, p.name AS project_name, u.name AS assignee_name,
+    $items = q('SELECT t.*, p.name AS project_name, u.name AS assignee_name,
             (SELECT COALESCE(SUM(hours),0) FROM timesheets ts WHERE ts.task_id = t.id) AS hours_logged
         FROM tasks t JOIN projects p ON p.id = t.project_id LEFT JOIN users u ON u.id = t.assignee_id
-        WHERE ' . implode(' AND ', $where) . " ORDER BY t.status = 'done', t.due_date IS NULL, t.due_date, t.id DESC LIMIT 1000", $args)->fetchAll()];
+        WHERE ' . implode(' AND ', $where) . " ORDER BY t.status = 'done', t.due_date IS NULL, t.due_date, t.id DESC LIMIT 1000", $args)->fetchAll();
+    return ['items' => array_map('task_for_viewer', $items)];
 });
+
+/** Fixed task pay is only shown to managers (project team and admin). */
+function task_for_viewer(array $t): array
+{
+    if (!is_manager()) {
+        unset($t['fixed_amount']);
+    }
+    return $t;
+}
 
 function task_data(array $b, bool $creating): array
 {
@@ -251,7 +256,7 @@ $router->add('POST', 'tasks', [ROLE_PROJECT], function () {
     }
     $id = insert('tasks', $d);
     audit('create', 'task', $id);
-    return ['task' => find_or_404('tasks', $id, 'Task')];
+    return ['task' => task_for_viewer(find_or_404('tasks', $id, 'Task'))];
 });
 
 $router->add('PUT', 'tasks/{id}', [], function ($p) {
@@ -277,7 +282,7 @@ $router->add('PUT', 'tasks/{id}', [], function ($p) {
     $d['updated_at'] = now_utc();
     update('tasks', $id, $d);
     audit('update', 'task', $id);
-    return ['task' => find_or_404('tasks', $id, 'Task')];
+    return ['task' => task_for_viewer(find_or_404('tasks', $id, 'Task'))];
 });
 
 $router->add('DELETE', 'tasks/{id}', [ROLE_PROJECT], function ($p) {
@@ -578,12 +583,68 @@ $router->add('DELETE', 'payouts/{id}', $payoutRoles, function ($p) {
     audit('delete', 'payout', (int) $po['id']);
 });
 
-// Own earnings for any signed-in person.
-$router->add('GET', 'me/earnings', [], function () {
+// Earnings are admin-only for now.
+$router->add('GET', 'me/earnings', [ROLE_ADMIN], function () {
     $uid = (int) current_user()['id'];
     return [
         'unpaid' => unpaid_earnings($uid),
         'pending_approval_hours' => (float) q("SELECT COALESCE(SUM(hours),0) FROM timesheets WHERE user_id = ? AND status = 'pending'", [$uid])->fetchColumn(),
         'payouts' => q('SELECT id, period_start, period_end, hours, total, status, paid_date FROM payouts WHERE user_id = ? ORDER BY id DESC', [$uid])->fetchAll(),
     ];
+});
+
+// ── Project shares (admin only) ─────────────────────────────────────────
+
+/** Members with their share %, and what that share comes to on the budget and on money received. */
+function project_shares(int $projectId): array
+{
+    $project = find_or_404('projects', $projectId, 'Project');
+    $received = (float) q("SELECT COALESCE(SUM(p.amount),0) FROM payments p JOIN invoices i ON i.id = p.invoice_id
+        WHERE i.project_id = ? AND i.doc_type = 'invoice' AND i.status != 'cancelled'", [$projectId])->fetchColumn();
+    $rows = q('SELECT u.id AS user_id, u.name, u.role, COALESCE(s.percent, 0) AS percent
+        FROM project_members pm JOIN users u ON u.id = pm.user_id
+        LEFT JOIN project_shares s ON s.project_id = pm.project_id AND s.user_id = pm.user_id
+        WHERE pm.project_id = ? ORDER BY u.name', [$projectId])->fetchAll();
+    $budget = (float) $project['budget'];
+    foreach ($rows as &$r) {
+        $r['percent'] = (float) $r['percent'];
+        $r['on_budget'] = money($budget * $r['percent'] / 100);
+        $r['on_received'] = money($received * $r['percent'] / 100);
+    }
+    unset($r);
+    return ['budget' => money($budget), 'received' => money($received), 'total_percent' => round(array_sum(array_column($rows, 'percent')), 2), 'members' => $rows];
+}
+
+$router->add('GET', 'projects/{id}/shares', [ROLE_ADMIN], fn ($p) => project_shares(id_param($p)));
+
+// Replace the shares: [{user_id, percent}, ...]; members only, each 0–100, together at most 100.
+$router->add('PUT', 'projects/{id}/shares', [ROLE_ADMIN], function ($p) {
+    $id = id_param($p);
+    find_or_404('projects', $id, 'Project');
+    $members = array_map('intval', q('SELECT user_id FROM project_members WHERE project_id = ?', [$id])->fetchAll(PDO::FETCH_COLUMN));
+    $shares = [];
+    foreach ((array) (body()['shares'] ?? []) as $row) {
+        $uid = (int) ($row['user_id'] ?? 0);
+        $pct = num_in((array) $row, 'percent', 0, 0);
+        if (!in_array($uid, $members, true)) {
+            throw new ApiError('Shares can only be given to members of this project.', 422);
+        }
+        if ($pct > 100) {
+            throw new ApiError('A share cannot be more than 100%.', 422);
+        }
+        if ($pct > 0) {
+            $shares[$uid] = $pct;
+        }
+    }
+    if (array_sum($shares) > 100.0001) {
+        throw new ApiError('Shares add up to more than 100%.', 422);
+    }
+    transaction(function () use ($id, $shares) {
+        q('DELETE FROM project_shares WHERE project_id = ?', [$id]);
+        foreach ($shares as $uid => $pct) {
+            insert('project_shares', ['project_id' => $id, 'user_id' => $uid, 'percent' => $pct, 'updated_by' => current_user()['id']]);
+        }
+    });
+    audit('update', 'project_shares', $id);
+    return project_shares($id);
 });
