@@ -1,20 +1,86 @@
-import { Play, RotateCcw, DatabaseBackup, Download } from "lucide-react";
+import { useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
+import { Play, RotateCcw, DatabaseBackup, Download, CloudUpload, Unplug, ExternalLink } from "lucide-react";
 import { api, downloadFile } from "../../lib/api";
 import { dateTime, label } from "../../lib/format";
-import { useApi, useAction, Async, PageHeader, Card, Table, Badge, Button } from "../../components/ui";
+import { useApi, useAction, useToast, Async, PageHeader, Card, Table, Badge, Button } from "../../components/ui";
 
 function describe(job, detail) {
   if (!detail) return "—";
   if (typeof detail === "string") return detail;
   if (job === "recurring") return Array.isArray(detail) ? (detail.length ? `${detail.length} invoice(s): ${detail.map((i) => i.number).join(", ")}` : "No invoices due") : "";
-  if (job === "backup") return `${detail.file} · ${(detail.size / 1024).toFixed(0)} KB · ${detail.uploads} uploaded files`;
+  if (job === "backup") {
+    const where = detail.offsite?.status === "sent" ? `copied to ${detail.offsite.to}` : "kept on the server only";
+    return `${detail.file} · ${(detail.size / 1024).toFixed(0)} KB · ${detail.uploads} uploaded files${detail.locked ? " · locked" : ""} · ${where}`;
+  }
   if (job === "digest") return detail.note || `${detail.sent} digest email(s) sent`;
   return JSON.stringify(detail);
+}
+
+/** Where the daily backup goes besides the server: Google Drive (connect once) or a separate inbox. */
+function OffsiteCard({ offsite, run, busy, reload }) {
+  const g = offsite.google || {};
+  const last = offsite.last;
+  const connect = () => run(async () => {
+    const { url } = await api("system/google/connect", { method: "POST" });
+    window.location.assign(url);
+  });
+  const disconnect = () => run(async () => {
+    await api("system/google", { method: "DELETE" });
+    reload();
+  }, "Google Drive disconnected");
+
+  let status;
+  if (!offsite.method) status = <Badge tone="amber">Not set up</Badge>;
+  else if (offsite.method === "google_drive" && !g.connected) status = <Badge tone="amber">Google Drive not connected</Badge>;
+  else status = <Badge tone="green">{offsite.method === "google_drive" ? "Google Drive connected" : "Email copy on"}</Badge>;
+
+  return (
+    <Card
+      title="Off-site copy"
+      actions={offsite.method === "google_drive" && (g.connected ? (
+        <>
+          {g.folder_url && (
+            <a href={g.folder_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-sm text-brand-700 hover:underline mr-2">
+              Open folder <ExternalLink className="h-3.5 w-3.5" />
+            </a>
+          )}
+          <Button size="sm" variant="secondary" icon={Unplug} onClick={disconnect} busy={busy}>Disconnect</Button>
+        </>
+      ) : (
+        <Button size="sm" icon={CloudUpload} onClick={connect} busy={busy} disabled={!g.configured}>Connect Google Drive</Button>
+      ))}
+    >
+      <dl className="grid sm:grid-cols-3 gap-3 text-sm">
+        <div><dt className="text-slate-500">Status</dt><dd className="mt-0.5">{status}</dd></div>
+        <div><dt className="text-slate-500">Last copy</dt><dd>{last ? `${dateTime(last.at)} · ${(last.size / 1024).toFixed(0)} KB · ${last.to}` : "None yet"}</dd></div>
+        <div><dt className="text-slate-500">Password lock</dt><dd>{offsite.locked ? "On (backup_password in config.php)" : "Off: set backup_password in config.php"}</dd></div>
+      </dl>
+      {!offsite.method && (
+        <p className="mt-3 text-xs text-slate-500">Backups are kept only on this server. If the hosting account is lost, so are they. Set up the off-site copy as described in the portal README (Back-ups).</p>
+      )}
+      {offsite.method === "google_drive" && !g.configured && (
+        <p className="mt-3 text-xs text-slate-500">Add the Google <code>client_id</code> and <code>client_secret</code> to config.php first (portal README, Back-ups). Allowed redirect URI: <code className="break-all">{g.redirect_uri}</code></p>
+      )}
+      {offsite.method === "google_drive" && g.connected && (
+        <p className="mt-3 text-xs text-slate-500">Connected {dateTime(g.connected_at)}. Each daily backup is uploaded to the “Chromolog backups” folder in Google Drive. The portal can only see the files it created there.</p>
+      )}
+    </Card>
+  );
 }
 
 export default function Automation() {
   const res = useApi("system/jobs");
   const [run, busy] = useAction();
+  const toast = useToast();
+  const [params, setParams] = useSearchParams();
+
+  // Back from Google's sign-in page.
+  useEffect(() => {
+    if (params.get("drive") === "connected") toast("Google Drive connected. The next backup will be copied there.");
+    else if (params.get("drive_error")) toast(params.get("drive_error"), "error");
+    if (params.has("drive") || params.has("drive_error")) setParams({}, { replace: true });
+  }, [params, setParams, toast]);
 
   const runDaily = (force) => run(async () => {
     const d = await api("system/run-daily", { method: "POST", body: { force } });
@@ -22,9 +88,13 @@ export default function Automation() {
     return d;
   }, force ? "Daily jobs ran again" : "Daily jobs checked");
 
+  // Reload even when the off-site copy fails: the copy on the server was still made.
   const backupNow = () => run(async () => {
-    await api("system/backup", { method: "POST" });
-    res.reload();
+    try {
+      await api("system/backup", { method: "POST" });
+    } finally {
+      res.reload();
+    }
   }, "Backup created");
 
   return (
@@ -55,6 +125,7 @@ export default function Automation() {
                 ]}
               />
             </Card>
+            {d.offsite && <OffsiteCard offsite={d.offsite} run={run} busy={busy} reload={res.reload} />}
             {d.database && (
               <Card title="Database">
                 <dl className="grid sm:grid-cols-3 gap-3 text-sm">
@@ -89,7 +160,7 @@ export default function Automation() {
                 ]}
               />
               <p className="px-5 py-3 text-xs text-slate-500 border-t border-slate-100">
-                Each backup contains the full database and every uploaded bill and contract. The newest 14 are kept on the server; download one now and then and keep it somewhere safe (e.g. Google Drive).
+                Each backup contains the full database and every uploaded bill and contract. The newest 14 are kept on the server, and the off-site copy above keeps them safe if the server is lost.
               </p>
             </Card>
           </div>

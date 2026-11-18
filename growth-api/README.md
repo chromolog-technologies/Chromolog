@@ -53,3 +53,23 @@ Then run the frontend with `VITE_AI_CHAT_URL=http://127.0.0.1:8787/chat.php npm 
 - Per-visitor rate limit, a 30-turn limit per chat, and a global daily cap (see `config.php`).
 - Visitor IPs are stored only as salted hashes. Secrets and the database live outside `public_html`.
 - If the API is unreachable, the widget falls back to its built-in offline answers.
+
+## Tests
+
+Every pull request, and every deploy, runs the checks in `.github/workflows/checks.yml`: both
+apps must build, lint must pass, and these tests must pass. Nothing is uploaded otherwise.
+
+- `tests/Unit/`: GST maths (the same cases as `portal/src/lib/gst.test.js`, in
+  `tests/fixtures/gst-cases.json`), invoice numbers, amounts in words, billing dates, passwords.
+- `tests/Api/`: starts the real API against an empty MySQL/MariaDB database and checks sign-in,
+  invites, what each role may see, invoice numbering and GST, that issued invoices can't be
+  deleted (by the app or the database), and that website leads arrive.
+
+Run them locally (the database name must end in `_test`, because the tests empty it):
+
+```bash
+composer install
+vendor/bin/phpunit --testsuite unit
+CHROMOLOG_TEST_DB_NAME=chromolog_test CHROMOLOG_TEST_DB_USER=root CHROMOLOG_TEST_DB_PASSWORD= vendor/bin/phpunit
+cd ../portal && npm test
+```

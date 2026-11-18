@@ -1,0 +1,93 @@
+name: Checks
+
+# Runs on every pull request, and again before every deploy (deploy.yml calls it).
+# Nothing reaches Hostinger unless all three jobs pass.
+on:
+  pull_request:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  website:
+    name: Website builds
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Install exact package versions
+        run: npm ci --legacy-peer-deps
+        working-directory: ./frontend
+      - name: Lint
+        run: npm run lint
+        working-directory: ./frontend
+      - name: Build
+        run: npm run build
+        working-directory: ./frontend
+
+  portal:
+    name: Portal builds and tests pass
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: portal/package-lock.json
+      - name: Install exact package versions
+        run: npm ci
+        working-directory: ./portal
+      - name: Lint
+        run: npm run lint
+        working-directory: ./portal
+      - name: Tests (GST maths matches the server)
+        run: npm test
+        working-directory: ./portal
+      - name: Build
+        run: npm run build
+        working-directory: ./portal
+
+  api:
+    name: API tests pass
+    runs-on: ubuntu-latest
+    services:
+      mariadb:
+        image: mariadb:10.11
+        env:
+          MARIADB_ROOT_PASSWORD: ci-root
+          MARIADB_DATABASE: chromolog_test
+          MARIADB_USER: chromolog
+          MARIADB_PASSWORD: ci-pass
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="healthcheck.sh --connect --innodb_initialized"
+          --health-interval=5s --health-timeout=5s --health-retries=20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: pdo_mysql, curl, zip, mbstring, gd, intl
+          tools: composer
+      - name: Install packages (including test tools)
+        run: composer install --no-interaction --no-progress
+        working-directory: ./growth-api
+      - name: PHP syntax check
+        run: find . -name '*.php' -not -path './vendor/*' -print0 | xargs -0 -n1 php -l > /dev/null
+        working-directory: ./growth-api
+      - name: Tests (GST, numbering, passwords, roles, locked invoices, leads)
+        run: vendor/bin/phpunit
+        working-directory: ./growth-api
+        env:
+          CHROMOLOG_TEST_DB_HOST: 127.0.0.1
+          CHROMOLOG_TEST_DB_PORT: 3306
+          CHROMOLOG_TEST_DB_NAME: chromolog_test
+          CHROMOLOG_TEST_DB_USER: chromolog
+          CHROMOLOG_TEST_DB_PASSWORD: ci-pass

@@ -19,6 +19,7 @@ require __DIR__ . '/src/mailer.php';
 require __DIR__ . '/src/portal/core.php';
 require __DIR__ . '/src/portal/security.php';
 require __DIR__ . '/src/portal/invoicing.php';
+require __DIR__ . '/src/portal/google_drive.php';
 require __DIR__ . '/src/portal/jobs.php';
 
 // Route files define helpers the jobs reuse (invoice lines, transactions).

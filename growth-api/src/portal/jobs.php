@@ -26,12 +26,15 @@ function run_daily_jobs(bool $force = false): array
         try {
             $detail = match ($job) {
                 'recurring' => $context['invoices_created'] = generate_recurring_invoices(),
-                'backup' => run_backup(),
+                'backup' => $context['backup'] = run_backup(),
                 'digest' => send_digests($context),
             };
             $results[$job] = ['status' => 'ok', 'detail' => $detail];
         } catch (Throwable $e) {
             error_log("Chromolog daily job {$job} failed: " . $e->getMessage());
+            if ($job === 'backup') {
+                $context['backup_error'] = $e->getMessage();
+            }
             $results[$job] = ['status' => 'error', 'detail' => $e->getMessage()];
         }
         q('INSERT INTO job_runs (job, run_date, status, detail) VALUES (?, ?, ?, ?)',
@@ -162,9 +165,15 @@ function dump_database(string $path): void
     }
 }
 
-/** Zip a consistent database dump plus all uploaded files; keep the newest N backups. */
+/**
+ * Zip a consistent database dump plus all uploaded files, lock the zip with the backup password
+ * (config 'backup_password'), keep the newest N on the server and send a copy off the server
+ * (config 'offsite_backup'). A failed off-site copy fails the job, so it shows in the portal and
+ * in the admin's daily digest, but the copy on the server is kept.
+ */
 function run_backup(): array
 {
+    $password = (string) (config()['backup_password'] ?? '');
     $dir = backup_dir();
     $stamp = date('Y-m-d_His');
     $snapshot = "{$dir}/db-{$stamp}.sql";
@@ -188,8 +197,23 @@ function run_backup(): array
             }
         }
     }
-    $zip->close();
+    if ($password !== '') {
+        if (!defined('ZipArchive::EM_AES_256')) {
+            $zip->close();
+            @unlink($snapshot);
+            @unlink($zipPath);
+            throw new RuntimeException('This server cannot password-protect zip files (PHP zip without encryption).');
+        }
+        for ($i = 0; $i < $zip->numFiles; $i++) {
+            $zip->setEncryptionIndex($i, ZipArchive::EM_AES_256, $password);
+        }
+    }
+    $closed = $zip->close();
     @unlink($snapshot);
+    if (!$closed) {
+        @unlink($zipPath);
+        throw new RuntimeException('Could not finish the backup archive.');
+    }
 
     $keep = max(1, (int) (config()['backup_keep'] ?? 14));
     $all = glob("{$dir}/chromolog-backup-*.zip") ?: [];
@@ -197,7 +221,62 @@ function run_backup(): array
     foreach (array_slice($all, $keep) as $old) {
         @unlink($old);
     }
-    return ['file' => basename($zipPath), 'size' => filesize($zipPath), 'uploads' => $files, 'kept' => min(count($all), $keep)];
+    $result = ['file' => basename($zipPath), 'size' => filesize($zipPath), 'uploads' => $files, 'kept' => min(count($all), $keep), 'locked' => $password !== ''];
+    try {
+        $result['offsite'] = copy_backup_offsite($zipPath);
+    } catch (Throwable $e) {
+        throw new RuntimeException("Backup saved on the server ({$result['file']}), but the off-site copy failed: " . $e->getMessage(), 0, $e);
+    }
+    return $result;
+}
+
+const OFFSITE_METHODS = ['google_drive', 'email'];
+
+/**
+ * Send the backup off the server. 'google_drive': upload it to the connected Drive folder
+ * (see google_drive.php). 'email': attach it to an email to a separate private inbox
+ * (config offsite_backup.email), up to offsite_backup.max_mb (default 20). Records the last copy.
+ * @return array{status: string, at?: string, file?: string, size?: int, method?: string, to?: string}
+ */
+function copy_backup_offsite(string $zipPath): array
+{
+    $cfg = config()['offsite_backup'] ?? [];
+    $method = (string) ($cfg['method'] ?? '');
+    if ($method === '') {
+        return ['status' => 'not_set_up'];
+    }
+    if (!in_array($method, OFFSITE_METHODS, true)) {
+        throw new RuntimeException("Unknown off-site method \"{$method}\" in config.php.");
+    }
+    if ((string) (config()['backup_password'] ?? '') === '') {
+        throw new RuntimeException('Set backup_password in config.php first; backups never leave the server unlocked.');
+    }
+    $file = basename($zipPath);
+    $size = (int) filesize($zipPath);
+    if ($method === 'google_drive') {
+        $upload = gdrive_upload_backup($zipPath);
+        $record = ['at' => now_utc(), 'file' => $file, 'size' => $size, 'method' => $method, 'to' => 'Google Drive, folder "' . GDRIVE_FOLDER_NAME . '"', 'kept' => $upload['kept']];
+        q('INSERT INTO app_meta (name, value) VALUES (?, ?) ON DUPLICATE KEY UPDATE value = VALUES(value)', ['offsite_backup', json_encode($record)]);
+        return ['status' => 'sent'] + $record;
+    }
+    $to = (string) ($cfg['email'] ?? '');
+    if (!filter_var($to, FILTER_VALIDATE_EMAIL)) {
+        throw new RuntimeException('Set offsite_backup.email in config.php to the inbox that keeps the backups.');
+    }
+    $maxBytes = (int) round((float) ($cfg['max_mb'] ?? 20) * 1048576);
+    if ($size > $maxBytes) {
+        throw new RuntimeException(sprintf('The backup is %.1f MB, more than email allows (%.0f MB). Switch the off-site copy to cloud storage.', $size / 1048576, $maxBytes / 1048576));
+    }
+    $body = "Attached is the Chromolog portal backup made on " . date('j M Y, H:i') . " ({$file}, " . round($size / 1024) . " KB).\n\n"
+        . "It holds the whole database and every uploaded bill and contract. It is locked with the backup password\n"
+        . "from config.php; open it with 7-Zip (Windows) or Keka (Mac), as some built-in zip tools can't open locked zips.\n\n"
+        . "Keep these emails: they are your copy if the server is ever lost. Restore steps are in the portal README (Back-ups).\n";
+    if (!send_email($to, 'Chromolog backup ' . date('j M Y'), $body, null, ['path' => $zipPath, 'name' => $file, 'type' => 'application/zip'], 'Chromolog backups')) {
+        throw new RuntimeException('The backup email could not be sent (check the SMTP settings in config.php).');
+    }
+    $record = ['at' => now_utc(), 'file' => $file, 'size' => $size, 'method' => $method, 'to' => mask_email($to)];
+    q('INSERT INTO app_meta (name, value) VALUES (?, ?) ON DUPLICATE KEY UPDATE value = VALUES(value)', ['offsite_backup', json_encode($record)]);
+    return ['status' => 'sent'] + $record;
 }
 
 function list_backups(): array
@@ -285,6 +364,14 @@ function send_digests(array $context): array
             }
             if ($breached) {
                 $sections[] = digest_section('Support tickets past their response/resolution target', array_map(fn ($t) => "{$t['number']} [{$t['priority']}] {$t['subject']} — " . ($t['assignee'] ?: 'unassigned'), $breached));
+            }
+        }
+
+        if ($isAdmin) {
+            $backupProblem = $context['backup_error'] ?? (($context['backup']['offsite']['status'] ?? '') === 'not_set_up'
+                ? 'Backups are kept only on the Hostinger server. Set up the off-site copy (portal README, Back-ups).' : null);
+            if ($backupProblem) {
+                $sections[] = digest_section('Backups', [$backupProblem]);
             }
         }
 

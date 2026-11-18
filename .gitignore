@@ -44,3 +44,7 @@ scratch_glb/
 /*.glb
 /chronolog_*demo.html
 /ChatGPT Image*.png
+
+# PHPUnit cache
+growth-api/.phpunit.cache/
+growth-api/.phpunit.result.cache

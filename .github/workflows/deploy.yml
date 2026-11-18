@@ -6,9 +6,19 @@ on:
       - main
   workflow_dispatch:
 
+# One deploy at a time; a newer push waits for the running one instead of racing it.
+concurrency:
+  group: deploy-hostinger
+  cancel-in-progress: false
+
 jobs:
+  checks:
+    name: Checks
+    uses: ./.github/workflows/checks.yml
+
   web-deploy:
     name: Build & Deploy to Hostinger
+    needs: checks
     runs-on: ubuntu-latest
     steps:
       - name: 🚚 Checkout Code
@@ -20,7 +30,7 @@ jobs:
           node-version: 24
 
       - name: 📦 Install Dependencies
-        run: npm install --legacy-peer-deps
+        run: npm ci --legacy-peer-deps
         working-directory: ./frontend
 
       - name: 🐘 Setup PHP
@@ -31,6 +41,10 @@ jobs:
 
       - name: 📦 Install Growth API Dependencies
         run: composer install --no-dev --optimize-autoloader --no-interaction
+        working-directory: ./growth-api
+
+      - name: 🧪 Leave test files out of the upload
+        run: rm -rf tests phpunit.xml.dist
         working-directory: ./growth-api
 
       - name: 🏗️ Build Production Bundle
