@@ -15,9 +15,9 @@ and freelancer payouts. Lives at **https://chromologtechnologies.com/portal/** o
 | Marketing | Leads (pipeline, notes, follow-ups, convert to client), clients, contracts, quotations |
 | Accounts | Invoices, credit/debit notes & payments, quotations → invoices, expenses & bills, other income, payouts, profit & loss, sales & GST reports, ledger CSV |
 | Project team | All projects, tasks & assignments, timesheet approvals, daily reports (incl. who hasn't submitted) |
-| Employee | Own tasks, timesheet, daily report, earnings; projects they're a member of |
+| Employee | Own tasks, timesheet, daily report; projects they're a member of |
 
-Everyone can log time, submit a daily report and see their own earnings.
+Everyone can log time and submit a daily report. Earnings (My earnings and payouts) are visible to admins only.
 
 **Invoices** follow Indian GST rules once GST is switched on in Company settings: CGST + SGST for the
 company's own state, IGST for other states and exports, exempt / non-GST supplies, per-line GST rates,
