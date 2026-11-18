@@ -33,6 +33,19 @@ return [
     // Daily backups (zip of database + uploads); newest N are kept.
     'backup_path' => __DIR__ . '/backups',
     'backup_keep' => 14,
+    // Every backup zip is locked with this password (AES-256). Generate one with:
+    //   php -r "echo bin2hex(random_bytes(16)), PHP_EOL;"
+    // and keep a copy somewhere safe OUTSIDE the server (e.g. your password manager): without it the backups can't be opened.
+    'backup_password' => '',
+    // Off-site copy of each daily backup. 'google_drive' (connect it once on Admin → Automation & backups),
+    // or 'email' with 'email' => 'a-separate-private-inbox@example.com' (up to 'max_mb' => 20). Leave method empty to keep backups on the server only.
+    'offsite_backup' => ['method' => 'google_drive'],
+    // Google Drive: an OAuth client ("Web application") from Google Cloud Console; see the portal README, Back-ups.
+    'google_drive' => [
+        'client_id' => '',
+        'client_secret' => '',
+        'keep' => 60, // copies kept in the Drive folder; older ones are deleted
+    ],
 
     // Random string used to hash visitor IPs. Generate with: php -r "echo bin2hex(random_bytes(16)), PHP_EOL;"
     'ip_salt' => '',

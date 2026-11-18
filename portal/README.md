@@ -42,8 +42,9 @@ Once a day the server runs three jobs (`growth-api/cron.php`, or **Admin → Aut
 
 1. **Recurring invoices** — creates each due invoice from its schedule (monthly, quarterly, half-yearly,
    yearly) on the same day of the month, as a draft or issued straight away. Missed periods are caught up.
-2. **Backup** — a zip with a consistent SQL dump of the database (`database.sql`) and every uploaded bill/contract, kept in
-   `chromolog-private/backups` (newest 14). Admins can download them from the portal.
+2. **Backup** — a password-locked zip with a consistent SQL dump of the database (`database.sql`) and every uploaded
+   bill/contract, kept in `chromolog-private/backups` (newest 14) and copied to Google Drive (see Back-ups).
+   Admins can download them from the portal.
 3. **Daily digest** — one email per person with only what applies to them: lead follow-ups (marketing),
    overdue invoices, new recurring invoices, contract renewals, payouts to pay (accounts), missing daily
    reports, approvals, overdue tasks, tickets past target (project team), and each person's own overdue
@@ -128,6 +129,40 @@ database user is allowed to (shared hosting often isn't; the app enforces the sa
 ## Back-ups
 
 Everything is in the MySQL database plus the `uploads` folder. The daily job zips a SQL dump and the
-uploads into `backups/` (newest 14 kept). To restore, import `database.sql` into an empty database in
-phpMyAdmin and copy the `uploads` folder back. Download one from **Automation & backups** every week or two and keep it
-off the server (e.g. Google Drive). Use **Profit & loss → Ledger CSV** for your accountant.
+uploads, locks the zip with `backup_password` (AES-256), keeps the newest 14 in `chromolog-private/backups`
+and uploads a copy to the **"Chromolog backups"** folder in Google Drive (newest 60 kept there). If the
+off-site copy fails, the job shows as an error on **Automation & backups** and in the admin's daily digest;
+the copy on the server is still made. Use **Profit & loss → Ledger CSV** for your accountant.
+
+### One-time setup: Google Drive (about 15 minutes)
+
+1. Go to https://console.cloud.google.com, sign in with the Google account whose Drive should hold the
+   backups, and create a project (e.g. "Chromolog backups").
+2. **APIs & Services → Library**: enable the **Google Drive API**.
+3. **APIs & Services → OAuth consent screen**: choose *External*, fill in the app name and your email, add
+   the scope `.../auth/drive.file` (only files the app creates), then **Publish app** so it is *In production*.
+   (In *Testing* mode Google expires the connection after 7 days.) `drive.file` needs no Google review.
+4. **APIs & Services → Credentials → Create credentials → OAuth client ID**, type *Web application*.
+   Under *Authorised redirect URIs* add exactly:
+   `https://chromologtechnologies.com/api/ai/v1/system/google/callback`
+   (the Automation page shows this address too).
+5. In `chromolog-private/config.php` on Hostinger add:
+   ```php
+   'backup_password' => '<run: php -r "echo bin2hex(random_bytes(16)), PHP_EOL;">',
+   'offsite_backup' => ['method' => 'google_drive'],
+   'google_drive' => ['client_id' => '<from step 4>', 'client_secret' => '<from step 4>'],
+   ```
+   **Save the backup password in your password manager too.** Without it no backup can be opened.
+6. In the portal: **Admin → Automation & backups → Connect Google Drive**, sign in, allow access. Then press
+   **Back up now** and check that a zip appears in the "Chromolog backups" folder in Drive.
+
+To stop: **Disconnect** on the same page (you can also remove "Chromolog backups" at
+https://myaccount.google.com/permissions).
+
+### Restoring a backup
+
+1. Download the zip from Google Drive (or from **Automation & backups**).
+2. Open it with the backup password: 7-Zip on Windows, Keka on Mac (the built-in zip tools can't open locked zips).
+3. In phpMyAdmin, import `database.sql` into an **empty** database, then copy the `uploads` folder back into
+   `chromolog-private/uploads`.
+4. Once a year, do this into a spare empty database as a fire drill, and check that the invoices and clients are there.

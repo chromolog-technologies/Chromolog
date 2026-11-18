@@ -21,6 +21,17 @@ $router->add('GET', 'system/jobs', [ROLE_ADMIN], function () {
         'protected_by_triggers' => array_values(array_filter(explode(',', $meta['triggers'] ?? ''))),
         'sqlite_import' => isset($meta['sqlite_import']) ? json_decode($meta['sqlite_import'], true) : null,
         'rows' => $counts,
+    ], 'offsite' => [
+        'method' => (string) (config()['offsite_backup']['method'] ?? ''),
+        'locked' => (string) (config()['backup_password'] ?? '') !== '',
+        'last' => isset($meta['offsite_backup']) ? json_decode($meta['offsite_backup'], true) : null,
+        'google' => [
+            'configured' => gdrive_configured(),
+            'connected' => ($conn = gdrive_connection()) !== null,
+            'connected_at' => $conn['connected_at'] ?? null,
+            'folder_url' => $conn ? 'https://drive.google.com/drive/folders/' . rawurlencode($conn['folder_id']) : null,
+            'redirect_uri' => gdrive_redirect_uri(),
+        ],
     ]];
 });
 
@@ -30,8 +41,13 @@ $router->add('POST', 'system/run-daily', [ROLE_ADMIN], function () {
 });
 
 $router->add('POST', 'system/backup', [ROLE_ADMIN], function () {
-    $result = run_backup();
-    q('INSERT INTO job_runs (job, run_date, status, detail) VALUES (?, ?, ?, ?)', ['backup', today(), 'ok', json_encode($result)]);
+    try {
+        $result = run_backup();
+    } catch (RuntimeException $e) {
+        q('INSERT INTO job_runs (job, run_date, status, detail) VALUES (?, ?, ?, ?)', ['backup', today(), 'error', json_encode($e->getMessage(), JSON_UNESCAPED_UNICODE)]);
+        throw new ApiError($e->getMessage(), 502);
+    }
+    q('INSERT INTO job_runs (job, run_date, status, detail) VALUES (?, ?, ?, ?)', ['backup', today(), 'ok', json_encode($result, JSON_UNESCAPED_UNICODE)]);
     return ['backup' => $result];
 });
 
@@ -46,4 +62,35 @@ $router->add('GET', 'system/backups/{file}', [ROLE_ADMIN], function ($p) {
     header("Content-Disposition: attachment; filename=\"{$file}\"");
     readfile($path);
     exit;
+});
+
+// ── Google Drive (off-site backups) ─────────────────────────────────────
+
+$router->add('POST', 'system/google/connect', [ROLE_ADMIN], function () {
+    security_event('google_drive_connect_started', (int) current_user()['id']);
+    return ['url' => gdrive_auth_url((int) current_user()['id'])];
+});
+
+// Google sends the browser back here after sign-in. Public: the sign-in cookie is SameSite=Strict, so
+// it isn't sent on this cross-site redirect; the one-time state value proves who started it.
+$router->add('GET', 'system/google/callback', null, function () {
+    $portal = rtrim(config()['portal_url'] ?? (rtrim(setting('company_website'), '/') . '/portal'), '/');
+    try {
+        if ($error = query('error')) {
+            throw new RuntimeException($error === 'access_denied' ? 'Google access was not granted.' : "Google returned an error ({$error}).");
+        }
+        $conn = gdrive_finish((string) query('code', ''), (string) query('state', ''));
+        security_event('google_drive_connected', $conn['connected_by']);
+        $target = "{$portal}/automation?drive=connected";
+    } catch (RuntimeException $e) {
+        error_log('Chromolog Google Drive: ' . $e->getMessage());
+        $target = "{$portal}/automation?drive_error=" . rawurlencode($e->getMessage());
+    }
+    header('Location: ' . $target, true, 302);
+    exit;
+});
+
+$router->add('DELETE', 'system/google', [ROLE_ADMIN], function () {
+    gdrive_disconnect();
+    security_event('google_drive_disconnected', (int) current_user()['id']);
 });

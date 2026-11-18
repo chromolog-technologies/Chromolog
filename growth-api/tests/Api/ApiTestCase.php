@@ -16,12 +16,16 @@ abstract class ApiTestCase extends TestCase
 {
     protected const ADMIN_EMAIL = 'admin@example.test';
     protected const ADMIN_PASSWORD = 'Admin-Test-Pass-58!';
+    protected const BACKUP_PASSWORD = 'Backup-Test-Pass-91!';
+
+    protected static string $googleUrl = '';
+    protected static string $googleDir = '';
 
     protected static string $baseUrl = '';
     protected static string $workDir = '';
     protected static ?PDO $pdo = null;
-    /** @var resource|null */
-    private static $server = null;
+    /** @var list<resource> */
+    private static array $servers = [];
 
     public static function setUpBeforeClass(): void
     {
@@ -45,6 +49,12 @@ abstract class ApiTestCase extends TestCase
 
         self::$workDir = sys_get_temp_dir() . '/chromolog-test-' . bin2hex(random_bytes(4));
         mkdir(self::$workDir . '/uploads', 0700, true);
+        self::$googleDir = self::$workDir . '/google';
+        mkdir(self::$googleDir, 0700, true);
+        $port = self::freePort();
+        $googlePort = self::freePort();
+        self::$baseUrl = "http://127.0.0.1:{$port}";
+        self::$googleUrl = "http://127.0.0.1:{$googlePort}";
         $config = [
             'db' => $db,
             'admin_email' => self::ADMIN_EMAIL,
@@ -55,6 +65,14 @@ abstract class ApiTestCase extends TestCase
             'mail_log' => self::$workDir . '/mail.log',
             'notify_email' => 'team@example.test',
             'portal_url' => 'http://localhost/portal',
+            'public_api_url' => self::$baseUrl . '/api/ai/v1',
+            'backup_password' => self::BACKUP_PASSWORD,
+            'offsite_backup' => ['method' => 'google_drive'],
+            'google_drive' => [
+                'client_id' => 'test-client', 'client_secret' => 'test-secret', 'keep' => 2,
+                'auth_url' => self::$googleUrl . '/auth', 'token_url' => self::$googleUrl . '/token',
+                'api_url' => self::$googleUrl . '/drive/v3', 'upload_url' => self::$googleUrl . '/upload/drive/v3',
+            ],
             'allowed_origins' => [],
             'timezone' => 'Asia/Kolkata',
             'rate_limit_per_hour' => 1000,
@@ -62,32 +80,31 @@ abstract class ApiTestCase extends TestCase
         ];
         file_put_contents(self::$workDir . '/config.php', '<?php return ' . var_export($config, true) . ';');
 
-        $port = self::freePort();
-        self::$baseUrl = "http://127.0.0.1:{$port}";
-        $root = dirname(__DIR__, 2);
-        self::$server = proc_open(
-            [PHP_BINARY, '-S', "127.0.0.1:{$port}", 'dev-router.php'],
-            [0 => ['pipe', 'r'], 1 => ['file', self::$workDir . '/server.log', 'a'], 2 => ['file', self::$workDir . '/server.log', 'a']],
-            $pipes,
-            $root,
-            ['CHROMOLOG_CONFIG' => self::$workDir . '/config.php'] + getenv()
-        );
+        self::startServer($port, dirname(__DIR__, 2), 'dev-router.php', ['CHROMOLOG_CONFIG' => self::$workDir . '/config.php']);
+        self::startServer($googlePort, dirname(__DIR__) . '/fixtures', 'fake-google.php', ['FAKE_GOOGLE_DIR' => self::$googleDir]);
+    }
+
+    private static function startServer(int $port, string $root, string $router, array $env): void
+    {
+        $log = self::$workDir . '/server.log';
+        self::$servers[] = proc_open([PHP_BINARY, '-S', "127.0.0.1:{$port}", $router],
+            [0 => ['pipe', 'r'], 1 => ['file', $log, 'a'], 2 => ['file', $log, 'a']], $pipes, $root, $env + getenv());
         for ($i = 0; $i < 50; $i++) {
             if (@fsockopen('127.0.0.1', $port)) {
                 return;
             }
             usleep(100_000);
         }
-        self::fail('The test API server did not start. See ' . self::$workDir . '/server.log');
+        self::fail("A test server ({$router}) did not start. See {$log}");
     }
 
     public static function tearDownAfterClass(): void
     {
-        if (self::$server) {
-            proc_terminate(self::$server);
-            proc_close(self::$server);
-            self::$server = null;
+        foreach (self::$servers as $server) {
+            proc_terminate($server);
+            proc_close($server);
         }
+        self::$servers = [];
     }
 
     private static function emptyDatabase(): void
@@ -141,6 +158,24 @@ abstract class ApiTestCase extends TestCase
         curl_close($ch);
         $data = json_decode((string) $raw, true);
         return [$status, is_array($data) ? $data : ['raw' => $raw]];
+    }
+
+    /** A plain GET without following redirects. @return array{0: int, 1: string} status and Location header */
+    protected static function redirectOf(string $url): array
+    {
+        $ch = curl_init($url);
+        $location = '';
+        curl_setopt_array($ch, [CURLOPT_RETURNTRANSFER => true, CURLOPT_FOLLOWLOCATION => false, CURLOPT_PROXY => '', CURLOPT_TIMEOUT => 30,
+            CURLOPT_HEADERFUNCTION => function ($ch, $line) use (&$location) {
+                if (stripos($line, 'Location:') === 0) {
+                    $location = trim(substr($line, 9));
+                }
+                return strlen($line);
+            }]);
+        curl_exec($ch);
+        $status = (int) curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
+        curl_close($ch);
+        return [$status, $location];
     }
 
     /** Sign in like a script does and return the token. */
