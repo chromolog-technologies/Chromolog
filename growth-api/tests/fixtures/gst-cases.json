@@ -1,0 +1,53 @@
+[
+  {
+    "name": "Same state: 18% splits into 9% CGST and 9% SGST",
+    "supply_type": "intra", "reverse_charge": false,
+    "items": [{ "quantity": 1, "unit_price": 10000, "discount": 0, "gst_rate": 18 }],
+    "expect": { "taxable": 10000, "cgst": 900, "sgst": 900, "igst": 0, "tax": 1800, "total": 11800 }
+  },
+  {
+    "name": "Other state: IGST on the value after discount",
+    "supply_type": "inter", "reverse_charge": false,
+    "items": [{ "quantity": 2, "unit_price": 1500, "discount": 500, "gst_rate": 18 }],
+    "expect": { "taxable": 2500, "cgst": 0, "sgst": 0, "igst": 450, "tax": 450, "total": 2950 }
+  },
+  {
+    "name": "Rounding to paise on an odd amount",
+    "supply_type": "intra", "reverse_charge": false,
+    "items": [{ "quantity": 3, "unit_price": 333.33, "discount": 0, "gst_rate": 18 }],
+    "expect": { "taxable": 999.99, "cgst": 90, "sgst": 90, "igst": 0, "tax": 180, "total": 1179.99 }
+  },
+  {
+    "name": "Half a paisa rounds up",
+    "supply_type": "intra", "reverse_charge": false,
+    "items": [{ "quantity": 1, "unit_price": 0.5, "discount": 0, "gst_rate": 18 }],
+    "expect": { "taxable": 0.5, "cgst": 0.05, "sgst": 0.05, "igst": 0, "tax": 0.1, "total": 0.6 }
+  },
+  {
+    "name": "Several lines at different rates",
+    "supply_type": "intra", "reverse_charge": false,
+    "items": [
+      { "quantity": 1, "unit_price": 1000, "discount": 0, "gst_rate": 5 },
+      { "quantity": 1, "unit_price": 2000, "discount": 0, "gst_rate": 12 }
+    ],
+    "expect": { "taxable": 3000, "cgst": 145, "sgst": 145, "igst": 0, "tax": 290, "total": 3290 }
+  },
+  {
+    "name": "Exempt supply carries no GST",
+    "supply_type": "exempt", "reverse_charge": false,
+    "items": [{ "quantity": 1, "unit_price": 5000, "discount": 0, "gst_rate": 18 }],
+    "expect": { "taxable": 5000, "cgst": 0, "sgst": 0, "igst": 0, "tax": 0, "total": 5000 }
+  },
+  {
+    "name": "Reverse charge shows the tax but leaves it out of the total",
+    "supply_type": "inter", "reverse_charge": true,
+    "items": [{ "quantity": 1, "unit_price": 10000, "discount": 0, "gst_rate": 18 }],
+    "expect": { "taxable": 10000, "cgst": 0, "sgst": 0, "igst": 1800, "tax": 1800, "total": 10000 }
+  },
+  {
+    "name": "A discount larger than the line is capped at the line amount",
+    "supply_type": "intra", "reverse_charge": false,
+    "items": [{ "quantity": 1, "unit_price": 100, "discount": 250, "gst_rate": 18 }],
+    "expect": { "taxable": 0, "cgst": 0, "sgst": 0, "igst": 0, "tax": 0, "total": 0 }
+  }
+]
