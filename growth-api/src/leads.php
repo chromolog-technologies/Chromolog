@@ -51,11 +51,12 @@ function notify_new_lead(array $lead): void
 
 /**
  * Thank the visitor straight away, with the booking link, so nobody waits in silence.
- * Off unless config 'lead_thank_you' => ['enabled' => true]. Failures never block the lead.
+ * On by default (wording approved 18 Nov 2026); config 'lead_thank_you' => ['enabled' => false] turns it off.
+ * Failures never block the lead.
  */
 function send_lead_thank_you(array $lead): bool
 {
-    $cfg = (config()['lead_thank_you'] ?? []) + ['enabled' => false, 'booking_url' => '', 'whatsapp' => '+91 94002 30723'];
+    $cfg = (config()['lead_thank_you'] ?? []) + ['enabled' => true, 'booking_url' => '', 'whatsapp' => '+91 94002 30723'];
     $to = $lead['email'] ?? '';
     if (!$cfg['enabled'] || $to === '' || ($lead['source'] ?? '') === 'newsletter') {
         return false;

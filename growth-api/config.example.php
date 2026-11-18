@@ -61,9 +61,9 @@ return [
     'allowed_origins' => ['https://chromologtechnologies.com'],
 
     // How long visitor data is kept (the daily clean-up deletes older records; see the privacy policy).
-    // Automatic thank-you email to each new website lead (with the booking link). Keep it off until
-    // the wording in src/leads.php (lead_thank_you_text) is approved.
-    'lead_thank_you' => ['enabled' => false, 'booking_url' => '', 'whatsapp' => '+91 94002 30723'],
+    // Automatic thank-you email to each new website lead (wording: lead_thank_you_text in src/leads.php).
+    // On unless this says false. Put your Cal.com link in booking_url to include it in the email.
+    'lead_thank_you' => ['enabled' => true, 'booking_url' => '', 'whatsapp' => '+91 94002 30723'],
     'retention' => ['requests_days' => 30, 'chat_months' => 12],
 
     // Guardrails
