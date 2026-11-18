@@ -15,9 +15,9 @@ and freelancer payouts. Lives at **https://chromologtechnologies.com/portal/** o
 | Marketing | Leads (pipeline, notes, follow-ups, convert to client), clients, contracts, quotations |
 | Accounts | Invoices, credit/debit notes & payments, quotations → invoices, expenses & bills, other income, payouts, profit & loss, sales & GST reports, ledger CSV |
 | Project team | All projects, tasks & assignments, timesheet approvals, daily reports (incl. who hasn't submitted) |
-| Employee | Own tasks, timesheet, daily report, earnings; projects they're a member of |
+| Employee | Own tasks, timesheet, daily report; projects they're a member of |
 
-Everyone can log time, submit a daily report and see their own earnings.
+Everyone can log time and submit a daily report. The My earnings page is for admins only.
 
 **Invoices** follow Indian GST rules once GST is switched on in Company settings: CGST + SGST for the
 company's own state, IGST for other states and exports, exempt / non-GST supplies, per-line GST rates,
@@ -125,6 +125,9 @@ row counts in the `app_meta` table (`sqlite_import`). The SQLite file is never c
 
 Triggers that stop anyone deleting issued invoices or editing invoice history are created when the
 database user is allowed to (shared hosting often isn't; the app enforces the same rules itself).
+**Automation & backups → Database** shows whether they exist; **Try again** re-creates them (e.g. after the
+host changes permissions). If it is still refused, the database user lacks the TRIGGER permission: ask
+Hostinger support whether they can grant it for this database, or accept the portal-only protection.
 
 ## Back-ups
 

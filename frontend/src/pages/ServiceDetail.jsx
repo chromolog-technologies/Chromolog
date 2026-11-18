@@ -20,6 +20,7 @@ import {
 import { servicesData } from "../data/servicesData";
 import { caseStudiesData } from "../data/caseStudiesData";
 import { submitLead } from "../utils/leads";
+import BookingLink from "../components/BookingLink";
 import Button from "../components/ui/Button";
 import Card from "../components/ui/Card";
 import Badge from "../components/ui/Badge";
@@ -369,6 +370,7 @@ export default function ServiceDetail({ serviceSlug, setActivePage, navigateToSe
                     <p className="text-xs text-slate-300">
                       Our lead software architect will review your project details and reach out within 4 hours.
                     </p>
+                    <div className="pt-2"><BookingLink source="service_quote" /></div>
                     <a
                       href={`https://wa.me/919400230723?text=Hi%2C%20I%20just%20submitted%20a%20consultation%20request%20for%20${encodeURIComponent(service.h1)}.`}
                       target="_blank"

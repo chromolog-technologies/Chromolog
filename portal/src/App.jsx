@@ -8,6 +8,7 @@ import Activate from "./pages/Activate";
 import Dashboard from "./pages/Dashboard";
 import Leads from "./pages/crm/Leads";
 import LeadDetail from "./pages/crm/LeadDetail";
+import LeadReport from "./pages/crm/LeadReport";
 import Clients from "./pages/crm/Clients";
 import ClientDetail from "./pages/crm/ClientDetail";
 import Contracts from "./pages/crm/Contracts";
@@ -80,6 +81,7 @@ export default function App() {
               <Route index element={<Dashboard />} />
 
               <Route path="leads" element={<Only roles={["marketing"]}><Leads /></Only>} />
+              <Route path="leads/report" element={<Only roles={["marketing"]}><LeadReport /></Only>} />
               <Route path="leads/:id" element={<Only roles={["marketing"]}><LeadDetail /></Only>} />
               <Route path="clients" element={<Only roles={["marketing", "accounts", "project"]}><Clients /></Only>} />
               <Route path="clients/:id" element={<Only roles={["marketing", "accounts", "project"]}><ClientDetail /></Only>} />

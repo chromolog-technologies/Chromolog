@@ -73,6 +73,7 @@ abstract class ApiTestCase extends TestCase
                 'auth_url' => self::$googleUrl . '/auth', 'token_url' => self::$googleUrl . '/token',
                 'api_url' => self::$googleUrl . '/drive/v3', 'upload_url' => self::$googleUrl . '/upload/drive/v3',
             ],
+            'lead_thank_you' => ['enabled' => true, 'booking_url' => 'https://cal.example.test/chromolog', 'whatsapp' => '+91 00000 00000'],
             'allowed_origins' => [],
             'timezone' => 'Asia/Kolkata',
             'rate_limit_per_hour' => 1000,

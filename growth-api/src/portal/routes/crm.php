@@ -5,6 +5,7 @@ declare(strict_types=1);
 /** CRM: leads (website + manual), notes, clients, contracts. @var Router $router */
 
 const LEAD_STATUSES = ['new', 'contacted', 'meeting', 'proposal', 'won', 'lost', 'spam'];
+const LEAD_LOST_REASONS = ['price', 'timing', 'competitor', 'no_reply', 'not_a_fit', 'other'];
 const LEAD_SCORES = ['hot', 'warm', 'cold'];
 const NOTE_TYPES = ['note', 'call', 'email', 'meeting', 'whatsapp'];
 const CONTRACT_TYPES = ['project', 'amc', 'support', 'retainer', 'nda', 'other'];
@@ -25,6 +26,9 @@ function lead_data(array $b, bool $creating): array
     }
     if (array_key_exists('status', $b)) {
         $data['status'] = enum_in($b, 'status', LEAD_STATUSES, 'new');
+    }
+    if (array_key_exists('lost_reason', $b)) {
+        $data['lost_reason'] = enum_in($b, 'lost_reason', LEAD_LOST_REASONS);
     }
     if (array_key_exists('score', $b)) {
         $data['score'] = enum_in($b, 'score', LEAD_SCORES);
@@ -93,6 +97,49 @@ $router->add('GET', 'leads/export', $leadRoles, function () {
     exit;
 });
 
+// Sales funnel: where leads come from, how far they get, how fast we answer, why we lose them.
+$router->add('GET', 'leads/report', $leadRoles, function () {
+    $from = date_in($_GET, 'from') ?? date('Y-m-d', strtotime('-11 months', strtotime(date('Y-m-01'))));
+    $to = date_in($_GET, 'to') ?? today();
+    // Lead dates are UTC timestamps; widen the business-date range to whole days.
+    $range = [gmdate('Y-m-d H:i:s', strtotime("{$from} 00:00:00")), gmdate('Y-m-d H:i:s', strtotime("{$to} 23:59:59"))];
+    $where = "l.created_at BETWEEN ? AND ? AND l.status <> 'spam'";
+    $stages = "COUNT(*) AS leads,
+        SUM(l.status <> 'new') AS contacted,
+        SUM(l.status IN ('meeting','proposal','won')) AS meeting,
+        SUM(l.status IN ('proposal','won')) AS proposal,
+        SUM(l.status = 'won') AS won,
+        SUM(l.status = 'lost') AS lost,
+        ROUND(COALESCE(SUM(CASE WHEN l.status = 'won' THEN l.estimated_value END), 0), 2) AS won_value";
+    $bySource = q("SELECT l.source, {$stages} FROM leads l WHERE {$where} GROUP BY l.source ORDER BY leads DESC", $range)->fetchAll();
+    $total = q("SELECT {$stages} FROM leads l WHERE {$where}", $range)->fetch();
+    $byMonth = q("SELECT DATE_FORMAT(CONVERT_TZ(l.created_at, '+00:00', ?), '%Y-%m') AS month, COUNT(*) AS leads, SUM(l.status = 'won') AS won
+        FROM leads l WHERE {$where} GROUP BY month ORDER BY month", [date('P'), ...$range])->fetchAll();
+    $lostReasons = q("SELECT COALESCE(l.lost_reason, 'not_recorded') AS reason, COUNT(*) AS leads FROM leads l
+        WHERE {$where} AND l.status = 'lost' GROUP BY reason ORDER BY leads DESC", $range)->fetchAll();
+    // First response = the first note or status change a team member made on the lead.
+    $waits = q("SELECT TIMESTAMPDIFF(MINUTE, l.created_at, MIN(n.created_at)) AS minutes FROM leads l
+        JOIN lead_notes n ON n.lead_id = l.id AND n.user_id IS NOT NULL WHERE {$where} GROUP BY l.id", $range)->fetchAll(PDO::FETCH_COLUMN);
+    sort($waits);
+    $median = $waits ? (count($waits) % 2 ? $waits[intdiv(count($waits), 2)] : ($waits[count($waits) / 2 - 1] + $waits[count($waits) / 2]) / 2) : null;
+    $unanswered = (int) q("SELECT COUNT(*) FROM leads l WHERE {$where} AND l.status = 'new'
+        AND NOT EXISTS (SELECT 1 FROM lead_notes n WHERE n.lead_id = l.id AND n.user_id IS NOT NULL)", $range)->fetchColumn();
+    $invoiced = (float) q("SELECT COALESCE(SUM(CASE i.doc_type WHEN 'credit_note' THEN -i.total ELSE i.total END), 0) FROM invoices i
+        WHERE i.status NOT IN ('draft','cancelled') AND i.client_id IN (SELECT l.client_id FROM leads l WHERE {$where} AND l.client_id IS NOT NULL)", $range)->fetchColumn();
+    $ints = fn (array $r) => array_map(fn ($v) => is_numeric($v) && !str_contains((string) $v, '.') ? (int) $v : $v, $r);
+    return [
+        'from' => $from, 'to' => $to,
+        'total' => $ints($total ?: []),
+        'by_source' => array_map($ints, $bySource),
+        'by_month' => array_map($ints, $byMonth),
+        'lost_reasons' => array_map($ints, $lostReasons),
+        'median_first_response_minutes' => $median,
+        'answered' => count($waits),
+        'unanswered' => $unanswered,
+        'invoiced_to_converted_clients' => money($invoiced),
+    ];
+});
+
 $router->add('GET', 'leads/{id}', $leadRoles, function ($p) {
     $lead = find_or_404('leads', id_param($p), 'Lead');
     $notes = q('SELECT n.*, u.name AS user_name FROM lead_notes n LEFT JOIN users u ON u.id = n.user_id WHERE n.lead_id = ? ORDER BY n.id DESC', [$lead['id']])->fetchAll();
@@ -117,6 +164,15 @@ $router->add('PUT', 'leads/{id}', $leadRoles, function ($p) {
     $id = id_param($p);
     $before = find_or_404('leads', $id, 'Lead');
     $data = lead_data(body(), false);
+    $status = $data['status'] ?? $before['status'];
+    if ($status === 'lost') {
+        // Ask why, so the funnel report can show where deals are lost.
+        if (($data['lost_reason'] ?? $before['lost_reason'] ?? null) === null) {
+            throw new ApiError('Choose why this lead was lost.', 422);
+        }
+    } elseif (isset($data['status'])) {
+        $data['lost_reason'] = null;
+    }
     $data['updated_at'] = now_utc();
     update('leads', $id, $data);
     if (isset($data['status']) && $data['status'] !== $before['status']) {

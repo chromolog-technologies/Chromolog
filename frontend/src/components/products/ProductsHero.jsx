@@ -21,7 +21,7 @@ const FLOATERS = [
 
 const STATS = [
   { value: "2", label: "Own SaaS Products" },
-  { value: "9", label: "Industries We Build For" },
+  { value: "5", label: "Focus Industries" },
   { value: "13", label: "Core Technologies" },
   { value: "AI-First", label: "Engineering DNA" },
 ];

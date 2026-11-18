@@ -10,7 +10,7 @@ declare(strict_types=1);
  * to schema_upgrades() for later changes.
  */
 
-const SCHEMA_VERSION = 2;
+const SCHEMA_VERSION = 3;
 
 const TABLE_OPTIONS = 'ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci';
 
@@ -530,6 +530,8 @@ function schema_upgrades(): array
 {
     return [
         2 => ['CREATE TABLE IF NOT EXISTS project_shares (' . schema_tables()['project_shares'] . ') ' . TABLE_OPTIONS],
+        // Why a lead was lost (price, timing, …), asked when a lead is marked lost.
+        3 => ['ALTER TABLE leads ADD COLUMN lost_reason VARCHAR(40) NULL AFTER status'],
     ];
 }
 
@@ -569,9 +571,11 @@ function ensure_schema(PDO $pdo): void
     }
 }
 
-function create_schema_triggers(PDO $pdo): void
+/** @return array{created: list<string>, error: ?string} which protection triggers exist now, and why any failed */
+function create_schema_triggers(PDO $pdo): array
 {
     $created = [];
+    $error = null;
     foreach (SCHEMA_TRIGGERS as $name => $body) {
         try {
             $pdo->exec("DROP TRIGGER IF EXISTS {$name}");
@@ -579,8 +583,10 @@ function create_schema_triggers(PDO $pdo): void
             $created[] = $name;
         } catch (PDOException $e) {
             error_log("Chromolog: trigger {$name} not created (database permissions): " . $e->getMessage());
+            $error ??= $e->getMessage();
         }
     }
     $pdo->prepare("INSERT INTO app_meta (name, value) VALUES ('triggers', ?) ON DUPLICATE KEY UPDATE value = VALUES(value)")
         ->execute([implode(',', $created)]);
+    return ['created' => $created, 'error' => $error];
 }

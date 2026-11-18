@@ -63,7 +63,8 @@ apps must build, lint must pass, and these tests must pass. Nothing is uploaded 
   `tests/fixtures/gst-cases.json`), invoice numbers, amounts in words, billing dates, passwords.
 - `tests/Api/`: starts the real API against an empty MySQL/MariaDB database and checks sign-in,
   invites, what each role may see, invoice numbering and GST, that issued invoices can't be
-  deleted (by the app or the database), and that website leads arrive.
+  deleted (by the app or the database), that website leads arrive, the sales funnel report, the
+  "why was it lost" rule, the daily clean-up of old chats, and the database-protection retry.
 
 Run them locally (the database name must end in `_test`, because the tests empty it):
 

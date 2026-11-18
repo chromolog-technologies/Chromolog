@@ -60,6 +60,12 @@ return [
 
     'allowed_origins' => ['https://chromologtechnologies.com'],
 
+    // How long visitor data is kept (the daily clean-up deletes older records; see the privacy policy).
+    // Automatic thank-you email to each new website lead (wording: lead_thank_you_text in src/leads.php).
+    // On unless this says false. Put your Cal.com link in booking_url to include it in the email.
+    'lead_thank_you' => ['enabled' => true, 'booking_url' => '', 'whatsapp' => '+91 94002 30723'],
+    'retention' => ['requests_days' => 30, 'chat_months' => 12],
+
     // Guardrails
     'rate_limit_per_hour' => 30,   // messages per visitor per hour
     'daily_message_cap' => 1500,   // total AI replies per day across all visitors

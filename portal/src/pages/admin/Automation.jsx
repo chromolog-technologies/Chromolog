@@ -14,6 +14,7 @@ function describe(job, detail) {
     return `${detail.file} · ${(detail.size / 1024).toFixed(0)} KB · ${detail.uploads} uploaded files${detail.locked ? " · locked" : ""} · ${where}`;
   }
   if (job === "digest") return detail.note || `${detail.sent} digest email(s) sent`;
+  if (job === "cleanup") return `Removed ${detail.chats} old chat(s) with no lead (older than ${detail.chat_months} months) and ${detail.requests} anti-spam record(s) older than ${detail.requests_days} days`;
   return JSON.stringify(detail);
 }
 
@@ -88,6 +89,12 @@ export default function Automation() {
     return d;
   }, force ? "Daily jobs ran again" : "Daily jobs checked");
 
+  const retryTriggers = () => run(async () => {
+    const r = await api("system/triggers", { method: "POST" });
+    res.reload();
+    toast(r.message, r.missing ? "error" : "success");
+  });
+
   // Reload even when the off-site copy fails: the copy on the server was still made.
   const backupNow = () => run(async () => {
     try {
@@ -134,7 +141,14 @@ export default function Automation() {
                     {d.database.sqlite_import?.at ? `Yes, ${dateTime(d.database.sqlite_import.at)}` : d.database.sqlite_import?.skipped || "Not needed"}
                   </dd></div>
                   <div><dt className="text-slate-500">Database-level protection</dt><dd>
-                    {d.database.protected_by_triggers.length ? "On (history and issued invoices locked)" : "Enforced by the portal (host doesn't allow triggers)"}
+                    {d.database.protected_by_triggers.length >= (d.database.triggers_expected || 1)
+                      ? "On (history and issued invoices locked)"
+                      : d.database.protected_by_triggers.length
+                        ? `Partly on (${d.database.protected_by_triggers.length} of ${d.database.triggers_expected} rules)`
+                        : "Enforced by the portal only (host didn't allow triggers)"}
+                    {d.database.protected_by_triggers.length < (d.database.triggers_expected || 1) && (
+                      <button type="button" className="ml-2 text-brand-700 hover:underline text-xs" onClick={retryTriggers} disabled={busy}>Try again</button>
+                    )}
                   </dd></div>
                 </dl>
                 <div className="mt-4 flex flex-wrap gap-2">

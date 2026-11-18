@@ -155,3 +155,10 @@ export function setAnalyticsConsent(granted = true) {
     analytics_storage: granted ? "granted" : "denied",
   });
 }
+
+/** Track a click on the free-consultation booking link (mark "book_consultation" as a key event in GA4). */
+export function trackBookingClick(source = "") {
+  if (hasDataLayer()) window.dataLayer.push({ event: "book_consultation", lead_source: source });
+  if (isGA()) window.gtag("event", "book_consultation", { lead_source: source });
+  if (isBrowser() && typeof window.fbq === "function") window.fbq("track", "Schedule", { content_name: source });
+}

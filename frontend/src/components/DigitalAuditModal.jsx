@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { submitLead } from "../utils/leads";
+import BookingLink from "./BookingLink";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, CheckCircle2, ChevronRight, ChevronLeft, PhoneCall } from "lucide-react";
 import Button from "./ui/Button";
@@ -149,7 +150,8 @@ export default function DigitalAuditModal({ isOpen, onClose }) {
               <p className="text-xs sm:text-sm text-slate-300 max-w-md mx-auto leading-relaxed">
                 Thank you, <strong className="text-white">{answers.name}</strong>. Based on your answers, our senior software architect will generate a 1-page efficiency roadmap and call/WhatsApp you within 4 hours.
               </p>
-              <div className="pt-3 flex justify-center gap-3">
+              <div className="pt-3 flex flex-wrap justify-center gap-3">
+                <BookingLink source="digital_audit" />
                 <a
                   href={`https://wa.me/919400230723?text=Hi%2C%20I%20just%20completed%20the%20Digital%20Efficiency%20Audit%20for%20${encodeURIComponent(answers.businessType || "our business")}.`}
                   target="_blank"

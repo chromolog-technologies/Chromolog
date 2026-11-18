@@ -10,6 +10,16 @@ import {
 export const LEAD_STATUSES = ["new", "contacted", "meeting", "proposal", "won", "lost", "spam"];
 export const SOURCES = ["manual", "website_chat", "contact_form", "free_consultation", "service_quote", "digital_audit", "newsletter", "whatsapp", "phone", "email", "referral", "instagram", "facebook", "linkedin", "outbound", "walk_in", "other"];
 
+/** Why a lead was lost (matches LEAD_LOST_REASONS in the API). */
+export const LOST_REASONS = {
+  price: "Price too high",
+  timing: "Bad timing / not now",
+  competitor: "Chose another company",
+  no_reply: "Stopped replying",
+  not_a_fit: "Not a fit for our services",
+  other: "Other",
+};
+
 export default function Leads() {
   const nav = useNavigate();
   const [params, setParams] = useSearchParams();
@@ -111,6 +121,7 @@ export function LeadForm({ open, onClose, onSaved, lead }) {
     estimated_value: lead?.estimated_value ?? "",
     source: lead?.source || "manual",
     status: lead?.status || "new",
+    lost_reason: lead?.lost_reason || "",
     score: lead?.score || "",
     assigned_to: lead?.assigned_to || "",
     next_follow_up: lead?.next_follow_up || "",
@@ -120,7 +131,8 @@ export function LeadForm({ open, onClose, onSaved, lead }) {
 
   const save = () =>
     run(async () => {
-      const body = { ...f, score: f.score || null, assigned_to: f.assigned_to || null, estimated_value: f.estimated_value === "" ? null : f.estimated_value };
+      const { lost_reason, ...rest } = f;
+      const body = { ...rest, ...(f.status === "lost" && lost_reason ? { lost_reason } : {}), score: f.score || null, assigned_to: f.assigned_to || null, estimated_value: f.estimated_value === "" ? null : f.estimated_value };
       const d = lead ? await api(`leads/${lead.id}`, { method: "PUT", body }) : await api("leads", { method: "POST", body });
       onSaved(d.lead);
       onClose();
@@ -152,6 +164,7 @@ export function LeadForm({ open, onClose, onSaved, lead }) {
         <Input label="Timeline" value={f.timeline} onChange={set("timeline")} />
         <Select label="Source" value={f.source} onChange={set("source")} options={SOURCES.map((s) => [s, label(s)])} />
         <Select label="Status" value={f.status} onChange={set("status")} options={LEAD_STATUSES.map((s) => [s, label(s)])} />
+        {f.status === "lost" && <Select label="Why was it lost? *" value={f.lost_reason} onChange={set("lost_reason")} placeholder="Choose a reason" options={Object.entries(LOST_REASONS)} />}
         <Select label="Score" value={f.score} onChange={set("score")} placeholder="Unscored" options={[["hot", "Hot"], ["warm", "Warm"], ["cold", "Cold"]]} />
         <Select label="Owner" value={f.assigned_to} onChange={set("assigned_to")} placeholder="Unassigned" options={(users.data?.items || []).map((u) => [u.id, u.name])} />
         <Input label="Next follow-up" type="date" value={f.next_follow_up} onChange={set("next_follow_up")} />
