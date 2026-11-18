@@ -60,6 +60,9 @@ return [
 
     'allowed_origins' => ['https://chromologtechnologies.com'],
 
+    // How long visitor data is kept (the daily clean-up deletes older records; see the privacy policy).
+    'retention' => ['requests_days' => 30, 'chat_months' => 12],
+
     // Guardrails
     'rate_limit_per_hour' => 30,   // messages per visitor per hour
     'daily_message_cap' => 1500,   // total AI replies per day across all visitors

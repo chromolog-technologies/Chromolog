@@ -19,6 +19,7 @@ $router->add('GET', 'system/jobs', [ROLE_ADMIN], function () {
         'server' => q('SELECT VERSION()')->fetchColumn(),
         'schema_version' => (int) ($meta['schema_version'] ?? 0),
         'protected_by_triggers' => array_values(array_filter(explode(',', $meta['triggers'] ?? ''))),
+        'triggers_expected' => count(SCHEMA_TRIGGERS),
         'sqlite_import' => isset($meta['sqlite_import']) ? json_decode($meta['sqlite_import'], true) : null,
         'rows' => $counts,
     ], 'offsite' => [
@@ -93,4 +94,16 @@ $router->add('GET', 'system/google/callback', null, function () {
 $router->add('DELETE', 'system/google', [ROLE_ADMIN], function () {
     gdrive_disconnect();
     security_event('google_drive_disconnected', (int) current_user()['id']);
+});
+
+// Try again to create the database rules that lock issued invoices and their history.
+$router->add('POST', 'system/triggers', [ROLE_ADMIN], function () {
+    $result = create_schema_triggers(db());
+    audit('create_triggers', 'system');
+    $missing = count(SCHEMA_TRIGGERS) - count($result['created']);
+    return ['created' => $result['created'], 'missing' => $missing, 'message' => $missing === 0
+        ? 'Database-level protection is on.'
+        : 'The hosting company does not let this database user create triggers'
+            . (preg_match('/\b(1419|1142|1227|SUPER|TRIGGER)\b/', (string) $result['error']) ? ' (missing TRIGGER/SUPER permission)' : '')
+            . '. The portal still enforces the same rules itself; see the portal README (Database).'];
 });

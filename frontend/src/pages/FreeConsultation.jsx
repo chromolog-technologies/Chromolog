@@ -6,6 +6,7 @@ import Button from "../components/ui/Button";
 import Badge from "../components/ui/Badge";
 import PageTransition from "../components/motion/PageTransition";
 import { submitLead } from "../utils/leads";
+import BookingLink from "../components/BookingLink";
 import { CheckCircle2, ShieldCheck, PhoneCall, Clock, Sparkles, Building2 } from "lucide-react";
 
 export default function FreeConsultation({ setActivePage }) {
@@ -137,7 +138,8 @@ export default function FreeConsultation({ setActivePage }) {
                     <p className="text-xs text-slate-300 max-w-md mx-auto leading-relaxed">
                       Thank you, <strong className="text-white">{formData.name}</strong>. Our senior software architect is reviewing your details and will call or WhatsApp you shortly.
                     </p>
-                    <div className="pt-4">
+                    <div className="pt-4 flex flex-wrap justify-center gap-3">
+                      <BookingLink source="free_consultation" />
                       <a
                         href="https://wa.me/919400230723?text=Hi%2C%20I%20just%20submitted%20my%20consultation%20request%20form."
                         target="_blank"

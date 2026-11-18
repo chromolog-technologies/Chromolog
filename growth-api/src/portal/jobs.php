@@ -7,10 +7,11 @@ declare(strict_types=1);
  *   1. create due recurring invoices
  *   2. back up the database and uploads
  *   3. email each person a digest of what needs their attention
+ *   4. delete old visitor records (anti-spam counters, chats that never became a lead)
  * Each job runs at most once per business date unless forced.
  */
 
-const DAILY_JOBS = ['recurring', 'backup', 'digest'];
+const DAILY_JOBS = ['recurring', 'backup', 'digest', 'cleanup'];
 
 function run_daily_jobs(bool $force = false): array
 {
@@ -28,6 +29,7 @@ function run_daily_jobs(bool $force = false): array
                 'recurring' => $context['invoices_created'] = generate_recurring_invoices(),
                 'backup' => $context['backup'] = run_backup(),
                 'digest' => send_digests($context),
+                'cleanup' => clean_old_records(),
             };
             $results[$job] = ['status' => 'ok', 'detail' => $detail];
         } catch (Throwable $e) {
@@ -412,4 +414,25 @@ function digest_section(string $title, array $lines): string
 function fmt_money(float|string $n): string
 {
     return trim(setting('currency_symbol') . number_format((float) $n, 2));
+}
+
+// ── 4. Clean-up ─────────────────────────────────────────────────────────
+
+/**
+ * Keep visitor data only as long as it is needed (privacy policy, DPDP Act):
+ * anti-spam/sign-in counters after `requests_days` (default 30), and website chats that never became
+ * a lead after `chat_months` (default 12). Chats linked to a lead stay with the lead.
+ * config.php: 'retention' => ['requests_days' => 30, 'chat_months' => 12]
+ */
+function clean_old_records(): array
+{
+    $cfg = (config()['retention'] ?? []) + ['requests_days' => 30, 'chat_months' => 12];
+    $requestDays = max(2, (int) $cfg['requests_days']);
+    $chatMonths = max(1, (int) $cfg['chat_months']);
+    $requests = q('DELETE FROM requests WHERE created_at < ?', [utc_at("-{$requestDays} days")])->rowCount();
+    $cutoff = utc_at("-{$chatMonths} months");
+    $old = 'SELECT c.session_id FROM conversations c LEFT JOIN leads l ON l.session_id = c.session_id WHERE c.updated_at < ? AND l.id IS NULL';
+    $messages = q("DELETE FROM messages WHERE session_id IN (SELECT session_id FROM ({$old}) AS gone)", [$cutoff])->rowCount();
+    $chats = q("DELETE FROM conversations WHERE session_id IN (SELECT session_id FROM ({$old}) AS gone)", [$cutoff])->rowCount();
+    return ['requests' => $requests, 'chats' => $chats, 'messages' => $messages, 'requests_days' => $requestDays, 'chat_months' => $chatMonths];
 }

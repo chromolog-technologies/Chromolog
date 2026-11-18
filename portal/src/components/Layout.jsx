@@ -3,7 +3,7 @@ import { NavLink, Outlet, useLocation } from "react-router-dom";
 import {
   LayoutDashboard, Users2, Building2, FileSignature, FileText, Receipt, Wallet, PiggyBank, BarChart3,
   HandCoins, FolderKanban, ClipboardCheck, NotebookPen, ListTodo, Timer, FileClock, IndianRupee,
-  UserCog, Settings, LogOut, Menu, X, UserCircle, Repeat, LifeBuoy, Workflow, ShieldCheck, Tags, PieChart,
+  UserCog, Settings, LogOut, Menu, X, UserCircle, Repeat, LifeBuoy, Workflow, ShieldCheck, Tags, PieChart, Filter,
 } from "lucide-react";
 import { useAuth, can, ROLE_LABELS } from "../lib/auth";
 import { BrandMark } from "./Brand";
@@ -15,6 +15,7 @@ const NAV = [
     title: "Sales & CRM",
     items: [
       { to: "/leads", label: "Leads", icon: Users2, roles: ["marketing"] },
+      { to: "/leads/report", label: "Sales funnel", icon: Filter, roles: ["marketing"] },
       { to: "/quotations", label: "Quotations", icon: FileText, roles: ["marketing", "accounts"] },
       { to: "/clients", label: "Clients", icon: Building2, roles: ["marketing", "accounts", "project"] },
       { to: "/contracts", label: "Contracts", icon: FileSignature, roles: ["marketing", "accounts"] },
@@ -107,7 +108,7 @@ export default function Layout() {
                 <NavLink
                   key={to}
                   to={to}
-                  end={to === "/"}
+                  end={to === "/" || to === "/leads"}
                   onClick={() => setOpen(false)}
                   className={({ isActive }) =>
                     `flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm transition-colors ${

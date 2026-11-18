@@ -1,7 +1,8 @@
 import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { MessageSquare, X, Send, Sparkles, ArrowRight, RotateCcw } from "lucide-react";
-import { trackChatOpen, trackChatMessage, trackSearchQuery, trackFormSubmit } from "../utils/analytics";
+import { trackChatOpen, trackChatMessage, trackSearchQuery, trackFormSubmit, trackBookingClick } from "../utils/analytics";
+import { BOOKING_URL } from "./BookingLink";
 import {
   detectIndustry,
   getRecommendations,
@@ -19,7 +20,6 @@ const AI_CHAT_ENABLED = import.meta.env.VITE_AI_CHAT_ENABLED === "true";
 const AI_CHAT_URL = import.meta.env.VITE_AI_CHAT_URL || "/api/ai/chat.php";
 const LEAD_URL = import.meta.env.VITE_LEAD_URL || "/api/ai/lead.php";
 // Free-consultation booking page (e.g. Cal.com). Shown after a lead is captured when set.
-const BOOKING_URL = import.meta.env.VITE_BOOKING_URL || "";
 const BUYING_INTENT = /(price|pricing|cost|quote|budget|how much|contact|hire|start|consult|call|meeting|demo|proposal|estimate)/i;
 
 function newSessionId() {
@@ -504,7 +504,7 @@ export default function AIChat({ setActivePage }) {
                             href={msg.link.href}
                             target="_blank"
                             rel="noopener noreferrer"
-                            onClick={() => trackCTAInterest("AI chat booking link")}
+                            onClick={() => { trackCTAInterest("AI chat booking link"); trackBookingClick("website_chat"); }}
                             className="mt-3 inline-flex items-center gap-1.5 rounded-lg bg-gradient-to-br from-primary to-accent text-white text-xs font-bold px-3 py-2 hover:opacity-90"
                           >
                             <ArrowRight className="w-3 h-3" /> {msg.link.label}

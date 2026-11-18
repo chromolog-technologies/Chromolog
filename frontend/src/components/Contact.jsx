@@ -2,9 +2,10 @@ import { useState } from 'react';
 import {
   trackDemoRequest,
   trackEmailClick,
-  trackFormSubmit,
   trackPhoneClick,
 } from '../utils/analytics';
+import { submitLead } from '../utils/leads';
+import BookingLink from './BookingLink';
 import { trackCTAInterest, trackServiceInterest } from '../utils/visitor';
 
 const WHATSAPP_URL = 'https://wa.me/919400230723?text=Hi%2C%20I%20would%20like%20to%20know%20more%20about%20your%20services.';
@@ -52,50 +53,27 @@ export default function Contact() {
     setSubmitting(true);
     setStatus({ type: '', msg: '' });
 
-    // Also record the inquiry in the Growth OS control panel (fire-and-forget;
-    // Formspree remains the primary delivery so a failure here never blocks the visitor).
-    fetch(import.meta.env.VITE_LEAD_URL || '/api/ai/lead.php', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        source: 'contact_form',
+    // Every inquiry goes to our own lead list (portal Leads) and the team gets an email.
+    try {
+      await submitLead('contact_form', {
         full_name: formData.name,
         email: formData.email,
         company: formData.organization,
         service_interest: formData.service,
         summary: formData.message,
-      }),
-    }).catch(() => {});
-
-    try {
-      const response = await fetch('https://formspree.io/f/mzdlrvwb', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        },
-        body: JSON.stringify(formData)
       });
-
-      if (response.ok) {
-        trackFormSubmit('contact_form', formData.service || 'unspecified');
-        trackDemoRequest(formData.service || 'contact_form');
-        trackCTAInterest(`Demo request: ${formData.service || 'unspecified'}`);
-        setStatus({ type: 'success', msg: 'Thank you! Your request for a demo has been sent.' });
-        setFormData({
-          name: '',
-          organization: '',
-          service: '',
-          email: '',
-          message: ''
-        });
-      } else {
-        const data = await response.json();
-        const serverError = data.errors ? data.errors.map(err => err.message).join(', ') : 'Failed to send submission.';
-        setStatus({ type: 'error', msg: serverError });
-      }
-    } catch {
-      setStatus({ type: 'error', msg: 'An error occurred while submitting. Please try again.' });
+      trackDemoRequest(formData.service || 'contact_form');
+      trackCTAInterest(`Demo request: ${formData.service || 'unspecified'}`);
+      setStatus({ type: 'success', msg: 'Thank you! Your request for a demo has been sent. We reply within one business day.' });
+      setFormData({
+        name: '',
+        organization: '',
+        service: '',
+        email: '',
+        message: ''
+      });
+    } catch (err) {
+      setStatus({ type: 'error', msg: err.message });
     } finally {
       setSubmitting(false);
     }
@@ -117,7 +95,10 @@ export default function Contact() {
             <p className="mt-sm">Tell us what you want to build.</p>
             
             {status.type === 'success' && (
-              <div className="fs-success-msg">{status.msg}</div>
+              <div className="fs-success-msg">
+                {status.msg}
+                <div className="mt-3"><BookingLink source="contact_form" /></div>
+              </div>
             )}
             {status.type === 'error' && (
               <div className="fs-global-error">{status.msg}</div>

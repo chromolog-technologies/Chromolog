@@ -4,8 +4,8 @@ import { ArrowLeft, Pencil, UserCheck, FileText, Trash2, Phone, Mail, MessageCir
 import { api } from "../../lib/api";
 import { useAuth } from "../../lib/auth";
 import { money, date, dateTime, label } from "../../lib/format";
-import { useApi, useAction, Async, PageHeader, Card, Badge, Button, Select, Textarea, Input, Confirm } from "../../components/ui";
-import { LeadForm, LEAD_STATUSES } from "./Leads";
+import { useApi, useAction, Async, PageHeader, Card, Badge, Button, Select, Textarea, Input, Confirm, Modal } from "../../components/ui";
+import { LeadForm, LEAD_STATUSES, LOST_REASONS } from "./Leads";
 
 export default function LeadDetail() {
   const { id } = useParams();
@@ -16,11 +16,15 @@ export default function LeadDetail() {
   const [deleting, setDeleting] = useState(false);
   const [note, setNote] = useState({ type: "note", body: "", next_follow_up: "" });
   const [run, busy] = useAction();
+  const [lostReason, setLostReason] = useState(null); // null = picker closed
 
-  const setStatus = (status) => run(async () => {
-    await api(`leads/${id}`, { method: "PUT", body: { status } });
+  const setStatus = (status, extra = {}) => run(async () => {
+    await api(`leads/${id}`, { method: "PUT", body: { status, ...extra } });
+    setLostReason(null);
     res.reload();
   }, "Status updated");
+  // Marking a lead lost asks why, for the sales funnel report.
+  const pickStatus = (status) => (status === "lost" ? setLostReason("") : setStatus(status));
 
   const addNote = () => run(async () => {
     const body = { type: note.type, body: note.body };
@@ -68,10 +72,11 @@ export default function LeadDetail() {
               <Card title="Details">
                 <dl className="space-y-3 text-sm">
                   <Row k="Status">
-                    <select value={lead.status} onChange={(e) => setStatus(e.target.value)} className="rounded-md text-sm ring-1 ring-slate-300 border-0 py-1 px-2">
+                    <select value={lead.status} onChange={(e) => pickStatus(e.target.value)} className="rounded-md text-sm ring-1 ring-slate-300 border-0 py-1 px-2">
                       {LEAD_STATUSES.map((s) => <option key={s} value={s}>{label(s)}</option>)}
                     </select>
                   </Row>
+                  {lead.status === "lost" && <Row k="Lost because">{lead.lost_reason ? LOST_REASONS[lead.lost_reason] : "Not recorded"}</Row>}
                   <Row k="Score">{lead.score ? <Badge status={lead.score} /> : "—"}</Row>
                   <Row k="Email">{lead.email ? <a className="text-brand-600 inline-flex items-center gap-1" href={`mailto:${lead.email}`}><Mail className="h-3.5 w-3.5" />{lead.email}</a> : "—"}</Row>
                   <Row k="Phone">
@@ -154,6 +159,20 @@ export default function LeadDetail() {
           </div>
           {editing && <LeadForm open lead={lead} onClose={() => setEditing(false)} onSaved={() => res.reload()} />}
           <Confirm open={deleting} onClose={() => setDeleting(false)} onConfirm={remove} busy={busy} message="Delete this lead and its activity? This cannot be undone." />
+          <Modal
+            open={lostReason !== null}
+            onClose={() => setLostReason(null)}
+            title="Why was this lead lost?"
+            footer={
+              <>
+                <Button variant="secondary" onClick={() => setLostReason(null)}>Cancel</Button>
+                <Button busy={busy} disabled={!lostReason} onClick={() => setStatus("lost", { lost_reason: lostReason })}>Mark as lost</Button>
+              </>
+            }
+          >
+            <Select label="Reason" value={lostReason || ""} onChange={(e) => setLostReason(e.target.value)} placeholder="Choose a reason" options={Object.entries(LOST_REASONS)} />
+            <p className="text-xs text-slate-500 mt-2">The Sales funnel report counts these, so you can see where deals slip away.</p>
+          </Modal>
         </>
       )}
     </Async>

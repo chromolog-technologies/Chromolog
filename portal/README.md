@@ -125,6 +125,9 @@ row counts in the `app_meta` table (`sqlite_import`). The SQLite file is never c
 
 Triggers that stop anyone deleting issued invoices or editing invoice history are created when the
 database user is allowed to (shared hosting often isn't; the app enforces the same rules itself).
+**Automation & backups → Database** shows whether they exist; **Try again** re-creates them (e.g. after the
+host changes permissions). If it is still refused, the database user lacks the TRIGGER permission: ask
+Hostinger support whether they can grant it for this database, or accept the portal-only protection.
 
 ## Back-ups
 
