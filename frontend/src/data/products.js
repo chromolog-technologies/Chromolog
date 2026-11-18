@@ -466,8 +466,8 @@ export const COMING_SOON = [
   { id: "real-estate-crm", name: "Real Estate CRM", category: "Real Estate", release: "Q2 2027", status: "concept", icon: "ri-home-4-line", desc: "Lead-to-deal pipeline, listings, site visits and follow-ups." },
   { id: "construction-erp", name: "Construction ERP", category: "Construction", release: "Q2 2027", status: "concept", icon: "ri-building-2-line", desc: "Projects, materials, labor, billing and site tracking." },
   { id: "vehicle-service", name: "Vehicle Service Platform", category: "Automotive", release: "Q2 2027", status: "concept", icon: "ri-car-line", desc: "Service booking, job cards, inventory and history." },
-  { id: "ai-proposal", name: "AI Proposal Generator", category: "Artificial Intelligence", release: "Q3 2026", status: "beta", icon: "ri-article-line", desc: "Turns a brief into a branded, priced proposal in minutes." },
-  { id: "ai-resume-builder", name: "AI Resume Builder", category: "Artificial Intelligence", release: "Q3 2026", status: "beta", icon: "ri-profile-line", desc: "Role-tailored resumes with ATS scoring and rewrite tips." },
+  { id: "ai-proposal", name: "AI Proposal Generator", category: "Artificial Intelligence", release: "Q4 2026", status: "beta", icon: "ri-article-line", desc: "Turns a brief into a branded, priced proposal in minutes." },
+  { id: "ai-resume-builder", name: "AI Resume Builder", category: "Artificial Intelligence", release: "Q4 2026", status: "beta", icon: "ri-profile-line", desc: "Role-tailored resumes with ATS scoring and rewrite tips." },
   { id: "ai-invoice", name: "AI Invoice Generator", category: "Finance", release: "Q4 2026", status: "development", icon: "ri-bill-line", desc: "Natural-language invoicing with tax, reminders and reconciliation." },
 ];
 
@@ -502,8 +502,7 @@ export const PHILOSOPHY = [
 
 // ── Roadmap timeline ─────────────────────────────────────────────────────────
 export const ROADMAP = [
-  { period: "Q3 2026", theme: "AI Utilities", items: ["AI Proposal Generator (Beta)", "AI Resume Builder (Beta)", "LLM guardrail toolkit"], tone: "purple" },
-  { period: "Q4 2026", theme: "Vertical SaaS", items: ["Restaurant ERP launch", "Retail POS SaaS", "AI Invoice Generator", "Event Management SaaS"], tone: "secondary" },
+  { period: "Q4 2026", theme: "AI Utilities & Vertical SaaS", items: ["AI Proposal Generator (Beta)", "AI Resume Builder (Beta)", "AI Invoice Generator", "Restaurant ERP launch", "Retail POS SaaS", "Event Management SaaS", "LLM guardrail toolkit"], tone: "secondary" },
   { period: "Q1 2027", theme: "Care & Fitness", items: ["Clinic Management", "Gym Management", "HumaNode HRMS GA"], tone: "success" },
   { period: "Q2 2027", theme: "Field Operations", items: ["Real Estate CRM", "Construction ERP", "Vehicle Service Platform"], tone: "accent" },
 ];

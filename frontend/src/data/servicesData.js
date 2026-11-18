@@ -601,8 +601,8 @@ export const servicesData = {
         a: "Yes! We integrate with all major biometric devices (ZKTeco, Realtime, Essl, Hikvision) via cloud API or local push service for real-time attendance sync.",
       },
       {
-        q: "Is the payroll engine compliant with Indian / UAE statutory rules?",
-        a: "Yes, our HRMS calculates PF, ESI, LOP, OT, TDS for India, as well as UAE WPS salary transfer files and gratuity calculations.",
+        q: "Is the payroll engine compliant with Indian statutory rules?",
+        a: "Yes, our HRMS follows Indian payroll rules and calculates PF, ESI, LOP, OT and TDS.",
       },
     ],
   },

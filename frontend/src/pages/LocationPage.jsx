@@ -29,7 +29,7 @@ const locationInfo = {
     region: "United Arab Emirates",
     h1: "Custom Software & Web Development Company in Dubai, UAE",
     desc: "Chromolog delivers high-performance digital systems, web apps, and enterprise business software for organizations across Dubai and the UAE.",
-    highlights: ["UAE VAT & WPS statutory compliance", "High-speed cloud infrastructure on AWS Middle East", "Dedicated GCC client coordination"],
+    highlights: ["High-speed cloud infrastructure on AWS Middle East", "Dedicated GCC client coordination"],
     services: Object.values(servicesData),
   },
   uae: {
