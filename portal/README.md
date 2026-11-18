@@ -17,7 +17,7 @@ and freelancer payouts. Lives at **https://chromologtechnologies.com/portal/** o
 | Project team | All projects, tasks & assignments, timesheet approvals, daily reports (incl. who hasn't submitted) |
 | Employee | Own tasks, timesheet, daily report; projects they're a member of |
 
-Everyone can log time and submit a daily report. Earnings (My earnings and payouts) are visible to admins only.
+Everyone can log time and submit a daily report. The My earnings page is for admins only.
 
 **Invoices** follow Indian GST rules once GST is switched on in Company settings: CGST + SGST for the
 company's own state, IGST for other states and exports, exempt / non-GST supplies, per-line GST rates,
