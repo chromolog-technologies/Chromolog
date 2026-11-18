@@ -110,4 +110,35 @@ final class GrowthTest extends ApiTestCase
         $this->assertSame($jobs['database']['triggers_expected'], count($data['created']));
         $this->assertCount($jobs['database']['triggers_expected'], $jobs['database']['protected_by_triggers']);
     }
+
+    public function testNewLeadsGetAThankYouWithTheBookingLink(): void
+    {
+        [$status] = self::call('POST', '/lead.php', ['source' => 'free_consultation', 'full_name' => 'Meera Pillai', 'email' => 'meera@example.test', 'service_interest' => 'Clinic app']);
+        $this->assertSame(200, $status);
+        self::call('POST', '/lead.php', ['source' => 'newsletter', 'email' => 'reader@example.test']);
+
+        $log = (string) file_get_contents(self::$workDir . '/mail.log');
+        $this->assertMatchesRegularExpression('/To: meera@example\.test\nSubject: Thank you for contacting Chromolog Technologies\n/', $log);
+        $this->assertStringContainsString("Hi Meera,", $log);
+        $this->assertStringContainsString('about Clinic app', $log);
+        $this->assertStringContainsString('https://cal.example.test/chromolog', $log);
+        $this->assertStringNotContainsString('To: reader@example.test', $log, 'Newsletter sign-ups get no thank-you email.');
+    }
+
+    #[Depends('testAdminSignsIn')]
+    public function testDigestListsLeadsWaitingOverADay(string $admin): void
+    {
+        self::$pdo->prepare('INSERT INTO leads (session_id, source, full_name, email, created_at) VALUES (?, ?, ?, ?, ?)')
+            ->execute(['waiting-2-days', 'contact_form', 'Forgotten Visitor', 'forgotten@example.test', gmdate('Y-m-d H:i:s', strtotime('-2 days'))]);
+        [$status, $data] = self::call('POST', 'system/run-daily', ['force' => true], $admin);
+        $this->assertSame(200, $status, json_encode($data));
+
+        $log = (string) file_get_contents(self::$workDir . '/mail.log');
+        $digests = array_filter(explode('=== ', $log), fn ($e) => str_contains($e, 'To: ' . self::ADMIN_EMAIL . "\n"));
+        $this->assertNotEmpty($digests, 'The admin gets a digest.');
+        $digest = end($digests);
+        $this->assertStringContainsString('LEADS WAITING OVER A DAY FOR A FIRST REPLY', $digest);
+        $this->assertStringContainsString('Forgotten Visitor', $digest);
+        $this->assertStringNotContainsString('Waiting Visitor', $digest, 'A lead from today is not late yet.');
+    }
 }

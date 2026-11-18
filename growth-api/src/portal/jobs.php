@@ -332,6 +332,15 @@ function send_digests(array $context): array
             $follow = q("SELECT full_name, company, next_follow_up, status FROM leads WHERE next_follow_up <= ? AND status NOT IN ('won','lost','spam')
                 AND (? OR assigned_to = ? OR (assigned_to IS NULL AND ?)) ORDER BY next_follow_up LIMIT 20",
                 [$today, $isAdmin ? 1 : 0, $u['id'], $role === ROLE_MARKETING ? 1 : 0])->fetchAll();
+            // Leads nobody has answered for a day go to the top, so no visitor waits twice.
+            $waiting = q("SELECT l.full_name, l.company, l.source, l.created_at FROM leads l WHERE l.status = 'new' AND l.created_at < ?
+                AND NOT EXISTS (SELECT 1 FROM lead_notes n WHERE n.lead_id = l.id AND n.user_id IS NOT NULL)
+                AND (? OR l.assigned_to = ? OR (l.assigned_to IS NULL AND ?)) ORDER BY l.created_at LIMIT 20",
+                [utc_at('-24 hours'), $isAdmin ? 1 : 0, $u['id'], $role === ROLE_MARKETING ? 1 : 0])->fetchAll();
+            if ($waiting) {
+                array_unshift($sections, digest_section('Leads waiting over a day for a first reply', array_map(fn ($l) => "{$l['full_name']}"
+                    . ($l['company'] ? " ({$l['company']})" : '') . ' — ' . str_replace('_', ' ', $l['source']) . ', arrived ' . date('j M, g:i A', strtotime($l['created_at'] . ' UTC')), $waiting)));
+            }
             if ($follow) {
                 $sections[] = digest_section('Lead follow-ups due', array_map(fn ($l) => "{$l['full_name']}" . ($l['company'] ? " ({$l['company']})" : '') . " — {$l['status']}, due {$l['next_follow_up']}", $follow));
             }
